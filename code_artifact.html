@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>자취방 수호대: 내 보증금을 지켜라!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f3f4f6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            user-select: none;
+        }
+        .story-font { font-family: 'Gowun Dodum', sans-serif; }
+        
+        #game-container {
+            width: 100%;
+            max-width: 480px;
+            height: 100vh;
+            max-height: 850px;
+            background-color: #ffffff;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .fade-in { animation: fadeIn 0.35s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .shake { animation: shake 0.4s; }
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            50% { transform: translateX(6px); }
+            75% { transform: translateX(-6px); }
+            100% { transform: translateX(0); }
+        }
+
+        .document-style {
+            background-color: #fcfcfc;
+            border: 2px solid #cbd5e1;
+            padding: 16px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.02);
+        }
+
+        .tab-btn {
+            background-color: #e2e8f0;
+            color: #475569;
+            flex: 1;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 13px;
+            font-weight: bold;
+            border-radius: 8px 8px 0 0;
+            transition: all 0.2s;
+        }
+        .tab-btn.active {
+            background-color: #2563eb;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <!-- 동적으로 렌더링될 게임 영역 -->
+    </div>
+
+    <!-- 커스텀 모달 (경고 및 퀴즈 해설 창) -->
+    <div id="custom-modal" class="hidden fixed inset-0 z-50 flex justify-center items-center bg-black/60 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl transform transition-all fade-in">
+            <div id="modal-icon" class="text-5xl mb-3">⚠️</div>
+            <h3 id="modal-title" class="text-xl font-bold mb-2 text-gray-800">알림</h3>
+            <p id="modal-desc" class="text-gray-600 mb-6 text-sm leading-relaxed break-keep"></p>
+            <button onclick="closeModal()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl shadow-md transition duration-200 active:scale-95">
+                확인
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const container = document.getElementById('game-container');
+        let selectedHouse = null;
+        let activeTab = 'part1';
+
+        // 부동산 매물 및 등기부등본 데이터
+        const houses = [
+            {
+                id: 'houseA',
+                name: '1. 가성비 갑! 초저렴 원룸',
+                desc: '보증금 4,500만원. 시세보다 2,000만원 저렴하고 깔끔한 방!',
+                danger: true,
+                badge: '근린생활시설',
+                dangerReason: '❌ <b>위험한 집입니다!</b><br><br>등기부등본 표제부를 보면 <b>건물용도가 근린생활시설(상가)</b>로 되어 있습니다.<br>실제 주거용으로 꾸며놓았더라도 공부상 상가이므로 <b>전세보증보험 가입이 불가능</b>하고, 위반건축물로 이행강제금이 부과될 수 있습니다.',
+                register: {
+                    title: '서울특별시 땡땡구 원룸 101호',
+                    part1: '<div class="bg-red-50 p-2.5 rounded-lg border border-red-200"><span class="text-red-600 font-bold">건물용도: 근린생활시설(점포)</span><br><span class="text-xs text-gray-600">※ 실제 용도는 주거용으로 사용 중이나 공부상 근린생활시설임.</span></div>',
+                    part2: '소유자: 홍길동 (주민번호: 800101-1******)<br>소유권 이전: 2021년 03월 15일',
+                    part3: '소유권 이외의 권리 사항 없음 (근저당권 없음)'
+                }
+            },
+            {
+                id: 'houseB',
+                name: '2. 역세권 신축 오피스텔',
+                desc: '보증금 5,000만원. 풀옵션 인테리어, 인근 최고 인기 매물!',
+                danger: true,
+                badge: '임차권등기',
+                dangerReason: '❌ <b>절대 계약하면 안 되는 집입니다!</b><br><br>등기부등본 을구에 <b>주택임차권등기</b>가 설정되어 있습니다.<br>이전 세입자가 만기 때 보증금을 돌려받지 못해 법원 명령으로 등기를 남겨두고 나간 집입니다. 보증금을 떼일 위험이 매우 높습니다.',
+                register: {
+                    title: '서울특별시 땡땡구 오피스텔 302호',
+                    part1: '건물 내역: 철근콘크리트구조 주거용 오피스텔 302호',
+                    part2: '소유자: 김사기 (주민번호: 750505-1******)',
+                    part3: '<div class="bg-red-50 p-2.5 rounded-lg border border-red-200"><span class="text-red-600 font-bold">주택임차권 (임차보증금 5,000만원)</span><br><span class="text-xs text-gray-600">임차인: 박억울 (서울지방법원 임차권등기명령 결정)</span></div>'
+                }
+            },
+            {
+                id: 'houseC',
+                name: '3. 풀옵션 고급 투룸',
+                desc: '보증금 5,000만원. 집값 1억원 상당의 넓은 투룸.',
+                danger: true,
+                badge: '깡통전세 (근저당 과다)',
+                dangerReason: '❌ <b>깡통전세 위험 매물입니다!</b><br><br>등기부등본 을구에 <b>선순위 근저당권(채권최고액 9,600만원)</b>이 설정되어 있습니다.<br>집값(1억원) 대비 대출금과 내 보증금(5,000만원)의 합이 집값을 크게 초과하여 경매 넘어가면 보증금을 거의 찾지 못합니다.',
+                register: {
+                    title: '서울특별시 땡땡구 빌라 201호',
+                    part1: '건물 내역: 다세대주택 2층 201호',
+                    part2: '소유자: 최탐욕 (주민번호: 681122-1******)',
+                    part3: '<div class="bg-red-50 p-2.5 rounded-lg border border-red-200"><span class="text-red-600 font-bold">근저당권설정 채권최고액 9,600만원</span><br><span class="text-xs text-gray-600">근저당권자: 땡땡은행 (실대출금 약 8,000만원)</span></div>'
+                }
+            },
+            {
+                id: 'houseD',
+                name: '4. 무융자 럭셔리 오피스텔',
+                desc: '보증금 5,000만원. 빚(근저당)이 0원이라고 자랑하는 깨끗한 방!',
+                danger: true,
+                badge: '신탁등기',
+                dangerReason: '❌ <b>신탁 사기 위험 매물입니다!</b><br><br>등기부등본 갑구를 보면 소유권이 <b>OO자산신탁 회사</b>로 넘어가 있습니다.<br>진짜 소유자인 신탁회사의 동의 없이 무단으로 임대차 계약을 체결할 경우 계약은 무효가 되며, 보증금 전액을 잃고 쫓겨날 수 있습니다.',
+                register: {
+                    title: '서울특별시 땡땡구 타워 504호',
+                    part1: '건물 내역: 오피스텔 5층 504호',
+                    part2: '<div class="bg-red-50 p-2.5 rounded-lg border border-red-200"><span class="text-red-600 font-bold">소유자: OO자산신탁 주식회사</span><br><span class="text-xs text-gray-600">등기원인: 수탁자 신탁 (신탁원부 별도 확인 필요)</span></div>',
+                    part3: '기록사항 없음 (을구에는 빚이 없는 것처럼 보임)'
+                }
+            },
+            {
+                id: 'houseE',
+                name: '5. 조용하고 깨끗한 2층 다세대주택',
+                desc: '보증금 5,000만원. 채광 좋고 권리관계가 아주 깨끗한 집.',
+                danger: false,
+                badge: '안전 매물',
+                dangerReason: '',
+                register: {
+                    title: '서울특별시 땡땡구 다세대주택 202호',
+                    part1: '건물 내역: 벽돌조 주택, 2층 202호 (주거용 주택)',
+                    part2: '소유자: 이착한 (주민번호: 850412-1******)<br>소유권 이전: 2019년 05월 10일',
+                    part3: '<div class="bg-green-50 p-2.5 rounded-lg border border-green-200 text-green-700 font-bold">기록사항 없음 (선순위 대출 및 위험 요소 없음)</div>'
+                }
+            }
+        ];
+
+        function showModal(title, desc, icon = '⚠️', callback = null) {
+            document.getElementById('modal-title').innerHTML = title;
+            document.getElementById('modal-desc').innerHTML = desc;
+            document.getElementById('modal-icon').innerHTML = icon;
+            document.getElementById('custom-modal').classList.remove('hidden');
+            window.modalCallback = callback;
+        }
+
+        function closeModal() {
+            document.getElementById('custom-modal').classList.add('hidden');
+            if (window.modalCallback) {
+                const cb = window.modalCallback;
+                window.modalCallback = null;
+                cb();
+            }
+        }
+
+        function renderTitle() {
+            container.innerHTML = `
+                <div class="flex flex-col items-center justify-between h-full bg-blue-50 fade-in p-6">
+                    <div class="my-auto text-center">
+                        <div class="text-6xl mb-4">🛡️🏠</div>
+                        <h1 class="text-3xl font-black text-blue-900 mb-2 leading-tight break-keep">자취방 수호대:<br>내 보증금을 지켜라!</h1>
+                        <p class="text-gray-600 mb-8 story-font text-base">고등학생·예비 자취생을 위한 필수 부동산 게임</p>
+                        
+                        <div class="bg-white p-5 rounded-2xl shadow-md w-full text-left text-xs text-gray-700 space-y-2.5 border border-blue-100">
+                            <p class="flex items-center font-semibold text-gray-800"><span class="text-blue-500 mr-2">✓</span> 실제 전세사기 대표 4대 유형 완벽 학습</p>
+                            <p class="flex items-center font-semibold text-gray-800"><span class="text-blue-500 mr-2">✓</span> 등기부등본(표제부/갑구/을구) 직접 열람</p>
+                            <p class="flex items-center font-semibold text-gray-800"><span class="text-blue-500 mr-2">✓</span> 세금 체납 확인 & 특약 작성 마스터</p>
+                        </div>
+                    </div>
+
+                    <button onclick="renderStory()" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-lg font-bold py-4 rounded-2xl shadow-lg transition transform active:scale-95 mb-2">
+                        게임 시작하기 🚀
+                    </button>
+                </div>
+            `;
+        }
+
+        function renderStory() {
+            container.innerHTML = `
+                <div class="flex flex-col h-full bg-white fade-in relative justify-between p-6">
+                    <div class="flex-1 flex flex-col justify-center">
+                        <div class="text-center mb-6">
+                            <span class="text-6xl">🎓💸</span>
+                        </div>
+                        <div class="story-font text-base leading-relaxed text-gray-800 bg-gray-50 p-6 rounded-2xl border border-gray-200 shadow-sm space-y-3">
+                            <p>"드디어 대학 합격! 이제 나도 꿈꾸던 자취 시작이다!"</p>
+                            <p>부모님이 힘들게 지원해주신 소중한 보증금 <strong class="text-blue-600">5,000만원</strong>.</p>
+                            <p>이 돈을 안전하게 지키면서 나쁜 집주인에게 사기당하지 않고 안전한 집을 찾아야 해!</p>
+                            <p class="font-bold text-blue-700 pt-2">지금 바로 공인중개사무소로 출발해볼까?</p>
+                        </div>
+                    </div>
+                    <button onclick="renderHouseSelection()" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl shadow-md hover:bg-blue-700 transition active:scale-95">
+                        부동산으로 이동 🏃‍♂️
+                    </button>
+                </div>
+            `;
+        }
+
+        function renderHouseSelection() {
+            let html = `
+                <div class="flex flex-col h-full bg-gray-50 fade-in">
+                    <div class="bg-blue-600 text-white p-4 text-center font-bold text-base shadow-md z-10 flex items-center justify-between">
+                        <span>STAGE 1: 매물 및 등기부등본 탐색</span>
+                        <span class="text-xs bg-blue-800 px-2.5 py-1 rounded-full">예산: 5,000만원</span>
+                    </div>
+                    <div class="p-5 flex-1 overflow-y-auto space-y-4">
+                        <div class="flex items-start bg-white p-3.5 rounded-2xl shadow-sm border border-gray-200">
+                            <div class="text-3xl mr-3">👨‍💼</div>
+                            <div class="text-xs story-font leading-relaxed text-gray-700">
+                                어서오세요! 5천만원 전세 매물 목록입니다.<br>
+                                겉모습이나 말만 믿지 마시고, 반드시 <b class="text-blue-600">등기부등본 열람하기</b> 버튼을 눌러 서류(표제부/갑구/을구)를 직접 검토하세요!
+                            </div>
+                        </div>
+            `;
+
+            houses.forEach(house => {
+                html += `
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border-2 border-gray-100 hover:border-blue-400 transition relative">
+                        <div class="flex justify-between items-center mb-1.5">
+                            <h3 class="font-bold text-sm text-gray-800">${house.name}</h3>
+                        </div>
+                        <p class="text-xs text-gray-600 mb-3">${house.desc}</p>
+                        <div class="flex justify-end">
+                            <button onclick="renderRegister('${house.id}')" class="bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold px-3 py-2 rounded-lg border border-blue-200 transition">
+                                등기부등본 열람하기 🔍
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `
+                    </div>
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+
+        function renderRegister(houseId) {
+            selectedHouse = houses.find(h => h.id === houseId);
+            activeTab = 'part1';
+            updateRegisterUI();
+        }
+
+        function switchTab(tabName) {
+            activeTab = tabName;
+            updateRegisterUI();
+        }
+
+        function updateRegisterUI() {
+            if (!selectedHouse) return;
+
+            let tabContent = '';
+            if (activeTab === 'part1') {
+                tabContent = `
+                    <div class="space-y-2">
+                        <span class="text-xs font-bold text-gray-500 block">[표제부 - 건물의 표시 및 용도]</span>
+                        <div class="text-xs leading-relaxed text-gray-800">${selectedHouse.register.part1}</div>
+                    </div>
+                `;
+            } else if (activeTab === 'part2') {
+                tabContent = `
+                    <div class="space-y-2">
+                        <span class="text-xs font-bold text-gray-500 block">[갑구 - 소유권에 관한 사항]</span>
+                        <div class="text-xs leading-relaxed text-gray-800">${selectedHouse.register.part2}</div>
+                    </div>
+                `;
+            } else if (activeTab === 'part3') {
+                tabContent = `
+                    <div class="space-y-2">
+                        <span class="text-xs font-bold text-gray-500 block">[을구 - 소유권 이외의 권리 (대출/임차권 등)]</span>
+                        <div class="text-xs leading-relaxed text-gray-800">${selectedHouse.register.part3}</div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = `
+                <div class="flex flex-col h-full bg-gray-100 fade-in">
+                    <div class="bg-gray-800 text-white p-3.5 text-center font-bold text-sm shadow-md flex justify-between items-center">
+                        <button onclick="renderHouseSelection()" class="text-xs bg-gray-700 hover:bg-gray-600 px-2.5 py-1 rounded">← 목록으로</button>
+                        <span>등기부등본 열람</span>
+                        <span class="w-12"></span>
+                    </div>
+
+                    <div class="p-4 flex-1 overflow-y-auto flex flex-col">
+                        <div class="bg-white p-3 rounded-t-xl border border-b-0 border-gray-300 font-bold text-xs text-gray-700">
+                            📍 ${selectedHouse.register.title}
+                        </div>
+
+                        <!-- 탭 버튼 -->
+                        <div class="flex border-b border-gray-300">
+                            <button onclick="switchTab('part1')" class="tab-btn ${activeTab === 'part1' ? 'active' : ''}">표제부(건물용도)</button>
+                            <button onclick="switchTab('part2')" class="tab-btn ${activeTab === 'part2' ? 'active' : ''}">갑구(소유자)</button>
+                            <button onclick="switchTab('part3')" class="tab-btn ${activeTab === 'part3' ? 'active' : ''}">을구(융자/임차권)</button>
+                        </div>
+
+                        <!-- 탭 상세 내용 -->
+                        <div class="document-style flex-1 rounded-b-xl mb-4 bg-white min-h-[180px]">
+                            ${tabContent}
+                        </div>
+
+                        <div class="bg-amber-50 border border-amber-200 p-3 rounded-xl mb-4 text-[11px] text-amber-900 leading-relaxed">
+                            💡 <b>팁:</b> 표제부(상가 여부), 갑구(진짜 집주인/신탁 여부), 을구(대출금 과다/임차권등기 여부)를 세부 확인 후 선택하세요.
+                        </div>
+
+                        <button onclick="selectHouse('${selectedHouse.id}')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl shadow transition active:scale-95">
+                            이 집으로 계약 진행하기 🔑
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function selectHouse(houseId) {
+            const house = houses.find(h => h.id === houseId);
+            if (house.danger) {
+                showModal('전세사기 위험 매물!', house.dangerReason, '🚨', () => {
+                    renderHouseSelection();
+                });
+            } else {
+                showModal('안전한 매물 선택 완료!', '축하합니다! 등기부등본이 깨끗하고 안전한 집을 정확히 찾아냈습니다.<br><br>이제 Stage 2 계약서 작성 단계로 이동합니다.', '🎉', () => {
+                    renderContractStage();
+                });
+            }
+        }
+
+        function wrongAnswer(element, explanation) {
+            element.classList.add('shake', 'border-red-500', 'bg-red-50');
+            showModal('오답입니다!', explanation, '❌', () => {
+                element.classList.remove('shake');
+            });
+        }
+
+        function renderContractStage() {
+            container.innerHTML = `
+                <div class="flex flex-col h-full bg-white fade-in">
+                    <div class="bg-blue-600 text-white p-4 text-center font-bold text-base shadow-md z-10">
+                        STAGE 2: 계약서 작성하기 (1/3)
+                    </div>
+                    
+                    <div class="p-6 flex-1 overflow-y-auto flex flex-col justify-between">
+                        <div>
+                            <div class="text-center text-5xl mb-3">📝</div>
+                            <h2 class="text-lg font-bold text-center mb-4 text-gray-800">집주인 신원 확인</h2>
+                            
+                            <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-4">
+                                <p class="font-bold mb-3 text-blue-900 text-xs leading-relaxed">
+                                    Q1. 계약 현장에서 집주인 신원 확인은 어떻게 진행해야 안전할까요?
+                                </p>
+                                <div class="space-y-2">
+                                    <button onclick="wrongAnswer(this, '공인중개사 말만 믿으면 위험합니다! 신분증 사진과 실물, 등기부등본(갑구) 소유자를 직접 대조해야 합니다.')" class="w-full bg-white border border-gray-300 p-3 rounded-lg text-left hover:bg-gray-100 text-xs text-gray-700 leading-normal">
+                                        1. 공인중개사가 알아서 해줄 테니 신경 쓰지 않고 바로 서명한다.
+                                    </button>
+                                    <button onclick="quizTaxStage()" class="w-full bg-white border border-gray-300 p-3 rounded-lg text-left hover:bg-gray-100 text-xs text-gray-700 leading-normal">
+                                        2. 집주인의 신분증 실물을 확인하고 등기부등본 '갑구'의 소유자와 명의가 일치하는지 직접 검토한다.
+                                    </button>
+                                    <button onclick="wrongAnswer(this, '이름만 확인하는 것으론 부족합니다. 신분증 위조 여부 및 위임장 검증이 필수입니다.')" class="w-full bg-white border border-gray-300 p-3 rounded-lg text-left hover:bg-gray-100 text-xs text-gray-700 leading-normal">
+                                        3. 대리인이 나왔지만 인감증명서나 위임장 확인 없이 계좌로 송금한다.
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function quizTaxStage() {
+            showModal('정답입니다!', '집주인 신분증 실물과 등기부등본 갑구의 명의를 대조하는 것은 계약의 기본 중 기본입니다!', '🎉', () => {
+                container.innerHTML = `
+                    <div class="flex flex-col h-full bg-white fade-in">
+                        <div class="bg-blue-600 text-white p-4 text-center font-bold text-base shadow-md z-10">
+                            STAGE 2: 계약서 작성하기 (2/3)
+                        </div>
+                        
+                        <div class="p-6 flex-1 overflow-y-auto flex flex-col justify-between">
+                            <div>
+                                <div class="text-center text-5xl mb-3">🏛️</div>
+                                <h2 class="text-lg font-bold text-center mb-4 text-gray-800">집주인 세금 체납 확인</h2>
+                                
+                                <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-4">
+                                    <p class="font-bold mb-3 text-blue-900 text-xs leading-relaxed">
+                                        Q2. 집주인의 세금 체납 시 집이 경매로 넘어가면 세금이 내 보증금보다 먼저 빠져나갑니다. 이를 방지하기 위해 집주인에게 요구해야 하는 서류는?
+                                    </p>
+                                    <div class="space-y-2">
+                                        <button onclick="wrongAnswer(this, '인감증명서는 계약 인감 증명용일 뿐, 세금 체납 내역은 알 수 없습니다.')" class="w-full bg-white border border-gray-300 p-3 rounded-lg text-left hover:bg-gray-100 text-xs text-gray-700 leading-normal">
+                                            1. 집주인의 인감증명서 1부
+                                        </button>
+                                        <button onclick="wrongAnswer(this, '건축물대장은 건물의 용도와 구조를 나타내는 서류입니다.')" class="w-full bg-white border border-gray-300 p-3 rounded-lg text-left hover:bg-gray-100 text-xs text-gray-700 leading-normal">
+                                            2. 건축물대장 및 평면도
+                                        </button>
+                                        <button onclick="nextContractQuiz()" class="w-full bg-white border border-gray-300 p-3 rounded-lg text-left hover:bg-gray-100 text-xs text-gray-700 leading-normal">
+                                            3. 집주인의 '국세 및 지방세 완납증명서' (미납 조세 열람)
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function nextContractQuiz() {
+            showModal('정답입니다!', '국세·지방세 완납증명서를 통해 집주인이 세금을 밀리지 않았는지 미리 확인해야 보증금을 지킬 수 있습니다!', '👏', () => {
+                container.innerHTML = `
+                    <div class="flex flex-col h-full bg-white fade-in">
+                        <div class="bg-blue-600 text-white p-4 text-center font-bold text-base shadow-md z-10">
+                            STAGE 2: 특약사항 작성 (3/3)
+                        </div>
+                        
+                        <div class="p-6 flex-1 overflow-y-auto flex flex-col justify-between">
+                            <div>
+                                <div class="bg-blue-50 border-l-4 border-blue-500 p-3 mb-4 text-xs text-gray-700 leading-relaxed">
+                                    💡 <b>핵심 법률 지식:</b><br>
+                                    세입자의 전입신고 효력은 <b>다음 날 0시</b>에 발생하지만, 집주인의 대출(근저당)은 <b>당일 즉시</b> 발생합니다. 이 시차를 이용해 잔금 당일 대출을 받는 사기를 막으려면 특약이 필요합니다!
+                                </div>
+                                
+                                <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-4">
+                                    <p class="font-bold mb-3 text-blue-900 text-xs leading-relaxed">
+                                        Q3. 잔금 당일 집주인이 대출을 받지 못하도록 계약서에 반드시 넣어야 할 특약은?
+                                    </p>
+                                    <div class="space-y-2">
+                                        <button onclick="wrongAnswer(this, '원상복구 특약은 보증금 대출 및 권리 침해 방지와 관계가 없습니다.')" class="w-full bg-white border border-gray-300 p-3 rounded-lg text-left hover:bg-gray-100 text-xs text-gray-700 leading-normal">
+                                            1. "퇴거 시 도배 및 장판은 세입자가 원상복구 한다."
+                                        </button>
+                                        <button onclick="renderMoveInStage()" class="w-full bg-white border border-gray-300 p-3 rounded-lg text-left hover:bg-gray-100 text-xs text-gray-700 leading-normal">
+                                            2. "임대인은 잔금일 다음 날까지 현재 등기부 상태를 유지하며, 신규 대출(근저당)을 받지 않는다. 위반 시 계약은 무효로 하고 배액 배상한다."
+                                        </button>
+                                        <button onclick="wrongAnswer(this, '임차인에게 일방적으로 불리한 조항입니다.')" class="w-full bg-white border border-gray-300 p-3 rounded-lg text-left hover:bg-gray-100 text-xs text-gray-700 leading-normal">
+                                            3. "대출이 거절되어도 계약금은 반환하지 않는다."
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function renderMoveInStage() {
+            showModal('특약 작성 완료!', '당일 대출 꼼수를 막는 방어 특약까지 완벽하게 기재하셨습니다!<br><br>마지막 Stage 3: 이사 후 필수 대처 단계로 이동합니다.', '🛡️', () => {
+                container.innerHTML = `
+                    <div class="flex flex-col h-full bg-white fade-in">
+                        <div class="bg-blue-600 text-white p-4 text-center font-bold text-base shadow-md z-10">
+                            STAGE 3: 이사 당일 권리 확보
+                        </div>
+                        
+                        <div class="p-6 flex-1 overflow-y-auto flex flex-col justify-between">
+                            <div>
+                                <div class="text-center text-5xl mb-3">🚚</div>
+                                <h2 class="text-lg font-bold text-center mb-4 text-gray-800">이사 후 법적 보호 장치</h2>
+                                
+                                <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-4">
+                                    <p class="font-bold mb-3 text-blue-900 text-xs leading-relaxed">
+                                        Q4. 이사를 마치고 잔금을 치른 당일, 법적으로 대항력과 우선변제권을 얻기 위해 가장 먼저 해야 할 필수 행정절차 2가지는?
+                                    </p>
+                                    <div class="space-y-2">
+                                        <button onclick="renderEnding()" class="w-full bg-white border border-gray-300 p-3 rounded-lg text-left hover:bg-gray-100 text-xs text-gray-700 leading-normal">
+                                            1. 주민센터(또는 정부24)에서 '전입신고'를 하고 계약서에 '확정일자'를 받는다. (추가로 HUG 보증보험 가입)
+                                        </button>
+                                        <button onclick="wrongAnswer(this, '전입신고와 확정일자가 미루어지면 그 사이에 근저당이 들어올 위험이 생깁니다!')" class="w-full bg-white border border-gray-300 p-3 rounded-lg text-left hover:bg-gray-100 text-xs text-gray-700 leading-normal">
+                                            2. 확정일자는 나중에 여유 있을 때 천천히 신청해도 아무 문제없다.
+                                        </button>
+                                        <button onclick="wrongAnswer(this, '짐 정리보다 전입신고와 확정일자가 우선입니다!')" class="w-full bg-white border border-gray-300 p-3 rounded-lg text-left hover:bg-gray-100 text-xs text-gray-700 leading-normal">
+                                            3. 주민센터 방문 없이 자취방 인테리어 정리만 완료한다.
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function renderEnding() {
+            container.innerHTML = `
+                <div class="flex flex-col h-full bg-gradient-to-b from-blue-50 to-white fade-in justify-between">
+                    <div class="flex-1 p-6 flex flex-col justify-center items-center text-center overflow-y-auto">
+                        <div class="text-6xl mb-3 animate-bounce">🎖️</div>
+                        <h1 class="text-2xl font-black text-blue-900 mb-1">전세사기 방어 완벽 성공!</h1>
+                        <p class="text-gray-700 mb-6 story-font text-xs">축하합니다! 완벽한 검증으로 보증금 5,000만원을 지켰습니다.</p>
+                        
+                        <div class="bg-white border border-blue-200 rounded-2xl p-4 w-full shadow-md text-left">
+                            <h2 class="text-xs font-bold text-blue-800 mb-2 border-b pb-1.5 flex items-center">
+                                <span class="mr-1">🛡️</span> 전세사기 예방 실전 5계명 요약
+                            </h2>
+                            <ul class="text-[11px] text-gray-700 space-y-2 font-medium">
+                                <li class="flex items-start"><span class="text-blue-600 font-bold mr-1">1.</span> <b>근리생활시설 / 신탁등기 / 임차권등기</b> 표시 매물은 무조건 피하기!</li>
+                                <li class="flex items-start"><span class="text-blue-600 font-bold mr-1">2.</span> <b>대출금(근저당)+내 보증금</b> 합이 집값의 70~80% 넘으면 깡통전세 위험!</li>
+                                <li class="flex items-start"><span class="text-blue-600 font-bold mr-1">3.</span> 계약 시 <b>집주인 신분증 직접 대조 + 국세완납증명서</b> 제출 요구하기!</li>
+                                <li class="flex items-start"><span class="text-blue-600 font-bold mr-1">4.</span> <b>"잔금일 다음날까지 현재 등기부 상태 유지"</b> 특약 꼭 기재하기!</li>
+                                <li class="flex items-start"><span class="text-blue-600 font-bold mr-1">5.</span> 이사 당일 즉시 <b>전입신고 + 확정일자 + HUG 전세보증보험 가입!</b></li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-white border-t border-gray-100">
+                        <button onclick="renderTitle()" class="w-full bg-gray-900 text-white font-bold py-3.5 rounded-xl shadow hover:bg-black transition active:scale-95">
+                            처음부터 다시 연습하기 🔄
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.onload = () => {
+            renderTitle();
+        };
+    </script>
+</body>
+</html>
