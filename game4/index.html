@@ -1098,15 +1098,11 @@ window.createRoom = async () => {
 
 
     if (error) {
-
-        console.error(error);
-
-        showToast('방 생성에 실패했습니다.');
-
-        return;
-    }
-
-
+    console.error('방 생성 상세 오류:', error);
+    showToast(`방 생성 실패: ${error.message}`);
+    return;
+}
+    
     state.roomCode = newCode;
 
     state.nickname = nicknameInput;
