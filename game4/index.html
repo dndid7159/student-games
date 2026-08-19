@@ -3,11 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>공유경제 마을 쟁탈전</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;700&display=swap"
+        rel="stylesheet"
+    >
 
     <style>
         body {
@@ -63,56 +67,76 @@
     </style>
 </head>
 
+
 <body class="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 min-h-screen flex items-center justify-center p-4 text-gray-800">
 
-    <!-- 토스트 메시지 -->
-    <div id="toast"
+    <!-- 토스트 -->
+    <div
+        id="toast"
         class="fixed top-4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-full shadow-lg transition-all duration-300 opacity-0 pointer-events-none z-50 text-white font-bold">
     </div>
 
+
     <div class="w-full max-w-md bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden relative">
 
-        <!-- ==================== 홈 ==================== -->
+
+        <!-- ========================= -->
+        <!-- 홈 -->
+        <!-- ========================= -->
+
         <div id="view-home" class="view active p-8 text-center">
 
             <div class="mb-8">
+
                 <span class="text-6xl block mb-4">🏘️</span>
 
                 <h1 class="font-game text-4xl text-indigo-900 mb-2 leading-tight">
-                    공유경제<br>마을 쟁탈전
+                    공유경제<br>
+                    마을 쟁탈전
                 </h1>
 
                 <p class="text-gray-500 text-sm">
                     함께 만드는 자급자족 공동체
                 </p>
+
             </div>
+
 
             <div class="space-y-4">
 
-                <button onclick="navigate('create')"
+                <button
+                    onclick="navigate('create')"
                     class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-2xl shadow-lg transition-transform active:scale-95 text-lg">
                     방 만들기
                 </button>
 
-                <button onclick="navigate('join')"
+                <button
+                    onclick="navigate('join')"
                     class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-4 rounded-2xl shadow-lg transition-transform active:scale-95 text-lg">
                     방 참가하기
                 </button>
 
             </div>
+
         </div>
 
 
-        <!-- ==================== 방 만들기 ==================== -->
+
+        <!-- ========================= -->
+        <!-- 방 만들기 -->
+        <!-- ========================= -->
+
         <div id="view-create" class="view p-8">
 
             <h2 class="font-game text-3xl text-indigo-900 mb-6 text-center">
                 새로운 마을 건설
             </h2>
 
+
             <div class="space-y-6">
 
                 <div>
+
                     <label class="block text-sm font-bold text-gray-700 mb-2">
                         방장 닉네임
                     </label>
@@ -122,12 +146,16 @@
                         id="create-nickname"
                         placeholder="멋진 이름을 입력하세요"
                         class="w-full bg-gray-100 border-2 border-transparent focus:bg-white focus:border-indigo-500 rounded-xl px-4 py-3 outline-none transition-colors"
-                        maxlength="10">
+                        maxlength="10"
+                    >
+
                 </div>
+
 
                 <div class="flex gap-3">
 
-                    <button onclick="navigate('home')"
+                    <button
+                        onclick="navigate('home')"
                         class="w-1/3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 rounded-xl transition-colors">
                         취소
                     </button>
@@ -142,19 +170,26 @@
                 </div>
 
             </div>
+
         </div>
 
 
-        <!-- ==================== 방 참가 ==================== -->
+
+        <!-- ========================= -->
+        <!-- 방 참가 -->
+        <!-- ========================= -->
+
         <div id="view-join" class="view p-8">
 
             <h2 class="font-game text-3xl text-pink-600 mb-6 text-center">
                 마을로 이주하기
             </h2>
 
+
             <div class="space-y-6">
 
                 <div>
+
                     <label class="block text-sm font-bold text-gray-700 mb-2">
                         방 코드 (4자리)
                     </label>
@@ -164,10 +199,14 @@
                         id="join-code"
                         placeholder="예: A7K2"
                         class="w-full bg-gray-100 border-2 border-transparent focus:bg-white focus:border-pink-500 rounded-xl px-4 py-3 outline-none transition-colors uppercase font-mono tracking-widest text-lg"
-                        maxlength="4">
+                        maxlength="4"
+                    >
+
                 </div>
 
+
                 <div>
+
                     <label class="block text-sm font-bold text-gray-700 mb-2">
                         당신의 닉네임
                     </label>
@@ -177,12 +216,16 @@
                         id="join-nickname"
                         placeholder="멋진 이름을 입력하세요"
                         class="w-full bg-gray-100 border-2 border-transparent focus:bg-white focus:border-pink-500 rounded-xl px-4 py-3 outline-none transition-colors"
-                        maxlength="10">
+                        maxlength="10"
+                    >
+
                 </div>
+
 
                 <div class="flex gap-3">
 
-                    <button onclick="navigate('home')"
+                    <button
+                        onclick="navigate('home')"
                         class="w-1/3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 rounded-xl transition-colors">
                         취소
                     </button>
@@ -197,10 +240,15 @@
                 </div>
 
             </div>
+
         </div>
 
 
-        <!-- ==================== 대기실 ==================== -->
+
+        <!-- ========================= -->
+        <!-- 대기실 -->
+        <!-- ========================= -->
+
         <div id="view-lobby" class="view p-6 flex flex-col min-h-[500px]">
 
             <div class="flex justify-between items-center mb-4">
@@ -209,7 +257,8 @@
                     🏘️ 공유경제 마을
                 </div>
 
-                <button onclick="leaveRoom()"
+                <button
+                    onclick="leaveRoom()"
                     class="text-sm text-red-500 hover:bg-red-50 px-3 py-1 rounded-lg transition-colors font-bold">
                     나가기
                 </button>
@@ -254,14 +303,20 @@
 
                 </div>
 
-                <ul id="participant-list" class="space-y-2"></ul>
+                <ul
+                    id="participant-list"
+                    class="space-y-2">
+                </ul>
 
             </div>
 
 
-            <div id="host-controls" class="mt-4 hidden">
+            <div
+                id="host-controls"
+                class="mt-4 hidden">
 
-                <button onclick="startGame()"
+                <button
+                    onclick="startGame()"
                     class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl shadow-lg transition-transform active:scale-95 text-lg flex items-center justify-center">
                     🚀 게임 시작하기
                 </button>
@@ -269,7 +324,8 @@
             </div>
 
 
-            <div id="guest-controls"
+            <div
+                id="guest-controls"
                 class="mt-4 text-center text-gray-500 font-bold py-4">
 
                 ⏳ 방장이 게임을 시작하기를 기다리고 있습니다...
@@ -279,10 +335,16 @@
         </div>
 
 
-        <!-- ==================== 게임 화면 ==================== -->
+
+        <!-- ========================= -->
+        <!-- 게임 -->
+        <!-- ========================= -->
+
         <div id="view-game" class="view p-4 sm:p-6 flex flex-col min-h-[600px]">
 
+
             <!-- 헤더 -->
+
             <div class="flex justify-between items-end mb-4 border-b pb-3">
 
                 <div>
@@ -293,7 +355,9 @@
 
                     <div class="font-bold text-gray-500 text-sm">
                         ROUND
-                        <span id="current-round-display" class="text-indigo-600">
+                        <span
+                            id="current-round-display"
+                            class="text-indigo-600">
                             1
                         </span>
                         / 8
@@ -319,40 +383,93 @@
             </div>
 
 
+
             <!-- 자원 -->
+
             <div class="grid grid-cols-5 gap-2 mb-6">
 
+
                 <div class="bg-yellow-50 rounded-xl p-2 text-center border border-yellow-100 shadow-sm flex flex-col justify-center">
-                    <span class="block text-xl mb-1">💰</span>
-                    <span id="res-money" class="font-bold text-yellow-700 text-sm sm:text-base">100</span>
+
+                    <span class="block text-xl mb-1">
+                        💰
+                    </span>
+
+                    <span
+                        id="res-money"
+                        class="font-bold text-yellow-700 text-sm sm:text-base">
+                        100
+                    </span>
+
                 </div>
+
 
                 <div class="bg-orange-50 rounded-xl p-2 text-center border border-orange-100 shadow-sm flex flex-col justify-center">
-                    <span class="block text-xl mb-1">🍚</span>
-                    <span id="res-food" class="font-bold text-orange-700 text-sm sm:text-base">5</span>
+
+                    <span class="block text-xl mb-1">
+                        🍚
+                    </span>
+
+                    <span
+                        id="res-food"
+                        class="font-bold text-orange-700 text-sm sm:text-base">
+                        5
+                    </span>
+
                 </div>
+
 
                 <div class="bg-blue-50 rounded-xl p-2 text-center border border-blue-100 shadow-sm flex flex-col justify-center">
-                    <span class="block text-xl mb-1">🔋</span>
-                    <span id="res-energy" class="font-bold text-blue-700 text-sm sm:text-base">5</span>
+
+                    <span class="block text-xl mb-1">
+                        🔋
+                    </span>
+
+                    <span
+                        id="res-energy"
+                        class="font-bold text-blue-700 text-sm sm:text-base">
+                        5
+                    </span>
+
                 </div>
+
 
                 <div class="bg-pink-50 rounded-xl p-2 text-center border border-pink-100 shadow-sm flex flex-col justify-center">
-                    <span class="block text-xl mb-1">😊</span>
-                    <span id="res-satis" class="font-bold text-pink-700 text-sm sm:text-base">50</span>
+
+                    <span class="block text-xl mb-1">
+                        😊
+                    </span>
+
+                    <span
+                        id="res-satis"
+                        class="font-bold text-pink-700 text-sm sm:text-base">
+                        50
+                    </span>
+
                 </div>
 
+
                 <div class="bg-green-50 rounded-xl p-2 text-center border border-green-100 shadow-sm flex flex-col justify-center">
-                    <span class="block text-xl mb-1">🌱</span>
-                    <span id="res-env" class="font-bold text-green-700 text-sm sm:text-base">50</span>
+
+                    <span class="block text-xl mb-1">
+                        🌱
+                    </span>
+
+                    <span
+                        id="res-env"
+                        class="font-bold text-green-700 text-sm sm:text-base">
+                        50
+                    </span>
+
                 </div>
 
             </div>
 
 
+
             <!-- 사건 -->
-            <div
-                class="bg-indigo-50 border-2 border-indigo-100 rounded-2xl p-5 mb-4 text-center shadow-inner relative overflow-hidden">
+
+            <div class="bg-indigo-50 border-2 border-indigo-100 rounded-2xl p-5 mb-4 text-center shadow-inner relative overflow-hidden">
 
                 <div class="text-5xl mb-3 animate-bounce">
                     ⚡
@@ -370,10 +487,16 @@
             </div>
 
 
-            <!-- 선택지 -->
-            <div class="space-y-3 flex-1" id="choice-container">
 
-                <button onclick="submitChoice(1)"
+            <!-- 선택지 -->
+
+            <div
+                class="space-y-3 flex-1"
+                id="choice-container">
+
+
+                <button
+                    onclick="submitChoice(1)"
                     class="choice-btn w-full bg-white border-2 border-gray-200 hover:border-blue-400 rounded-xl p-4 text-left transition-all hover:shadow-md active:scale-95 group">
 
                     <div class="font-bold text-gray-800 text-lg mb-1 flex justify-between items-center">
@@ -395,7 +518,9 @@
                 </button>
 
 
-                <button onclick="submitChoice(2)"
+
+                <button
+                    onclick="submitChoice(2)"
                     class="choice-btn w-full bg-white border-2 border-gray-200 hover:border-yellow-400 rounded-xl p-4 text-left transition-all hover:shadow-md active:scale-95 group">
 
                     <div class="font-bold text-gray-800 text-lg mb-1 flex justify-between items-center">
@@ -417,7 +542,9 @@
                 </button>
 
 
-                <button onclick="submitChoice(3)"
+
+                <button
+                    onclick="submitChoice(3)"
                     class="choice-btn w-full bg-white border-2 border-gray-200 hover:border-gray-500 rounded-xl p-4 text-left transition-all hover:shadow-md active:scale-95 group">
 
                     <div class="font-bold text-gray-800 text-lg mb-1 flex justify-between items-center">
@@ -441,7 +568,9 @@
             </div>
 
 
+
             <!-- 결과 -->
+
             <div
                 id="result-container"
                 class="hidden flex-1 bg-white rounded-2xl p-4 shadow-md border border-gray-100 overflow-y-auto mb-4">
@@ -450,7 +579,10 @@
                     라운드 선택 결과
                 </h3>
 
-                <ul id="result-list" class="space-y-2"></ul>
+                <ul
+                    id="result-list"
+                    class="space-y-2">
+                </ul>
 
             </div>
 
@@ -459,518 +591,663 @@
     </div>
 
 
-    <!-- ==================== JAVASCRIPT ==================== -->
 
-   <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+<script type="module">
 
-    // ================================
-    // SUPABASE 설정
-    // ================================
-    const SUPABASE_URL = 'https://lfqgowhcfwrmtvxivyjh.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_NSxWcogbVY6qWPBOdWivcg_sQzfFQop';
+import {
+    createClient
+} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-    let supabase;
 
-    try {
-        supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    } catch (e) {
-        console.error("Supabase 초기화 실패:", e);
+
+/* =========================================================
+   SUPABASE
+========================================================= */
+
+const SUPABASE_URL =
+    'https://lfqgowhcfwrmtvxivyjh.supabase.co';
+
+const SUPABASE_ANON_KEY =
+    'sb_publishable_NSxWcogbVY6qWPBOdWivcg_sQzfFQop';
+
+const supabase =
+    createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY
+    );
+
+
+
+/* =========================================================
+   게임 상태
+========================================================= */
+
+const state = {
+
+    userId: crypto.randomUUID(),
+
+    roomCode: '',
+
+    nickname: '',
+
+    isHost: false,
+
+    channel: null,
+
+    participants: [],
+
+
+    resources: {
+
+        money: 100,
+
+        food: 5,
+
+        energy: 5,
+
+        satis: 50,
+
+        env: 50
+
+    },
+
+
+    currentRound: 1,
+
+    hasSelected: false,
+
+    myChoice: null,
+
+    timerInterval: null,
+
+    roundEnded: false,
+
+
+    /*
+       ★ 중요
+
+       게임 시작 순간 참가자를 별도로 저장한다.
+
+       대기실의 participants가 실시간으로
+       변하는 것 때문에 생기는 오류를 막는다.
+    */
+
+    gameParticipants: [],
+
+    gameExpectedUserIds: [],
+
+    gameExpectedCount: 0,
+
+
+    /*
+       현재 라운드의 선택을 메모리에 저장
+
+       userId -> choice
+
+       예:
+
+       {
+          "abc": 1,
+          "def": 2
+       }
+    */
+
+    roundChoices: {},
+
+
+    /*
+       결과를 이미 처리했는지 여부
+    */
+
+    resultProcessed: false
+
+};
+
+
+
+/* =========================================================
+   화면 이동
+========================================================= */
+
+window.navigate = (viewId) => {
+
+    document
+        .querySelectorAll('.view')
+        .forEach(el =>
+            el.classList.remove('active')
+        );
+
+    document
+        .getElementById(`view-${viewId}`)
+        .classList.add('active');
+
+};
+
+
+
+/* =========================================================
+   토스트
+========================================================= */
+
+window.showToast = (
+    message,
+    type = 'error'
+) => {
+
+    const toast =
+        document.getElementById('toast');
+
+    toast.innerHTML = message;
+
+    toast.className =
+        `fixed top-4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-full shadow-lg transition-all duration-300 z-50 ${
+            type === 'error'
+                ? 'bg-red-500'
+                : 'bg-green-500'
+        } text-white font-bold text-center`;
+
+    toast.style.opacity = '1';
+
+    toast.style.marginTop = '0';
+
+
+    setTimeout(() => {
+
+        toast.style.opacity = '0';
+
+        toast.style.marginTop = '-20px';
+
+    }, 3000);
+
+};
+
+
+
+/* =========================================================
+   로딩 버튼
+========================================================= */
+
+const setLoading = (
+    buttonId,
+    isLoading,
+    defaultText
+) => {
+
+    const btn =
+        document.getElementById(buttonId);
+
+    if (isLoading) {
+
+        btn.disabled = true;
+
+        btn.innerHTML =
+            `<span class="spinner"></span> 처리중...`;
+
+    } else {
+
+        btn.disabled = false;
+
+        btn.innerHTML = defaultText;
+
+    }
+
+};
+
+
+
+/* =========================================================
+   방 만들기
+========================================================= */
+
+window.createRoom = async () => {
+
+    const nicknameInput =
+        document
+            .getElementById('create-nickname')
+            .value
+            .trim();
+
+
+    if (!nicknameInput) {
+
+        return showToast(
+            '닉네임을 입력해주세요!'
+        );
+
     }
 
 
-    // ================================
-    // 게임 상태
-    // ================================
-    const state = {
+    setLoading(
+        'btn-create-submit',
+        true,
+        '마을 만들기'
+    );
 
-        // 사용자 정보
-        userId: crypto.randomUUID(),
-        roomCode: '',
-        nickname: '',
-        isHost: false,
 
-        // Supabase Realtime
-        channel: null,
+    const chars =
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 
-        // 참가자
-        participants: [],
+    let newCode = '';
 
-        // 게임 자원
-        resources: {
-            money: 100,
-            food: 5,
-            energy: 5,
-            satis: 50,
-            env: 50
-        },
+    for (let i = 0; i < 4; i++) {
 
-        // 게임 진행
-        currentRound: 1,
-
-        // 내가 선택했는지
-        hasSelected: false,
-
-        // 타이머
-        timerInterval: null,
-
-        // 라운드 종료 여부
-        roundEnded: false,
-
-        // ★ 핵심
-        // 방장이 현재 라운드의 선택 결과를 저장
-        // 예:
-        // {
-        //   "사용자ID1": 1,
-        //   "사용자ID2": 2
-        // }
-        roundChoices: {}
-    };
-
-
-    // ================================
-    // 화면 이동
-    // ================================
-    window.navigate = (viewId) => {
-
-        document.querySelectorAll('.view').forEach(el => {
-            el.classList.remove('active');
-        });
-
-        const target = document.getElementById(`view-${viewId}`);
-
-        if (target) {
-            target.classList.add('active');
-        }
-    };
-
-
-    // ================================
-    // 토스트 메시지
-    // ================================
-    window.showToast = (message, type = 'error') => {
-
-        const toast = document.getElementById('toast');
-
-        toast.innerHTML = message;
-
-        toast.className =
-            `fixed top-4 left-1/2 transform -translate-x-1/2
-            px-6 py-3 rounded-full shadow-lg
-            transition-all duration-300 z-50
-            ${type === 'error' ? 'bg-red-500' : 'bg-green-500'}
-            text-white font-bold text-center`;
-
-        toast.style.opacity = '1';
-        toast.style.marginTop = '0';
-
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            toast.style.marginTop = '-20px';
-        }, 3000);
-    };
-
-
-    // ================================
-    // 버튼 로딩
-    // ================================
-    const setLoading = (buttonId, isLoading, defaultText) => {
-
-        const btn = document.getElementById(buttonId);
-
-        if (!btn) return;
-
-        if (isLoading) {
-
-            btn.disabled = true;
-
-            btn.innerHTML =
-                `<span class="spinner"></span> 처리중...`;
-
-        } else {
-
-            btn.disabled = false;
-            btn.innerHTML = defaultText;
-
-        }
-    };
-
-
-    // ================================
-    // 방 만들기
-    // ================================
-    window.createRoom = async () => {
-
-        const nicknameInput =
-            document.getElementById('create-nickname').value.trim();
-
-        if (!nicknameInput) {
-            return showToast('닉네임을 입력해주세요!');
-        }
-
-        setLoading(
-            'btn-create-submit',
-            true,
-            '마을 만들기'
-        );
-
-        const chars =
-            'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-
-        let newCode = '';
-
-        for (let i = 0; i < 4; i++) {
-
-            newCode +=
-                chars.charAt(
-                    Math.floor(Math.random() * chars.length)
-                );
-
-        }
-
-
-        const { error } =
-            await supabase
-                .from('rooms')
-                .insert([
-                    {
-                        code: newCode
-                    }
-                ]);
-
-
-        setLoading(
-            'btn-create-submit',
-            false,
-            '마을 만들기'
-        );
-
-
-        if (error) {
-
-            console.error('방 생성 오류:', error);
-
-            return showToast(
-                '방 생성에 실패했습니다.'
-            );
-        }
-
-
-        state.roomCode = newCode;
-        state.nickname = nicknameInput;
-        state.isHost = true;
-
-        connectToRealtimeLobby();
-    };
-
-
-    // ================================
-    // 방 참가
-    // ================================
-    window.joinRoom = async () => {
-
-        const codeInput =
-            document.getElementById('join-code')
-                .value
-                .trim()
-                .toUpperCase();
-
-        const nicknameInput =
-            document.getElementById('join-nickname')
-                .value
-                .trim();
-
-
-        if (!codeInput || !nicknameInput) {
-
-            return showToast(
-                '코드와 닉네임을 모두 입력하세요!'
-            );
-        }
-
-
-        setLoading(
-            'btn-join-submit',
-            true,
-            '참가하기'
-        );
-
-
-        const { data, error } =
-            await supabase
-                .from('rooms')
-                .select('code')
-                .eq('code', codeInput)
-                .single();
-
-
-        setLoading(
-            'btn-join-submit',
-            false,
-            '참가하기'
-        );
-
-
-        if (error || !data) {
-
-            return showToast(
-                '존재하지 않는 방입니다.',
-                'error'
-            );
-        }
-
-
-        state.roomCode = codeInput;
-        state.nickname = nicknameInput;
-        state.isHost = false;
-
-        connectToRealtimeLobby();
-    };
-
-
-    // ================================
-    // 실시간 방 연결
-    // ================================
-    const connectToRealtimeLobby = () => {
-
-        navigate('lobby');
-
-
-        document.getElementById(
-            'display-room-code'
-        ).innerText = state.roomCode;
-
-
-        document.getElementById(
-            'host-controls'
-        ).style.display =
-            state.isHost ? 'block' : 'none';
-
-
-        document.getElementById(
-            'guest-controls'
-        ).style.display =
-            state.isHost ? 'none' : 'block';
-
-
-        if (state.channel) {
-
-            supabase.removeChannel(
-                state.channel
+        newCode +=
+            chars.charAt(
+                Math.floor(
+                    Math.random() *
+                    chars.length
+                )
             );
 
-        }
+    }
 
 
-        const channelName =
-            `room:${state.roomCode}`;
-
-
-        state.channel =
-            supabase.channel(
-                channelName,
+    const {
+        error
+    } =
+        await supabase
+            .from('rooms')
+            .insert([
                 {
-                    config: {
-
-                        presence: {
-                            key: state.userId
-                        },
-
-                        broadcast: {
-                            self: false
-                        }
-
-                    }
+                    code: newCode
                 }
-            );
+            ]);
 
 
-        // ================================
-        // 참가자 목록 동기화
-        // ================================
-        state.channel.on(
-            'presence',
-            { event: 'sync' },
-            () => {
-
-                const presenceState =
-                    state.channel.presenceState();
-
-                const parsedParticipants = [];
+    setLoading(
+        'btn-create-submit',
+        false,
+        '마을 만들기'
+    );
 
 
-                for (const key in presenceState) {
+    if (error) {
 
-                    if (
-                        presenceState[key] &&
-                        presenceState[key].length > 0
-                    ) {
+        console.error(error);
 
-                        parsedParticipants.push(
-                            presenceState[key][0]
-                        );
+        return showToast(
+            '방 생성에 실패했습니다.'
+        );
 
+    }
+
+
+    state.roomCode = newCode;
+
+    state.nickname = nicknameInput;
+
+    state.isHost = true;
+
+
+    connectToRealtimeLobby();
+
+};
+
+
+
+/* =========================================================
+   방 참가
+========================================================= */
+
+window.joinRoom = async () => {
+
+    const codeInput =
+        document
+            .getElementById('join-code')
+            .value
+            .trim()
+            .toUpperCase();
+
+
+    const nicknameInput =
+        document
+            .getElementById('join-nickname')
+            .value
+            .trim();
+
+
+    if (!codeInput || !nicknameInput) {
+
+        return showToast(
+            '코드와 닉네임을 모두 입력하세요!'
+        );
+
+    }
+
+
+    setLoading(
+        'btn-join-submit',
+        true,
+        '참가하기'
+    );
+
+
+    const {
+        data,
+        error
+    } =
+        await supabase
+            .from('rooms')
+            .select('code')
+            .eq('code', codeInput)
+            .single();
+
+
+    setLoading(
+        'btn-join-submit',
+        false,
+        '참가하기'
+    );
+
+
+    if (error || !data) {
+
+        return showToast(
+            '존재하지 않는 방입니다.'
+        );
+
+    }
+
+
+    state.roomCode = codeInput;
+
+    state.nickname = nicknameInput;
+
+    state.isHost = false;
+
+
+    connectToRealtimeLobby();
+
+};
+
+
+
+/* =========================================================
+   실시간 대기실 연결
+========================================================= */
+
+const connectToRealtimeLobby = () => {
+
+    navigate('lobby');
+
+
+    document
+        .getElementById('display-room-code')
+        .innerText =
+        state.roomCode;
+
+
+    document
+        .getElementById('host-controls')
+        .style.display =
+        state.isHost
+            ? 'block'
+            : 'none';
+
+
+    document
+        .getElementById('guest-controls')
+        .style.display =
+        state.isHost
+            ? 'none'
+            : 'block';
+
+
+    if (state.channel) {
+
+        supabase.removeChannel(
+            state.channel
+        );
+
+    }
+
+
+    const channelName =
+        `room:${state.roomCode}`;
+
+
+    state.channel =
+        supabase.channel(
+            channelName,
+            {
+                config: {
+
+                    presence: {
+                        key: state.userId
+                    },
+
+                    broadcast: {
+                        self: false
                     }
 
                 }
+            }
+        );
 
 
-                state.participants =
-                    parsedParticipants.sort(
-                        (a, b) => {
 
-                            if (a.isHost) return -1;
-                            if (b.isHost) return 1;
+    /* ==========================================
+       참가자 동기화
+    ========================================== */
 
-                            return a.joinedAt -
-                                b.joinedAt;
-                        }
+    state.channel.on(
+        'presence',
+        {
+            event: 'sync'
+        },
+        () => {
+
+            const presenceState =
+                state.channel.presenceState();
+
+
+            const parsedParticipants = [];
+
+
+            for (
+                const key in presenceState
+            ) {
+
+                if (
+                    presenceState[key] &&
+                    presenceState[key].length > 0
+                ) {
+
+                    parsedParticipants.push(
+                        presenceState[key][0]
                     );
 
-
-                renderParticipants();
-
-            }
-        );
-
-
-        // ================================
-        // 게임 시작 수신
-        // ================================
-        state.channel.on(
-            'broadcast',
-            { event: 'game-start' },
-            (payload) => {
-
-                handleGameStart(
-                    payload.payload
-                );
-
-            }
-        );
-
-
-        // ================================
-        // ★ 선택 결과 수신
-        // ================================
-        state.channel.on(
-            'broadcast',
-            { event: 'choice-made' },
-            (payload) => {
-
-                if (!state.isHost) return;
-
-                const data = payload.payload;
-
-                if (!data) return;
-
-
-                console.log(
-                    '방장이 받은 선택:',
-                    data
-                );
-
-
-                // 이미 선택한 사람은 무시
-                if (
-                    state.roundChoices[data.userId]
-                ) {
-                    return;
                 }
 
-
-                // 방장 메모리에 선택 저장
-                state.roundChoices[data.userId] =
-                    data.choice;
+            }
 
 
-                console.log(
-                    '현재 선택 현황:',
-                    state.roundChoices
+            state.participants =
+                parsedParticipants.sort(
+                    (a, b) => {
+
+                        if (a.isHost) return -1;
+
+                        if (b.isHost) return 1;
+
+                        return a.joinedAt -
+                            b.joinedAt;
+
+                    }
                 );
 
+
+            renderParticipants();
+
+        }
+    );
+
+
+
+    /* ==========================================
+       게임 시작
+    ========================================== */
+
+    state.channel.on(
+        'broadcast',
+        {
+            event: 'game-start'
+        },
+        (payload) => {
+
+            handleGameStart(
+                payload.payload
+            );
+
+        }
+    );
+
+
+
+    /* ==========================================
+       선택 알림
+    ========================================== */
+
+    state.channel.on(
+        'broadcast',
+        {
+            event: 'choice-made'
+        },
+        (payload) => {
+
+            if (!state.isHost) return;
+
+
+            const data =
+                payload.payload;
+
+
+            /*
+               ★ 방장 메모리에 선택 저장
+            */
+
+            if (
+                data &&
+                data.userId &&
+                data.choice
+            ) {
+
+                state.roundChoices[
+                    data.userId
+                ] = data.choice;
+
+            }
+
+
+            /*
+               DB가 완전히 반영될 시간을 조금 준다.
+            */
+
+            setTimeout(() => {
 
                 checkAllChoicesCompleted();
 
-            }
-        );
+            }, 300);
+
+        }
+    );
 
 
-        // ================================
-        // 라운드 결과 수신
-        // ================================
-        state.channel.on(
-            'broadcast',
-            { event: 'round-end' },
-            (payload) => {
 
-                const results =
-                    payload.payload?.results || [];
+    /* ==========================================
+       라운드 종료
+    ========================================== */
 
-                handleRoundEnd(results);
+    state.channel.on(
+        'broadcast',
+        {
+            event: 'round-end'
+        },
+        (payload) => {
 
-            }
-        );
-
-
-        // ================================
-        // 연결
-        // ================================
-        state.channel.subscribe(
-            async (status) => {
-
-                if (status === 'SUBSCRIBED') {
-
-                    await state.channel.track({
-
-                        userId: state.userId,
-
-                        nickname: state.nickname,
-
-                        isHost: state.isHost,
-
-                        joinedAt: Date.now()
-
-                    });
+            if (
+                state.roundEnded
+            ) return;
 
 
-                    showToast(
-                        '마을에 입장했습니다!',
-                        'success'
-                    );
-
-                }
-
-            }
-        );
-
-    };
-
-
-    // ================================
-    // 참가자 목록 표시
-    // ================================
-    const renderParticipants = () => {
-
-        const listEl =
-            document.getElementById(
-                'participant-list'
+            handleRoundEnd(
+                payload.payload.results
             );
 
+        }
+    );
 
+
+
+    /* ==========================================
+       연결
+    ========================================== */
+
+    state.channel.subscribe(
+        async (status) => {
+
+            if (
+                status === 'SUBSCRIBED'
+            ) {
+
+                await state.channel.track({
+
+                    userId:
+                        state.userId,
+
+                    nickname:
+                        state.nickname,
+
+                    isHost:
+                        state.isHost,
+
+                    joinedAt:
+                        Date.now()
+
+                });
+
+
+                showToast(
+                    '마을에 입장했습니다!',
+                    'success'
+                );
+
+            }
+
+        }
+    );
+
+};
+
+
+
+/* =========================================================
+   참가자 화면 표시
+========================================================= */
+
+const renderParticipants = () => {
+
+    const listEl =
         document.getElementById(
-            'player-count'
-        ).innerText =
-            `${state.participants.length}명`;
+            'participant-list'
+        );
 
 
-        listEl.innerHTML = '';
+    document.getElementById(
+        'player-count'
+    ).innerText =
+        `${state.participants.length}명`;
 
 
-        state.participants.forEach(p => {
+    listEl.innerHTML = '';
+
+
+    state.participants.forEach(
+        p => {
 
             const isMe =
-                p.userId === state.userId;
+                p.userId ===
+                state.userId;
 
 
             const li =
@@ -978,185 +1255,297 @@
 
 
             li.className =
-                `p-3 rounded-xl flex items-center
-                shadow-sm border
-                ${isMe
-                    ? 'bg-indigo-50 border-indigo-200'
-                    : 'bg-white border-gray-100'}`;
+                `p-3 rounded-xl flex items-center shadow-sm border ${
+                    isMe
+                        ? 'bg-indigo-50 border-indigo-200'
+                        : 'bg-white border-gray-100'
+                }`;
 
 
             const dot =
-                `<span class="w-3 h-3 rounded-full
-                ${p.isHost
-                    ? 'bg-yellow-400'
-                    : 'bg-green-500'}
-                mr-3"></span>`;
+                `<span class="w-3 h-3 rounded-full ${
+                    p.isHost
+                        ? 'bg-yellow-400'
+                        : 'bg-green-500'
+                } mr-3"></span>`;
 
 
             const hostBadge =
                 p.isHost
-                    ? `<span class="ml-auto text-xs
-                        bg-yellow-100 text-yellow-700
-                        px-2 py-1 rounded-full font-bold">
-                        방장👑
-                       </span>`
+                    ? `<span class="ml-auto text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full font-bold">방장👑</span>`
                     : '';
 
 
             const meBadge =
                 isMe
-                    ? `<span class="ml-2 text-xs
-                        text-indigo-400 font-bold">
-                        (나)
-                       </span>`
+                    ? `<span class="ml-2 text-xs text-indigo-400 font-bold">(나)</span>`
                     : '';
 
 
             li.innerHTML =
-                `${dot}
-                <span class="font-bold">
-                    ${p.nickname}
-                </span>
-                ${meBadge}
-                ${hostBadge}`;
+                `${dot}<span class="font-bold">${p.nickname}</span>${meBadge}${hostBadge}`;
 
 
             listEl.appendChild(li);
 
-        });
-
-    };
-
-
-    // ================================
-    // 자원 UI
-    // ================================
-    const updateResourceUI = () => {
-
-        document.getElementById(
-            'res-money'
-        ).innerText =
-            state.resources.money;
-
-        document.getElementById(
-            'res-food'
-        ).innerText =
-            state.resources.food;
-
-        document.getElementById(
-            'res-energy'
-        ).innerText =
-            state.resources.energy;
-
-        document.getElementById(
-            'res-satis'
-        ).innerText =
-            state.resources.satis;
-
-        document.getElementById(
-            'res-env'
-        ).innerText =
-            state.resources.env;
-
-    };
-
-
-    // ================================
-    // 게임 시작
-    // ================================
-    window.startGame = () => {
-
-        if (!state.isHost) return;
-
-
-        // ★ 현재 참가자 목록을 한번 더 확인
-        if (state.participants.length < 1) {
-
-            return showToast(
-                '참가자를 확인하는 중입니다. 잠시 후 다시 시작해주세요.'
-            );
-
         }
+    );
+
+};
 
 
-        const payload = {
 
-            startedAt: Date.now(),
+/* =========================================================
+   자원 UI
+========================================================= */
 
-            duration: 20000,
+const updateResourceUI = () => {
 
-            round: 1
-
-        };
-
-
-        // ★ 이번 라운드 선택 초기화
-        state.roundChoices = {};
+    document.getElementById(
+        'res-money'
+    ).innerText =
+        state.resources.money;
 
 
-        state.channel.send({
-
-            type: 'broadcast',
-
-            event: 'game-start',
-
-            payload: payload
-
-        });
+    document.getElementById(
+        'res-food'
+    ).innerText =
+        state.resources.food;
 
 
-        // 방장 본인도 실행
-        handleGameStart(payload);
+    document.getElementById(
+        'res-energy'
+    ).innerText =
+        state.resources.energy;
+
+
+    document.getElementById(
+        'res-satis'
+    ).innerText =
+        state.resources.satis;
+
+
+    document.getElementById(
+        'res-env'
+    ).innerText =
+        state.resources.env;
+
+};
+
+
+
+/* =========================================================
+   게임 시작 - 방장
+========================================================= */
+
+window.startGame = () => {
+
+    if (!state.isHost) return;
+
+
+    /*
+       ★ 게임 시작 순간 참가자 명단을 확정한다.
+
+       여기서 복사본을 만들어 두기 때문에
+       이후 presence가 변해도
+       이번 라운드 참가자 수가 흔들리지 않는다.
+    */
+
+    state.gameParticipants =
+        state.participants.map(
+            p => ({
+                ...p
+            })
+        );
+
+
+    state.gameExpectedUserIds =
+        state.gameParticipants.map(
+            p => p.userId
+        );
+
+
+    state.gameExpectedCount =
+        state.gameExpectedUserIds.length;
+
+
+    /*
+       혹시 presence 동기화가 아주 조금 늦었다면
+       최소 방장 1명은 포함
+    */
+
+    if (
+        !state.gameExpectedUserIds.includes(
+            state.userId
+        )
+    ) {
+
+        state.gameExpectedUserIds.push(
+            state.userId
+        );
+
+        state.gameExpectedCount =
+            state.gameExpectedUserIds.length;
+
+    }
+
+
+    const payload = {
+
+        startedAt:
+            Date.now(),
+
+        duration:
+            20000,
+
+        round:
+            1,
+
+        /*
+           ★ 참가자 목록도 함께 전송
+        */
+
+        participants:
+            state.gameParticipants
 
     };
 
 
-    // ================================
-    // 게임 시작 처리
-    // ================================
-    const handleGameStart = (payload) => {
+    state.channel.send({
 
-        state.currentRound =
-            payload.round;
+        type:
+            'broadcast',
 
-        state.hasSelected = false;
+        event:
+            'game-start',
 
-        state.roundEnded = false;
+        payload:
+            payload
 
-        // ★ 현재 라운드 선택 초기화
-        state.roundChoices = {};
+    });
 
 
-        navigate('game');
+    /*
+       방장 본인도 즉시 시작
+    */
+
+    handleGameStart(payload);
+
+};
 
 
-        updateResourceUI();
+
+/* =========================================================
+   게임 시작 공통
+========================================================= */
+
+const handleGameStart = (
+    payload
+) => {
+
+    state.currentRound =
+        payload.round;
 
 
-        document.getElementById(
-            'current-round-display'
-        ).innerText =
-            state.currentRound;
+    state.hasSelected =
+        false;
 
 
-        document.getElementById(
-            'choice-container'
-        ).style.display =
-            'block';
+    state.myChoice =
+        null;
 
 
-        document.getElementById(
-            'result-container'
-        ).classList.add('hidden');
+    state.roundEnded =
+        false;
 
 
-        const btns =
-            document.querySelectorAll(
-                '.choice-btn'
+    state.resultProcessed =
+        false;
+
+
+    /*
+       ★ 매 라운드 선택 초기화
+    */
+
+    state.roundChoices = {};
+
+
+    /*
+       참가자 명단 동기화
+    */
+
+    if (
+        payload.participants &&
+        payload.participants.length
+    ) {
+
+        state.gameParticipants =
+            payload.participants.map(
+                p => ({
+                    ...p
+                })
             );
 
+    }
 
-        btns.forEach(b => {
+
+    state.gameExpectedUserIds =
+        state.gameParticipants.map(
+            p => p.userId
+        );
+
+
+    state.gameExpectedCount =
+        state.gameExpectedUserIds.length;
+
+
+    if (
+        !state.gameExpectedUserIds.includes(
+            state.userId
+        )
+    ) {
+
+        state.gameExpectedUserIds.push(
+            state.userId
+        );
+
+        state.gameExpectedCount =
+            state.gameExpectedUserIds.length;
+
+    }
+
+
+    navigate('game');
+
+
+    updateResourceUI();
+
+
+    document.getElementById(
+        'current-round-display'
+    ).innerText =
+        state.currentRound;
+
+
+    document.getElementById(
+        'choice-container'
+    ).style.display =
+        'block';
+
+
+    document.getElementById(
+        'result-container'
+    ).classList.add('hidden');
+
+
+    const btns =
+        document.querySelectorAll(
+            '.choice-btn'
+        );
+
+
+    btns.forEach(
+        b => {
 
             b.disabled = false;
 
@@ -1167,140 +1556,180 @@
                 'ring-indigo-400'
             );
 
-        });
+        }
+    );
 
 
-        startTimer(payload);
+    startTimer(payload);
 
-    };
-
-
-    // ================================
-    // 타이머
-    // ================================
-    const startTimer = (payload) => {
-
-        const {
-            startedAt,
-            duration
-        } = payload;
+};
 
 
-        const display =
-            document.getElementById(
-                'timer-display'
+
+/* =========================================================
+   타이머
+========================================================= */
+
+const startTimer = (
+    payload
+) => {
+
+    const {
+        startedAt,
+        duration
+    } = payload;
+
+
+    const display =
+        document.getElementById(
+            'timer-display'
+        );
+
+
+    if (
+        state.timerInterval
+    ) {
+
+        clearInterval(
+            state.timerInterval
+        );
+
+    }
+
+
+    const updateTimer = () => {
+
+        const elapsed =
+            Date.now() -
+            startedAt;
+
+
+        let remaining =
+            Math.ceil(
+                (duration - elapsed) /
+                1000
             );
 
 
-        if (state.timerInterval) {
+        if (
+            remaining <= 0
+        ) {
+
+            remaining = 0;
+
 
             clearInterval(
                 state.timerInterval
             );
 
-        }
+
+            display.innerText =
+                '0초';
 
 
-        const updateTimer = () => {
+            /*
+               ★ 방장만 최종 결과를 판단
+            */
 
-            const elapsed =
-                Date.now() - startedAt;
+            if (
+                state.isHost &&
+                !state.roundEnded
+            ) {
 
-
-            let remaining =
-                Math.ceil(
-                    (duration - elapsed) / 1000
-                );
-
-
-            if (remaining <= 0) {
-
-                remaining = 0;
-
-
-                clearInterval(
-                    state.timerInterval
-                );
-
-
-                display.innerText = '0초';
-
-
-                // ★ 시간 종료
-                if (
-                    state.isHost &&
-                    !state.roundEnded
-                ) {
-
-                    triggerRoundEnd();
-
-                }
-
-
-                return;
+                triggerRoundEnd();
 
             }
 
+            return;
 
-            display.innerText =
-                `${remaining}초`;
-
-        };
+        }
 
 
-        updateTimer();
-
-
-        state.timerInterval =
-            setInterval(
-                updateTimer,
-                100
-            );
+        display.innerText =
+            `${remaining}초`;
 
     };
 
 
-    // ================================
-    // ★ 선택 제출
-    // ================================
-    window.submitChoice = async (choiceIndex) => {
-
-        // 이미 선택했다면 무시
-        if (state.hasSelected) return;
+    updateTimer();
 
 
-        // 라운드가 끝났다면 무시
-        if (state.roundEnded) return;
+    state.timerInterval =
+        setInterval(
+            updateTimer,
+            100
+        );
+
+};
 
 
-        // ================================
-        // 1. 내 선택 즉시 기록
-        // ================================
-        state.hasSelected = true;
+
+/* =========================================================
+   선택 제출
+========================================================= */
+
+window.submitChoice = async (
+    choiceIndex
+) => {
+
+    /*
+       이미 선택했으면 무시
+    */
+
+    if (
+        state.hasSelected
+    ) {
+
+        return;
+
+    }
 
 
-        // ================================
-        // 2. 버튼 잠금
-        // ================================
-        const btns =
-            document.querySelectorAll(
-                '.choice-btn'
-            );
+    /*
+       시간이 끝났다면 선택 불가
+    */
+
+    if (
+        state.roundEnded
+    ) {
+
+        return;
+
+    }
 
 
-        if (btns[choiceIndex - 1]) {
-
-            btns[
-                choiceIndex - 1
-            ].classList.add(
-                'ring-4',
-                'ring-indigo-400'
-            );
-
-        }
+    state.hasSelected =
+        true;
 
 
-        btns.forEach(b => {
+    state.myChoice =
+        choiceIndex;
+
+
+    /*
+       ★ 가장 먼저 메모리에 기록
+
+       DB 저장이 조금 늦더라도
+       내 선택 자체가 사라지지 않는다.
+    */
+
+    state.roundChoices[
+        state.userId
+    ] = choiceIndex;
+
+
+    /*
+       버튼 잠금
+    */
+
+    const btns =
+        document.querySelectorAll(
+            '.choice-btn'
+        );
+
+
+    btns.forEach(
+        b => {
 
             b.disabled = true;
 
@@ -1309,99 +1738,43 @@
                 'cursor-not-allowed'
             );
 
-        });
-
-
-        showToast(
-            '선택 완료! 다른 참가자를 기다리는 중...',
-            'success'
-        );
-
-
-        // ================================
-        // 3. ★ 선택을 메모리에 저장
-        // ================================
-        state.roundChoices[state.userId] =
-            choiceIndex;
-
-
-        console.log(
-            '내 선택:',
-            choiceIndex
-        );
-
-
-        // ================================
-        // 4. DB에도 기록
-        //    단, DB 실패해도 게임은 정상 진행
-        // ================================
-        try {
-
-            const { error } =
-                await supabase
-                    .from('player_choices')
-                    .insert([{
-
-                        room_code:
-                            state.roomCode,
-
-                        round_number:
-                            state.currentRound,
-
-                        user_id:
-                            state.userId,
-
-                        nickname:
-                            state.nickname,
-
-                        choice:
-                            choiceIndex
-
-                    }]);
-
-
-            if (error) {
-
-                console.warn(
-                    'DB 선택 저장 실패:',
-                    error
-                );
-
-            }
-
-        } catch (e) {
-
-            console.warn(
-                'DB 저장 중 오류:',
-                e
-            );
-
         }
+    );
 
 
-        // ================================
-        // 5. 방장이라면 바로 확인
-        // ================================
-        if (state.isHost) {
+    btns[
+        choiceIndex - 1
+    ].classList.add(
+        'ring-4',
+        'ring-indigo-400'
+    );
 
-            checkAllChoicesCompleted();
 
-        }
+    showToast(
+        '선택 완료! 대기 중...',
+        'success'
+    );
 
-        // ================================
-        // 6. 참가자라면 방장에게 전송
-        // ================================
-        else {
 
-            state.channel.send({
+    /*
+       ★ DB 저장
+    */
 
-                type: 'broadcast',
+    const {
+        error
+    } =
+        await supabase
+            .from('player_choices')
+            .insert([
+                {
 
-                event: 'choice-made',
+                    room_code:
+                        state.roomCode,
 
-                payload: {
+                    round_number:
+                        state.currentRound,
 
-                    userId:
+                    user_id:
                         state.userId,
 
                     nickname:
@@ -1411,138 +1784,392 @@
                         choiceIndex
 
                 }
-
-            });
-
-        }
-
-    };
+            ]);
 
 
-    // ================================
-    // ★ 모든 참가자가 선택했는지 확인
-    // ================================
-    const checkAllChoicesCompleted = () => {
+    if (error) {
 
-        if (state.roundEnded) return;
+        /*
+           중복 저장 등의 경우에도
+           메모리 선택은 유지한다.
+        */
 
-
-        // 현재 참가자들의 userId만 가져옴
-        const participantIds =
-            state.participants.map(
-                p => p.userId
-            );
-
-
-        console.log(
-            '참가자:',
-            participantIds
+        console.warn(
+            '선택 DB 저장 결과:',
+            error
         );
 
+    }
 
-        console.log(
-            '현재 선택:',
-            state.roundChoices
+
+    /*
+       ★ 방장에게 선택 알림
+
+       선택값까지 같이 보낸다.
+    */
+
+    if (
+        state.isHost
+    ) {
+
+        /*
+           방장은 자기 선택을 이미
+           roundChoices에 넣었다.
+
+           DB 반영을 기다렸다가 검사.
+        */
+
+        setTimeout(
+            () => {
+                checkAllChoicesCompleted();
+            },
+            300
         );
 
+    } else {
 
-        // 선택한 사람 수
-        const selectedCount =
-            participantIds.filter(
-                id =>
-                    state.roundChoices[id] !== undefined
-            ).length;
+        await state.channel.send({
 
+            type:
+                'broadcast',
 
-        console.log(
-            `선택 완료: ${selectedCount} / ${participantIds.length}`
-        );
+            event:
+                'choice-made',
 
+            payload: {
 
-        // ★ 모든 참가자가 선택했으면 즉시 종료
-        if (
-            participantIds.length > 0 &&
-            selectedCount >= participantIds.length
-        ) {
+                userId:
+                    state.userId,
 
-            triggerRoundEnd();
-
-        }
-
-    };
-
-
-    // ================================
-    // ★ 라운드 종료
-    // ================================
-    const triggerRoundEnd = async () => {
-
-        if (state.roundEnded) return;
-
-
-        state.roundEnded = true;
-
-
-        if (state.timerInterval) {
-
-            clearInterval(
-                state.timerInterval
-            );
-
-        }
-
-
-        showToast(
-            '결과 집계 중...',
-            'success'
-        );
-
-
-        // ================================
-        // 결과 만들기
-        // ================================
-        const results = [];
-
-
-        state.participants.forEach(p => {
-
-            const selected =
-                state.roundChoices[p.userId];
-
-
-            results.push({
-
-                user_id:
-                    p.userId,
-
-                nickname:
-                    p.nickname,
-
-                // 선택하지 않았다면 3번
                 choice:
-                    selected !== undefined
-                        ? selected
-                        : 3
+                    choiceIndex
 
-            });
+            }
 
         });
 
+    }
 
-        console.log(
-            '최종 결과:',
-            results
+};
+
+
+
+/* =========================================================
+   모든 선택 확인
+========================================================= */
+
+const checkAllChoicesCompleted = async () => {
+
+    if (
+        state.roundEnded
+    ) {
+
+        return;
+
+    }
+
+
+    /*
+       ★ 1차:
+       방장이 받은 broadcast 기준으로 확인
+    */
+
+    const memoryChoiceCount =
+        Object.keys(
+            state.roundChoices
+        ).filter(
+            userId =>
+                state.gameExpectedUserIds.includes(
+                    userId
+                )
+        ).length;
+
+
+    /*
+       모두 선택했다면
+       바로 DB 결과를 한 번 더 확인
+    */
+
+    if (
+        memoryChoiceCount >=
+        state.gameExpectedCount
+    ) {
+
+        /*
+           DB 저장이 완료될 시간을 아주 조금 준다.
+        */
+
+        setTimeout(
+            () => {
+
+                if (
+                    !state.roundEnded
+                ) {
+
+                    triggerRoundEnd();
+
+                }
+
+            },
+            300
         );
 
+        return;
 
-        // ================================
-        // 모든 참가자에게 결과 전달
-        // ================================
-        state.channel.send({
+    }
 
-            type: 'broadcast',
 
-            event: 'round-end',
+    /*
+       ★ 2차:
+       DB에서도 확인
+
+       참가자가 먼저 선택하고
+       방장이 나중에 선택했을 때
+       발생했던 타이밍 문제를 방지한다.
+    */
+
+    const {
+        data,
+        error
+    } =
+        await supabase
+            .from('player_choices')
+            .select(
+                'user_id, choice'
+            )
+            .eq(
+                'room_code',
+                state.roomCode
+            )
+            .eq(
+                'round_number',
+                state.currentRound
+            );
+
+
+    if (
+        error
+    ) {
+
+        console.error(
+            '선택 조회 오류:',
+            error
+        );
+
+        return;
+
+    }
+
+
+    /*
+       DB 결과를 메모리에 반영
+    */
+
+    if (data) {
+
+        data.forEach(
+            row => {
+
+                if (
+                    state.gameExpectedUserIds.includes(
+                        row.user_id
+                    )
+                ) {
+
+                    state.roundChoices[
+                        row.user_id
+                    ] = row.choice;
+
+                }
+
+            }
+        );
+
+    }
+
+
+    const finalCount =
+        state.gameExpectedUserIds.filter(
+            userId =>
+                state.roundChoices[
+                    userId
+                ] !== undefined
+        ).length;
+
+
+    /*
+       ★ 정말 모두 선택했을 때만 종료
+    */
+
+    if (
+        finalCount >=
+        state.gameExpectedCount
+    ) {
+
+        triggerRoundEnd();
+
+    }
+
+};
+
+
+
+/* =========================================================
+   라운드 종료
+========================================================= */
+
+const triggerRoundEnd = async () => {
+
+    if (
+        state.roundEnded
+    ) {
+
+        return;
+
+    }
+
+
+    state.roundEnded =
+        true;
+
+
+    if (
+        state.timerInterval
+    ) {
+
+        clearInterval(
+            state.timerInterval
+        );
+
+    }
+
+
+    showToast(
+        '결과 집계 중...',
+        'success'
+    );
+
+
+    /*
+       DB에서 최신 결과를 가져온다.
+    */
+
+    const {
+        data,
+        error
+    } =
+        await supabase
+            .from('player_choices')
+            .select('*')
+            .eq(
+                'room_code',
+                state.roomCode
+            )
+            .eq(
+                'round_number',
+                state.currentRound
+            );
+
+
+    if (error) {
+
+        console.error(
+            '결과 조회 오류:',
+            error
+        );
+
+    }
+
+
+    const results =
+        data || [];
+
+
+    /*
+       ★ 혹시 DB에 저장되지 않은 선택이 있다면
+       메모리 선택을 결과에 보충
+
+       이렇게 하면 참가자가 먼저 누르고
+       방장이 바로 눌렀을 때도 안전하다.
+    */
+
+    const resultMap = {};
+
+
+    results.forEach(
+        row => {
+
+            resultMap[
+                row.user_id
+            ] = row;
+
+        }
+    );
+
+
+    Object.entries(
+        state.roundChoices
+    ).forEach(
+        ([userId, choice]) => {
+
+            if (
+                !resultMap[userId]
+            ) {
+
+                const participant =
+                    state.gameParticipants.find(
+                        p =>
+                            p.userId ===
+                            userId
+                    );
+
+
+                if (
+                    participant
+                ) {
+
+                    results.push({
+
+                        room_code:
+                            state.roomCode,
+
+                        round_number:
+                            state.currentRound,
+
+                        user_id:
+                            userId,
+
+                        nickname:
+                            participant.nickname,
+
+                        choice:
+                            choice
+
+                    });
+
+                }
+
+            }
+
+        }
+    );
+
+
+    /*
+       ★ 결과를 전체에게 전달
+    */
+
+    if (
+        state.channel
+    ) {
+
+        await state.channel.send({
+
+            type:
+                'broadcast',
+
+            event:
+                'round-end',
 
             payload: {
 
@@ -1553,75 +2180,141 @@
 
         });
 
-
-        // 방장 본인도 처리
-        handleRoundEnd(results);
-
-    };
+    }
 
 
-    // ================================
-    // 결과 표시
-    // ================================
-    const handleRoundEnd = (results) => {
+    /*
+       방장 본인 화면
+    */
 
-        if (state.timerInterval) {
+    handleRoundEnd(
+        results
+    );
 
-            clearInterval(
-                state.timerInterval
-            );
+};
+
+
+
+/* =========================================================
+   결과 처리
+========================================================= */
+
+const handleRoundEnd = (
+    results
+) => {
+
+    /*
+       이미 처리했으면 중복 처리 금지
+    */
+
+    if (
+        state.resultProcessed
+    ) {
+
+        return;
+
+    }
+
+
+    state.resultProcessed =
+        true;
+
+
+    state.roundEnded =
+        true;
+
+
+    if (
+        state.timerInterval
+    ) {
+
+        clearInterval(
+            state.timerInterval
+        );
+
+    }
+
+
+    document.getElementById(
+        'timer-display'
+    ).innerText =
+        '종료';
+
+
+    document.getElementById(
+        'choice-container'
+    ).style.display =
+        'none';
+
+
+    const resultList =
+        document.getElementById(
+            'result-list'
+        );
+
+
+    resultList.innerHTML =
+        '';
+
+
+    /*
+       ★ 결과를 userId 기준으로 만든다.
+    */
+
+    const resultMap = {};
+
+
+    results.forEach(
+        row => {
+
+            resultMap[
+                row.user_id
+            ] = row.choice;
 
         }
+    );
 
 
-        document.getElementById(
-            'timer-display'
-        ).innerText = '종료';
+    /*
+       ★ 게임 시작 당시 확정된 참가자를 기준으로 처리
+    */
 
+    state.gameParticipants.forEach(
+        p => {
 
-        document.getElementById(
-            'choice-container'
-        ).style.display =
-            'none';
+            /*
+               DB/메모리에 선택이 있으면 그 선택 사용
 
-
-        const resultList =
-            document.getElementById(
-                'result-list'
-            );
-
-
-        resultList.innerHTML = '';
-
-
-        // ================================
-        // 참가자별 결과
-        // ================================
-        state.participants.forEach(p => {
-
-            const pChoiceInfo =
-                results.find(
-                    r =>
-                        r.user_id === p.userId
-                );
-
-
-            const wasSelected =
-                pChoiceInfo &&
-                pChoiceInfo.choice !== undefined;
-
+               없으면 정말로 시간초과
+            */
 
             const pChoice =
-                pChoiceInfo
-                    ? pChoiceInfo.choice
-                    : 3;
+                resultMap[p.userId] !== undefined
+                    ? Number(
+                        resultMap[p.userId]
+                    )
+                    : (
+                        state.roundChoices[
+                            p.userId
+                        ] !== undefined
+                            ? Number(
+                                state.roundChoices[
+                                    p.userId
+                                ]
+                            )
+                            : 3
+                    );
 
 
             let choiceText = '';
-            let bgColor = 'bg-gray-50';
+
+            let bgColor =
+                'bg-gray-50';
 
 
-            if (pChoice === 1) {
+            if (
+                pChoice === 1
+            ) {
 
                 choiceText =
                     '① 발전기 구입';
@@ -1631,7 +2324,9 @@
 
             }
 
-            else if (pChoice === 2) {
+            else if (
+                pChoice === 2
+            ) {
 
                 choiceText =
                     '② 전기 빌리기';
@@ -1643,38 +2338,31 @@
 
             else {
 
-                // ★ 실제 3번 선택과 시간초과 구분
-                if (wasSelected) {
+                choiceText =
+                    '③ 시간초과 / 방관';
 
-                    choiceText =
-                        '③ 아무것도 하지 않기';
-
-                    bgColor =
-                        'bg-gray-50 border-gray-200';
-
-                } else {
-
-                    choiceText =
-                        '⏰ 시간초과 / 방관';
-
-                    bgColor =
-                        'bg-red-50 border-red-200 text-red-600';
-
-                }
+                bgColor =
+                    'bg-red-50 border-red-200 text-red-600';
 
             }
 
 
             const isMe =
-                p.userId === state.userId;
+                p.userId ===
+                state.userId;
 
 
-            // ================================
-            // 내 자원 변화
-            // ================================
-            if (isMe) {
+            /*
+               ★ 내 자원만 변화시킨다.
+            */
 
-                if (pChoice === 1) {
+            if (
+                isMe
+            ) {
+
+                if (
+                    pChoice === 1
+                ) {
 
                     state.resources.money -= 30;
 
@@ -1684,7 +2372,9 @@
 
                 }
 
-                else if (pChoice === 2) {
+                else if (
+                    pChoice === 2
+                ) {
 
                     state.resources.money -= 10;
 
@@ -1694,7 +2384,9 @@
 
                 }
 
-                else {
+                else if (
+                    pChoice === 3
+                ) {
 
                     state.resources.energy -= 2;
 
@@ -1708,24 +2400,26 @@
             }
 
 
-            // ================================
-            // 결과 목록 출력
-            // ================================
+            /*
+               결과 목록
+            */
+
             const li =
-                document.createElement('li');
+                document.createElement(
+                    'li'
+                );
 
 
             li.className =
-                `p-3 rounded-xl flex justify-between
-                items-center text-sm border shadow-sm
-                ${bgColor}
-                ${isMe
-                    ? 'ring-2 ring-indigo-500 font-bold'
-                    : 'border-gray-100'}`;
+                `p-3 rounded-xl flex justify-between items-center text-sm border shadow-sm ${bgColor} ${
+                    isMe
+                        ? 'ring-2 ring-indigo-500 font-bold'
+                        : 'border-gray-100'
+                }`;
 
 
-            li.innerHTML = `
-
+            li.innerHTML =
+                `
                 <span class="text-gray-800 flex items-center gap-2">
 
                     ${p.nickname}
@@ -1741,126 +2435,135 @@
                 <span>
                     ${choiceText}
                 </span>
-
-            `;
-
-
-            resultList.appendChild(li);
-
-        });
+                `;
 
 
-        document.getElementById(
-            'result-container'
-        ).classList.remove('hidden');
-
-    };
-
-
-    // ================================
-    // 방 나가기
-    // ================================
-    window.leaveRoom = async () => {
-
-        if (
-            !confirm(
-                '정말 방에서 나가시겠습니까?'
-            )
-        ) return;
-
-
-        if (state.channel) {
-
-            await state.channel.untrack();
-
-            supabase.removeChannel(
-                state.channel
+            resultList.appendChild(
+                li
             );
 
-            state.channel = null;
-
         }
+    );
 
 
-        // 상태 초기화
-        state.roomCode = '';
-        state.nickname = '';
-        state.isHost = false;
-        state.participants = [];
-        state.roundChoices = {};
-        state.hasSelected = false;
-        state.roundEnded = false;
+    document.getElementById(
+        'result-container'
+    ).classList.remove(
+        'hidden'
+    );
+
+};
 
 
-        navigate('home');
 
-    };
+/* =========================================================
+   방 나가기
+========================================================= */
+
+window.leaveRoom = async () => {
+
+    if (
+        !confirm(
+            '정말 방에서 나가시겠습니까?'
+        )
+    ) {
+
+        return;
+
+    }
 
 
-    // ================================
-    // 방 코드 복사
-    // ================================
-    window.copyRoomCode = () => {
+    if (
+        state.channel
+    ) {
 
-        if (!state.roomCode) return;
+        await state.channel.untrack();
+
+        await supabase.removeChannel(
+            state.channel
+        );
+
+        state.channel =
+            null;
+
+    }
 
 
-        if (
-            navigator.clipboard &&
-            navigator.clipboard.writeText
-        ) {
+    navigate('home');
 
-            navigator.clipboard
-                .writeText(state.roomCode)
-                .then(() => {
+};
 
-                    showToast(
-                        '방 코드가 복사되었습니다.',
-                        'success'
+
+
+/* =========================================================
+   방 코드 복사
+========================================================= */
+
+window.copyRoomCode = () => {
+
+    if (
+        !state.roomCode
+    ) {
+
+        return;
+
+    }
+
+
+    navigator.clipboard
+        .writeText(
+            state.roomCode
+        )
+        .then(
+            () => {
+
+                showToast(
+                    '방 코드가 복사되었습니다.',
+                    'success'
+                );
+
+            }
+        )
+        .catch(
+            () => {
+
+                const textArea =
+                    document.createElement(
+                        'textarea'
                     );
 
-                });
 
-        }
+                textArea.value =
+                    state.roomCode;
 
-        else {
 
-            const textArea =
-                document.createElement(
-                    "textarea"
+                document.body.appendChild(
+                    textArea
                 );
 
 
-            textArea.value =
-                state.roomCode;
+                textArea.select();
 
 
-            document.body.appendChild(
-                textArea
-            );
+                document.execCommand(
+                    'copy'
+                );
 
 
-            textArea.select();
+                document.body.removeChild(
+                    textArea
+                );
 
 
-            document.execCommand(
-                'copy'
-            );
+                showToast(
+                    '방 코드가 복사되었습니다.',
+                    'success'
+                );
 
+            }
+        );
 
-            document.body.removeChild(
-                textArea
-            );
-
-
-            showToast(
-                '방 코드가 복사되었습니다.',
-                'success'
-            );
-
-        }
-
-    };
+};
 
 </script>
 
