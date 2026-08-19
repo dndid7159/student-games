@@ -232,7 +232,7 @@
         let score = 0;
         let level = 1;
         let gameLoop;
-        let gameSpeed = 300; // 초기 속도 (밀리초)
+        let gameSpeed = 500; // 초기 속도 느리게 수정 (기존 300 -> 500 밀리초)
         let foods = []; // 맵에 흩뿌려질 식재료들
         let isGameOver = false;
         let warningMsg = "";
@@ -267,8 +267,8 @@
         function startLevel(newLevel) {
             level = newLevel;
             currentOrderIndex = 0;
-            // 레벨이 오를수록 속도 증가 (최소 100ms)
-            gameSpeed = Math.max(100, 300 - ((level - 1) * 30));
+            // 레벨이 오를수록 속도 증가하지만, 전체적으로 조금 더 여유롭게 조정 (최소 200ms)
+            gameSpeed = Math.max(200, 500 - ((level - 1) * 40));
             
             generateFoods();
             updateUI();
@@ -317,12 +317,27 @@
             if(isGameOver) return;
 
             // 1. 뱀 이동 위치 계산
-            const head = { x: snake[0].x + dx, y: snake[0].y + dy };
+            let head = { x: snake[0].x + dx, y: snake[0].y + dy };
 
-            // 2. 충돌 검사 (벽)
+            // 2. 충돌 검사 (벽) - 게임오버 대신 진행 방향 기준 오른쪽(시계방향)으로 90도 꺾기
             if (head.x < 0 || head.x >= width || head.y < 0 || head.y >= height) {
-                gameOver("벽에 부딪혔습니다!");
-                return;
+                // 현재 진행 방향에 따라 오른쪽으로 전환 (위->오른쪽, 오른쪽->아래, 아래->왼쪽, 왼쪽->위)
+                if (dy === -gridSize) { dx = gridSize; dy = 0; }
+                else if (dx === gridSize) { dx = 0; dy = gridSize; }
+                else if (dy === gridSize) { dx = -gridSize; dy = 0; }
+                else if (dx === -gridSize) { dx = 0; dy = -gridSize; }
+                
+                // 꺾은 후의 새로운 머리 위치 재계산
+                head = { x: snake[0].x + dx, y: snake[0].y + dy };
+                
+                // 만약 구석(모서리)에 도달해서 꺾은 후에도 여전히 벽 밖이라면 한 번 더 꺾어줌 (유턴)
+                if (head.x < 0 || head.x >= width || head.y < 0 || head.y >= height) {
+                    if (dy === -gridSize) { dx = gridSize; dy = 0; }
+                    else if (dx === gridSize) { dx = 0; dy = gridSize; }
+                    else if (dy === gridSize) { dx = -gridSize; dy = 0; }
+                    else if (dx === -gridSize) { dx = 0; dy = -gridSize; }
+                    head = { x: snake[0].x + dx, y: snake[0].y + dy };
+                }
             }
 
             // 3. 충돌 검사 (자기 몸)
