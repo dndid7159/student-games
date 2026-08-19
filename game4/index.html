@@ -1,671 +1,671 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>공유경제 마을 쟁탈전</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>공유경제 마을 쟁탈전</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
 
-    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
 
-    <style>
-        body {
-            font-family: 'Noto Sans KR', sans-serif;
-        }
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
 
-        .font-game {
-            font-family: 'Jua', sans-serif;
-        }
+        .font-game {
+            font-family: 'Jua', sans-serif;
+        }
 
-        .view {
-            display: none;
-            animation: fadeIn 0.3s ease-out;
-        }
+        .view {
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
 
-        .view.active {
-            display: block;
-        }
+        .view.active {
+            display: block;
+        }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-        .spinner {
-            border: 3px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top: 3px solid white;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-            vertical-align: middle;
-            margin-right: 8px;
-        }
+        .spinner {
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top: 3px solid white;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
 
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
 
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-    </style>
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
 </head>
 
 <body class="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 min-h-screen flex items-center justify-center p-4 text-gray-800">
 
-    <!-- 토스트 -->
-    <div id="toast"
-         class="fixed top-4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-full shadow-lg transition-all duration-300 opacity-0 pointer-events-none z-50 text-white font-bold">
-    </div>
+    <!-- 토스트 -->
+    <div id="toast"
+         class="fixed top-4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-full shadow-lg transition-all duration-300 opacity-0 pointer-events-none z-50 text-white font-bold">
+    </div>
 
 
-    <div class="w-full max-w-md bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden relative">
+    <div class="w-full max-w-md bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden relative">
 
 
-        <!-- ====================================================== -->
-        <!-- HOME -->
-        <!-- ====================================================== -->
+        <!-- ====================================================== -->
+        <!-- HOME -->
+        <!-- ====================================================== -->
 
-        <div id="view-home" class="view active p-8 text-center">
+        <div id="view-home" class="view active p-8 text-center">
 
-            <div class="mb-8">
+            <div class="mb-8">
 
-                <span class="text-6xl block mb-4">🏘️</span>
+                <span class="text-6xl block mb-4">🏘️</span>
 
-                <h1 class="font-game text-4xl text-indigo-900 mb-2 leading-tight">
-                    공유경제<br>마을 쟁탈전
-                </h1>
+                <h1 class="font-game text-4xl text-indigo-900 mb-2 leading-tight">
+                    공유경제<br>마을 쟁탈전
+                </h1>
 
-                <p class="text-gray-500 text-sm">
-                    함께 만드는 자급자족 공동체
-                </p>
+                <p class="text-gray-500 text-sm">
+                    함께 만드는 자급자족 공동체
+                </p>
 
-            </div>
+            </div>
 
 
-            <div class="space-y-4">
+            <div class="space-y-4">
 
-                <button
-                    onclick="navigate('create')"
-                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-2xl shadow-lg transition-transform active:scale-95 text-lg">
-                    방 만들기
-                </button>
+                <button
+                    onclick="navigate('create')"
+                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-2xl shadow-lg transition-transform active:scale-95 text-lg">
+                    방 만들기
+                </button>
 
-                <button
-                    onclick="navigate('join')"
-                    class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-4 rounded-2xl shadow-lg transition-transform active:scale-95 text-lg">
-                    방 참가하기
-                </button>
+                <button
+                    onclick="navigate('join')"
+                    class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-4 rounded-2xl shadow-lg transition-transform active:scale-95 text-lg">
+                    방 참가하기
+                </button>
 
-            </div>
+            </div>
 
-        </div>
+        </div>
 
 
-        <!-- ====================================================== -->
-        <!-- CREATE -->
-        <!-- ====================================================== -->
+        <!-- ====================================================== -->
+        <!-- CREATE -->
+        <!-- ====================================================== -->
 
-        <div id="view-create" class="view p-8">
+        <div id="view-create" class="view p-8">
 
-            <h2 class="font-game text-3xl text-indigo-900 mb-6 text-center">
-                새로운 마을 건설
-            </h2>
+            <h2 class="font-game text-3xl text-indigo-900 mb-6 text-center">
+                새로운 마을 건설
+            </h2>
 
-            <div class="space-y-6">
+            <div class="space-y-6">
 
-                <div>
+                <div>
 
-                    <label class="block text-sm font-bold text-gray-700 mb-2">
-                        방장 닉네임
-                    </label>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">
+                        방장 닉네임
+                    </label>
 
-                    <input
-                        type="text"
-                        id="create-nickname"
-                        placeholder="멋진 이름을 입력하세요"
-                        class="w-full bg-gray-100 border-2 border-transparent focus:bg-white focus:border-indigo-500 rounded-xl px-4 py-3 outline-none transition-colors"
-                        maxlength="10">
+                    <input
+                        type="text"
+                        id="create-nickname"
+                        placeholder="멋진 이름을 입력하세요"
+                        class="w-full bg-gray-100 border-2 border-transparent focus:bg-white focus:border-indigo-500 rounded-xl px-4 py-3 outline-none transition-colors"
+                        maxlength="10">
 
-                </div>
+                </div>
 
 
-                <div class="flex gap-3">
+                <div class="flex gap-3">
 
-                    <button
-                        onclick="navigate('home')"
-                        class="w-1/3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 rounded-xl">
-                        취소
-                    </button>
+                    <button
+                        onclick="navigate('home')"
+                        class="w-1/3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 rounded-xl">
+                        취소
+                    </button>
 
-                    <button
-                        id="btn-create-submit"
-                        onclick="createRoom()"
-                        class="w-2/3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-md">
-                        마을 만들기
-                    </button>
+                    <button
+                        id="btn-create-submit"
+                        onclick="createRoom()"
+                        class="w-2/3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-md">
+                        마을 만들기
+                    </button>
 
-                </div>
+                </div>
 
-            </div>
+            </div>
 
-        </div>
+        </div>
 
 
-        <!-- ====================================================== -->
-        <!-- JOIN -->
-        <!-- ====================================================== -->
+        <!-- ====================================================== -->
+        <!-- JOIN -->
+        <!-- ====================================================== -->
 
-        <div id="view-join" class="view p-8">
+        <div id="view-join" class="view p-8">
 
-            <h2 class="font-game text-3xl text-pink-600 mb-6 text-center">
-                마을로 이주하기
-            </h2>
+            <h2 class="font-game text-3xl text-pink-600 mb-6 text-center">
+                마을로 이주하기
+            </h2>
 
-            <div class="space-y-6">
+            <div class="space-y-6">
 
-                <div>
+                <div>
 
-                    <label class="block text-sm font-bold text-gray-700 mb-2">
-                        방 코드 (4자리)
-                    </label>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">
+                        방 코드 (4자리)
+                    </label>
 
-                    <input
-                        type="text"
-                        id="join-code"
-                        placeholder="예: A7K2"
-                        class="w-full bg-gray-100 border-2 border-transparent focus:bg-white focus:border-pink-500 rounded-xl px-4 py-3 outline-none uppercase font-mono tracking-widest text-lg"
-                        maxlength="4">
+                    <input
+                        type="text"
+                        id="join-code"
+                        placeholder="예: A7K2"
+                        class="w-full bg-gray-100 border-2 border-transparent focus:bg-white focus:border-pink-500 rounded-xl px-4 py-3 outline-none uppercase font-mono tracking-widest text-lg"
+                        maxlength="4">
 
-                </div>
+                </div>
 
 
-                <div>
+                <div>
 
-                    <label class="block text-sm font-bold text-gray-700 mb-2">
-                        당신의 닉네임
-                    </label>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">
+                        당신의 닉네임
+                    </label>
 
-                    <input
-                        type="text"
-                        id="join-nickname"
-                        placeholder="멋진 이름을 입력하세요"
-                        class="w-full bg-gray-100 border-2 border-transparent focus:bg-white focus:border-pink-500 rounded-xl px-4 py-3 outline-none"
-                        maxlength="10">
+                    <input
+                        type="text"
+                        id="join-nickname"
+                        placeholder="멋진 이름을 입력하세요"
+                        class="w-full bg-gray-100 border-2 border-transparent focus:bg-white focus:border-pink-500 rounded-xl px-4 py-3 outline-none"
+                        maxlength="10">
 
-                </div>
+                </div>
 
 
-                <div class="flex gap-3">
+                <div class="flex gap-3">
 
-                    <button
-                        onclick="navigate('home')"
-                        class="w-1/3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 rounded-xl">
-                        취소
-                    </button>
+                    <button
+                        onclick="navigate('home')"
+                        class="w-1/3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 rounded-xl">
+                        취소
+                    </button>
 
-                    <button
-                        id="btn-join-submit"
-                        onclick="joinRoom()"
-                        class="w-2/3 bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 rounded-xl shadow-md">
-                        참가하기
-                    </button>
+                    <button
+                        id="btn-join-submit"
+                        onclick="joinRoom()"
+                        class="w-2/3 bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 rounded-xl shadow-md">
+                        참가하기
+                    </button>
 
-                </div>
+                </div>
 
-            </div>
+            </div>
 
-        </div>
+        </div>
 
 
-        <!-- ====================================================== -->
-        <!-- LOBBY -->
-        <!-- ====================================================== -->
+        <!-- ====================================================== -->
+        <!-- LOBBY -->
+        <!-- ====================================================== -->
 
-        <div id="view-lobby" class="view p-6 flex flex-col min-h-[500px]">
+        <div id="view-lobby" class="view p-6 flex flex-col min-h-[500px]">
 
-            <div class="flex justify-between items-center mb-4">
+            <div class="flex justify-between items-center mb-4">
 
-                <div class="font-game text-xl text-indigo-900">
-                    🏘️ 공유경제 마을
-                </div>
+                <div class="font-game text-xl text-indigo-900">
+                    🏘️ 공유경제 마을
+                </div>
 
-                <button
-                    onclick="leaveRoom()"
-                    class="text-sm text-red-500 hover:bg-red-50 px-3 py-1 rounded-lg font-bold">
-                    나가기
-                </button>
+                <button
+                    onclick="leaveRoom()"
+                    class="text-sm text-red-500 hover:bg-red-50 px-3 py-1 rounded-lg font-bold">
+                    나가기
+                </button>
 
-            </div>
+            </div>
 
 
-            <div
-                class="bg-indigo-50 rounded-2xl p-4 mb-4 cursor-pointer"
-                onclick="copyRoomCode()">
+            <div
+                class="bg-indigo-50 rounded-2xl p-4 mb-4 cursor-pointer"
+                onclick="copyRoomCode()">
 
-                <span class="text-xs text-indigo-500 font-bold uppercase block mb-1">
-                    초대 코드 (클릭하여 복사)
-                </span>
+                <span class="text-xs text-indigo-500 font-bold uppercase block mb-1">
+                    초대 코드 (클릭하여 복사)
+                </span>
 
-                <span
-                    id="display-room-code"
-                    class="text-3xl font-mono font-bold text-indigo-900 tracking-widest">
-                    ----
-                </span>
+                <span
+                    id="display-room-code"
+                    class="text-3xl font-mono font-bold text-indigo-900 tracking-widest">
+                    ----
+                </span>
 
-            </div>
+            </div>
 
 
-            <div class="flex-1 bg-gray-50 rounded-2xl p-4 overflow-y-auto border border-gray-100">
+            <div class="flex-1 bg-gray-50 rounded-2xl p-4 overflow-y-auto border border-gray-100">
 
-                <div class="flex justify-between items-end mb-3 border-b border-gray-200 pb-2">
+                <div class="flex justify-between items-end mb-3 border-b border-gray-200 pb-2">
 
-                    <span class="font-bold text-gray-700">
-                        참가자 목록
-                    </span>
+                    <span class="font-bold text-gray-700">
+                        참가자 목록
+                    </span>
 
-                    <span
-                        id="player-count"
-                        class="text-xs font-bold bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full">
-                        0명
-                    </span>
+                    <span
+                        id="player-count"
+                        class="text-xs font-bold bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full">
+                        0명
+                    </span>
 
-                </div>
+                </div>
 
-                <ul id="participant-list" class="space-y-2"></ul>
+                <ul id="participant-list" class="space-y-2"></ul>
 
-            </div>
+            </div>
 
 
-            <div id="host-controls" class="mt-4 hidden">
+            <div id="host-controls" class="mt-4 hidden">
 
-                <button
-                    onclick="startGame()"
-                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl shadow-lg text-lg">
-                    🚀 게임 시작하기
-                </button>
+                <button
+                    onclick="startGame()"
+                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl shadow-lg text-lg">
+                    🚀 게임 시작하기
+                </button>
 
-            </div>
+            </div>
 
 
-            <div id="guest-controls"
-                 class="mt-4 text-center text-gray-500 font-bold py-4">
+            <div id="guest-controls"
+                 class="mt-4 text-center text-gray-500 font-bold py-4">
 
-                ⏳ 방장이 게임을 시작하기를 기다리고 있습니다...
+                ⏳ 방장이 게임을 시작하기를 기다리고 있습니다...
 
-            </div>
+            </div>
 
-        </div>
+        </div>
 
 
 
-        <!-- ====================================================== -->
-        <!-- GAME -->
-        <!-- ====================================================== -->
+        <!-- ====================================================== -->
+        <!-- GAME -->
+        <!-- ====================================================== -->
 
-        <div id="view-game" class="view p-4 sm:p-6 flex flex-col min-h-[650px]">
+        <div id="view-game" class="view p-4 sm:p-6 flex flex-col min-h-[650px]">
 
-            <!-- HEADER -->
+            <!-- HEADER -->
 
-            <div class="flex justify-between items-end mb-4 border-b pb-3">
+            <div class="flex justify-between items-end mb-4 border-b pb-3">
 
-                <div>
+                <div>
 
-                    <h2 class="font-game text-xl text-indigo-900 mb-1">
-                        🏘️ 공유경제 마을 쟁탈전
-                    </h2>
+                    <h2 class="font-game text-xl text-indigo-900 mb-1">
+                        🏘️ 공유경제 마을 쟁탈전
+                    </h2>
 
-                    <div class="font-bold text-gray-500 text-sm">
+                    <div class="font-bold text-gray-500 text-sm">
 
-                        ROUND
-                        <span id="current-round-display"
-                              class="text-indigo-600">
-                            1
-                        </span>
-                        / 8
+                        ROUND
+                        <span id="current-round-display"
+                              class="text-indigo-600">
+                            1
+                        </span>
+                        / 8
 
-                    </div>
+                    </div>
 
-                </div>
+                </div>
 
 
-                <div class="text-right">
+                <div class="text-right">
 
-                    <span class="text-xs font-bold text-gray-400 block mb-1">
-                        남은 시간
-                    </span>
+                    <span class="text-xs font-bold text-gray-400 block mb-1">
+                        남은 시간
+                    </span>
 
-                    <span
-                        id="timer-display"
-                        class="text-2xl font-mono font-bold text-red-500 bg-red-50 px-3 py-1 rounded-lg border border-red-100 shadow-inner">
-                        20초
-                    </span>
+                    <span
+                        id="timer-display"
+                        class="text-2xl font-mono font-bold text-red-500 bg-red-50 px-3 py-1 rounded-lg border border-red-100 shadow-inner">
+                        20초
+                    </span>
 
-                </div>
+                </div>
 
-            </div>
+            </div>
 
 
 
-            <!-- RESOURCES -->
+            <!-- RESOURCES -->
 
-            <div class="grid grid-cols-5 gap-2 mb-5">
+            <div class="grid grid-cols-5 gap-2 mb-5">
 
-                <div class="bg-yellow-50 rounded-xl p-2 text-center border border-yellow-100 shadow-sm">
-                    <span class="block text-xl">💰</span>
-                    <span id="res-money" class="font-bold text-yellow-700">100</span>
-                </div>
+                <div class="bg-yellow-50 rounded-xl p-2 text-center border border-yellow-100 shadow-sm">
+                    <span class="block text-xl">💰</span>
+                    <span id="res-money" class="font-bold text-yellow-700">100</span>
+                </div>
 
-                <div class="bg-orange-50 rounded-xl p-2 text-center border border-orange-100 shadow-sm">
-                    <span class="block text-xl">🍚</span>
-                    <span id="res-food" class="font-bold text-orange-700">5</span>
-                </div>
+                <div class="bg-orange-50 rounded-xl p-2 text-center border border-orange-100 shadow-sm">
+                    <span class="block text-xl">🍚</span>
+                    <span id="res-food" class="font-bold text-orange-700">5</span>
+                </div>
 
-                <div class="bg-blue-50 rounded-xl p-2 text-center border border-blue-100 shadow-sm">
-                    <span class="block text-xl">🔋</span>
-                    <span id="res-energy" class="font-bold text-blue-700">5</span>
-                </div>
+                <div class="bg-blue-50 rounded-xl p-2 text-center border border-blue-100 shadow-sm">
+                    <span class="block text-xl">🔋</span>
+                    <span id="res-energy" class="font-bold text-blue-700">5</span>
+                </div>
 
-                <div class="bg-pink-50 rounded-xl p-2 text-center border border-pink-100 shadow-sm">
-                    <span class="block text-xl">😊</span>
-                    <span id="res-satis" class="font-bold text-pink-700">50</span>
-                </div>
+                <div class="bg-pink-50 rounded-xl p-2 text-center border border-pink-100 shadow-sm">
+                    <span class="block text-xl">😊</span>
+                    <span id="res-satis" class="font-bold text-pink-700">50</span>
+                </div>
 
-                <div class="bg-green-50 rounded-xl p-2 text-center border border-green-100 shadow-sm">
-                    <span class="block text-xl">🌱</span>
-                    <span id="res-env" class="font-bold text-green-700">50</span>
-                </div>
+                <div class="bg-green-50 rounded-xl p-2 text-center border border-green-100 shadow-sm">
+                    <span class="block text-xl">🌱</span>
+                    <span id="res-env" class="font-bold text-green-700">50</span>
+                </div>
 
-            </div>
+            </div>
 
 
 
-            <!-- EVENT -->
+            <!-- EVENT -->
 
-            <div
-                class="bg-indigo-50 border-2 border-indigo-100 rounded-2xl p-5 mb-4 text-center shadow-inner">
+            <div
+                class="bg-indigo-50 border-2 border-indigo-100 rounded-2xl p-5 mb-4 text-center shadow-inner">
 
-                <div
-                    id="event-icon"
-                    class="text-5xl mb-3">
-                    ⚡
-                </div>
+                <div
+                    id="event-icon"
+                    class="text-5xl mb-3">
+                    ⚡
+                </div>
 
-                <h3
-                    id="event-title"
-                    class="font-game text-2xl text-indigo-900 mb-2">
-                    정전 발생!
-                </h3>
+                <h3
+                    id="event-title"
+                    class="font-game text-2xl text-indigo-900 mb-2">
+                    정전 발생!
+                </h3>
 
-                <p
-                    id="event-description"
-                    class="text-gray-700 text-sm font-medium leading-relaxed">
-                    마을에 갑작스러운 정전이 발생했습니다.
-                </p>
+                <p
+                    id="event-description"
+                    class="text-gray-700 text-sm font-medium leading-relaxed">
+                    마을에 갑작스러운 정전이 발생했습니다.
+                </p>
 
-            </div>
+            </div>
 
 
 
-            <!-- CHOICES -->
+            <!-- CHOICES -->
 
-            <div
-                id="choice-container"
-                class="space-y-3 flex-1">
+            <div
+                id="choice-container"
+                class="space-y-3 flex-1">
 
-                <button
-                    onclick="submitChoice(1)"
-                    class="choice-btn w-full bg-white border-2 border-gray-200 hover:border-blue-400 rounded-xl p-4 text-left transition-all hover:shadow-md active:scale-95">
+                <button
+                    onclick="submitChoice(1)"
+                    class="choice-btn w-full bg-white border-2 border-gray-200 hover:border-blue-400 rounded-xl p-4 text-left transition-all hover:shadow-md active:scale-95">
 
-                    <div class="font-bold text-gray-800 text-lg mb-1 flex justify-between items-center">
+                    <div class="font-bold text-gray-800 text-lg mb-1 flex justify-between items-center">
 
-                        <span id="choice1-title">
-                            ① 개인 발전기 구입
-                        </span>
+                        <span id="choice1-title">
+                            ① 개인 발전기 구입
+                        </span>
 
-                        <span
-                            id="choice1-cost"
-                            class="text-red-500 font-bold bg-red-50 px-2 py-0.5 rounded">
-                            -30💰
-                        </span>
+                        <span
+                            id="choice1-cost"
+                            class="text-red-500 font-bold bg-red-50 px-2 py-0.5 rounded">
+                            -30💰
+                        </span>
 
-                    </div>
+                    </div>
 
-                    <div
-                        id="choice1-effect"
-                        class="text-xs sm:text-sm text-gray-500 font-medium">
-                        에너지 +3 🔋 | 만족도 +5 😊
-                    </div>
+                    <div
+                        id="choice1-effect"
+                        class="text-xs sm:text-sm text-gray-500 font-medium">
+                        에너지 +3 🔋 | 만족도 +5 😊
+                    </div>
 
-                </button>
+                </button>
 
 
 
-                <button
-                    onclick="submitChoice(2)"
-                    class="choice-btn w-full bg-white border-2 border-gray-200 hover:border-yellow-400 rounded-xl p-4 text-left transition-all hover:shadow-md active:scale-95">
+                <button
+                    onclick="submitChoice(2)"
+                    class="choice-btn w-full bg-white border-2 border-gray-200 hover:border-yellow-400 rounded-xl p-4 text-left transition-all hover:shadow-md active:scale-95">
 
-                    <div class="font-bold text-gray-800 text-lg mb-1 flex justify-between items-center">
+                    <div class="font-bold text-gray-800 text-lg mb-1 flex justify-between items-center">
 
-                        <span id="choice2-title">
-                            ② 이웃에게 전기 빌리기
-                        </span>
+                        <span id="choice2-title">
+                            ② 이웃에게 전기 빌리기
+                        </span>
 
-                        <span
-                            id="choice2-cost"
-                            class="text-red-500 font-bold bg-red-50 px-2 py-0.5 rounded">
-                            -10💰
-                        </span>
+                        <span
+                            id="choice2-cost"
+                            class="text-red-500 font-bold bg-red-50 px-2 py-0.5 rounded">
+                            -10💰
+                        </span>
 
-                    </div>
+                    </div>
 
-                    <div
-                        id="choice2-effect"
-                        class="text-xs sm:text-sm text-gray-500 font-medium">
-                        에너지 +2 🔋 | 만족도 +2 😊
-                    </div>
+                    <div
+                        id="choice2-effect"
+                        class="text-xs sm:text-sm text-gray-500 font-medium">
+                        에너지 +2 🔋 | 만족도 +2 😊
+                    </div>
 
-                </button>
+                </button>
 
 
 
-                <button
-                    onclick="submitChoice(3)"
-                    class="choice-btn w-full bg-white border-2 border-gray-200 hover:border-gray-500 rounded-xl p-4 text-left transition-all hover:shadow-md active:scale-95">
+                <button
+                    onclick="submitChoice(3)"
+                    class="choice-btn w-full bg-white border-2 border-gray-200 hover:border-gray-500 rounded-xl p-4 text-left transition-all hover:shadow-md active:scale-95">
 
-                    <div class="font-bold text-gray-800 text-lg mb-1 flex justify-between items-center">
+                    <div class="font-bold text-gray-800 text-lg mb-1 flex justify-between items-center">
 
-                        <span id="choice3-title">
-                            ③ 아무것도 하지 않기
-                        </span>
+                        <span id="choice3-title">
+                            ③ 아무것도 하지 않기
+                        </span>
 
-                        <span
-                            id="choice3-cost"
-                            class="text-green-500 font-bold bg-green-50 px-2 py-0.5 rounded">
-                            0💰
-                        </span>
+                        <span
+                            id="choice3-cost"
+                            class="text-green-500 font-bold bg-green-50 px-2 py-0.5 rounded">
+                            0💰
+                        </span>
 
-                    </div>
+                    </div>
 
-                    <div
-                        id="choice3-effect"
-                        class="text-xs sm:text-sm text-gray-500 font-medium">
-                        에너지 -2 🔋 | 만족도 -10 😊
-                    </div>
+                    <div
+                        id="choice3-effect"
+                        class="text-xs sm:text-sm text-gray-500 font-medium">
+                        에너지 -2 🔋 | 만족도 -10 😊
+                    </div>
 
-                </button>
+                </button>
 
-            </div>
+            </div>
 
 
 
-            <!-- RESULT -->
+            <!-- RESULT -->
 
-            <div
-                id="result-container"
-                class="hidden flex-1 bg-white rounded-2xl p-4 shadow-md border border-gray-100 overflow-y-auto mb-4">
+            <div
+                id="result-container"
+                class="hidden flex-1 bg-white rounded-2xl p-4 shadow-md border border-gray-100 overflow-y-auto mb-4">
 
-                <h3
-                    id="result-title"
-                    class="font-game text-xl text-indigo-900 mb-3 text-center border-b border-indigo-100 pb-2">
-                    라운드 선택 결과
-                </h3>
+                <h3
+                    id="result-title"
+                    class="font-game text-xl text-indigo-900 mb-3 text-center border-b border-indigo-100 pb-2">
+                    라운드 선택 결과
+                </h3>
 
-                <ul
-                    id="result-list"
-                    class="space-y-2">
-                </ul>
+                <ul
+                    id="result-list"
+                    class="space-y-2">
+                </ul>
 
-            </div>
+            </div>
 
 
 
-            <!-- NEXT ROUND -->
+            <!-- NEXT ROUND -->
 
-            <div
-                id="next-round-area"
-                class="hidden mt-3">
+            <div
+                id="next-round-area"
+                class="hidden mt-3">
 
-                <button
-                    id="next-round-btn"
-                    onclick="nextRound()"
-                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl shadow-lg text-lg">
+                <button
+                    id="next-round-btn"
+                    onclick="nextRound()"
+                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl shadow-lg text-lg">
 
-                    다음 라운드 ▶
+                    다음 라운드 ▶
 
-                </button>
+                </button>
 
-                <div
-                    id="waiting-next-round"
-                    class="text-center text-gray-500 font-bold py-3">
+                <div
+                    id="waiting-next-round"
+                    class="text-center text-gray-500 font-bold py-3">
 
-                    ⏳ 방장이 다음 라운드를 시작하기를 기다리는 중...
+                    ⏳ 방장이 다음 라운드를 시작하기를 기다리는 중...
 
-                </div>
+                </div>
 
-            </div>
+            </div>
 
-        </div>
+        </div>
 
 
 
-        <!-- ====================================================== -->
-        <!-- FINAL RESULT -->
-        <!-- ====================================================== -->
+        <!-- ====================================================== -->
+        <!-- FINAL RESULT -->
+        <!-- ====================================================== -->
 
-        <div
-            id="view-final"
-            class="view p-6 min-h-[650px]">
+        <div
+            id="view-final"
+            class="view p-6 min-h-[650px]">
 
-            <div class="text-center mb-6">
+            <div class="text-center mb-6">
 
-                <div class="text-6xl mb-3">
-                    🏆
-                </div>
+                <div class="text-6xl mb-3">
+                    🏆
+                </div>
 
-                <h2
-                    class="font-game text-3xl text-indigo-900">
-                    마을 쟁탈전 종료!
-                </h2>
+                <h2
+                    class="font-game text-3xl text-indigo-900">
+                    마을 쟁탈전 종료!
+                </h2>
 
-                <p class="text-gray-500 text-sm mt-2">
-                    8라운드 동안의 마을 운영 결과입니다.
-                </p>
+                <p class="text-gray-500 text-sm mt-2">
+                    8라운드 동안의 마을 운영 결과입니다.
+                </p>
 
-            </div>
+            </div>
 
 
-            <div
-                id="winner-box"
-                class="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-200 rounded-2xl p-5 mb-5 text-center">
+            <div
+                id="winner-box"
+                class="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-200 rounded-2xl p-5 mb-5 text-center">
 
-                <div class="text-sm font-bold text-yellow-700 mb-1">
-                    🥇 최고의 마을 주민
-                </div>
+                <div class="text-sm font-bold text-yellow-700 mb-1">
+                    🥇 최고의 마을 주민
+                </div>
 
-                <div
-                    id="winner-name"
-                    class="font-game text-3xl text-yellow-800">
-                    -
-                </div>
+                <div
+                    id="winner-name"
+                    class="font-game text-3xl text-yellow-800">
+                    -
+                </div>
 
-                <div
-                    id="winner-score"
-                    class="font-bold text-yellow-700 mt-1">
-                    -
-                </div>
+                <div
+                    id="winner-score"
+                    class="font-bold text-yellow-700 mt-1">
+                    -
+                </div>
 
-            </div>
+            </div>
 
 
-            <div
-                id="final-ranking"
-                class="space-y-3 mb-5">
-            </div>
+            <div
+                id="final-ranking"
+                class="space-y-3 mb-5">
+            </div>
 
 
-            <div
-                class="bg-gray-50 rounded-2xl p-4 text-center text-sm text-gray-500">
+            <div
+                class="bg-gray-50 rounded-2xl p-4 text-center text-sm text-gray-500">
 
-                💰 돈 · 🍚 식량 · 🔋 에너지 · 😊 만족도 · 🌱 환경을
-                종합하여 최종 점수를 계산했습니다.
+                💰 돈 · 🍚 식량 · 🔋 에너지 · 😊 만족도 · 🌱 환경을
+                종합하여 최종 점수를 계산했습니다.
 
-            </div>
+            </div>
 
 
-            <button
-                onclick="leaveRoom()"
-                class="w-full mt-5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl shadow-lg">
+            <button
+                onclick="leaveRoom()"
+                class="w-full mt-5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl shadow-lg">
 
-                🏠 게임 종료
+                🏠 게임 종료
 
-            </button>
+            </button>
 
-        </div>
+        </div>
 
-    </div>
+    </div>
 
 
 
 <script type="module">
 
 /* ============================================================
-   SUPABASE
+   SUPABASE
 ============================================================ */
 
 import {
-    createClient
+    createClient
 } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
 
 const SUPABASE_URL =
-    'https://lfqgowhcfwrmtvxivyjh.supabase.co';
+    'https://lfqgowhcfwrmtvxivyjh.supabase.co';
 
 const SUPABASE_ANON_KEY =
-    'sb_publishable_NSxWcgbVY6qWPBOdWivcg_sQzfFQop';
+    'sb_publishable_NSxWcgbVY6qWPBOdWivcg_sQzfFQop';
 
 
 const supabase =
-    createClient(
-        SUPABASE_URL,
-        SUPABASE_ANON_KEY
-    );
+    createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY
+    );
 
 
 
 /* ============================================================
-   GAME SETTINGS
+   GAME SETTINGS
 ============================================================ */
 
 const TOTAL_ROUNDS = 8;
@@ -676,2165 +676,597 @@ const ROUND_TIME = 20000;
 각 라운드의 사건과 선택지
 
 effects:
-money  = 돈
-food   = 식량
+money  = 돈
+food   = 식량
 energy = 에너지
-satis  = 만족도
-env    = 환경
+satis  = 만족도
+env    = 환경
 */
 
 const ROUND_DATA = [
 
-    {
-        icon: '⚡',
-        title: '정전 발생!',
-        description: '마을에 갑작스러운 정전이 발생했습니다. 어떻게 대처할까요?',
-        choices: [
-            {
-                title: '① 개인 발전기 구입',
-                cost: '-30💰',
-                effectText: '에너지 +3 🔋 | 만족도 +5 😊',
-                effects: { money:-30, energy:3, satis:5, env:-2 }
-            },
-            {
-                title: '② 이웃에게 전기 빌리기',
-                cost: '-10💰',
-                effectText: '에너지 +2 🔋 | 만족도 +2 😊',
-                effects: { money:-10, energy:2, satis:2, env:0 }
-            },
-            {
-                title: '③ 아무것도 하지 않기',
-                cost: '0💰',
-                effectText: '에너지 -2 🔋 | 만족도 -10 😊',
-                effects: { energy:-2, satis:-10, env:0 }
-            }
-        ]
-    },
+    {
+        icon: '⚡',
+        title: '정전 발생!',
+        description: '마을에 갑작스러운 정전이 발생했습니다. 어떻게 대처할까요?',
+        choices: [
+            {
+                title: '① 개인 발전기 구입',
+                cost: '-30💰',
+                effectText: '에너지 +3 🔋 | 만족도 +5 😊',
+                effects: { money:-30, energy:3, satis:5, env:-2 }
+            },
+            {
+                title: '② 이웃에게 전기 빌리기',
+                cost: '-10💰',
+                effectText: '에너지 +2 🔋 | 만족도 +2 😊',
+                effects: { money:-10, energy:2, satis:2, env:0 }
+            },
+            {
+                title: '③ 아무것도 하지 않기',
+                cost: '0💰',
+                effectText: '에너지 -2 🔋 | 만족도 -10 😊',
+                effects: { energy:-2, satis:-10, env:0 }
+            }
+        ]
+    },
 
 
-    {
-        icon: '🌧️',
-        title: '집중호우!',
-        description: '갑작스러운 폭우로 마을 곳곳에 물이 차기 시작했습니다.',
-        choices: [
-            {
-                title: '① 배수 시설 정비',
-                cost: '-25💰',
-                effectText: '환경 +5 🌱 | 만족도 +4 😊',
-                effects: { money:-25, env:5, satis:4 }
-            },
-            {
-                title: '② 주민들이 함께 복구',
-                cost: '-5💰',
-                effectText: '환경 +2 🌱 | 만족도 +6 😊',
-                effects: { money:-5, env:2, satis:6 }
-            },
-            {
-                title: '③ 그냥 기다린다',
-                cost: '0💰',
-                effectText: '만족도 -8 😊 | 환경 -4 🌱',
-                effects: { satis:-8, env:-4 }
-            }
-        ]
-    },
+    {
+        icon: '🌧️',
+        title: '집중호우!',
+        description: '갑작스러운 폭우로 마을 곳곳에 물이 차기 시작했습니다.',
+        choices: [
+            {
+                title: '① 배수 시설 정비',
+                cost: '-25💰',
+                effectText: '환경 +5 🌱 | 만족도 +4 😊',
+                effects: { money:-25, env:5, satis:4 }
+            },
+            {
+                title: '② 주민들이 함께 복구',
+                cost: '-5💰',
+                effectText: '환경 +2 🌱 | 만족도 +6 😊',
+                effects: { money:-5, env:2, satis:6 }
+            },
+            {
+                title: '③ 그냥 기다린다',
+                cost: '0💰',
+                effectText: '만족도 -8 😊 | 환경 -4 🌱',
+                effects: { satis:-8, env:-4 }
+            }
+        ]
+    },
 
 
-    {
-        icon: '🍚',
-        title: '식량 부족!',
-        description: '공동체의 식량이 부족해졌습니다. 주민들의 식사를 어떻게 해결할까요?',
-        choices: [
-            {
-                title: '① 식량을 구매한다',
-                cost: '-20💰',
-                effectText: '식량 +4 🍚 | 만족도 +3 😊',
-                effects: { money:-20, food:4, satis:3 }
-            },
-            {
-                title: '② 서로 식량을 나눈다',
-                cost: '-5💰',
-                effectText: '식량 +2 🍚 | 만족도 +7 😊',
-                effects: { money:-5, food:2, satis:7 }
-            },
-            {
-                title: '③ 각자 알아서 해결한다',
-                cost: '0💰',
-                effectText: '식량 -2 🍚 | 만족도 -8 😊',
-                effects: { food:-2, satis:-8 }
-            }
-        ]
-    },
+    {
+        icon: '🍚',
+        title: '식량 부족!',
+        description: '공동체의 식량이 부족해졌습니다. 주민들의 식사를 어떻게 해결할까요?',
+        choices: [
+            {
+                title: '① 식량을 구매한다',
+                cost: '-20💰',
+                effectText: '식량 +4 🍚 | 만족도 +3 😊',
+                effects: { money:-20, food:4, satis:3 }
+            },
+            {
+                title: '② 서로 식량을 나눈다',
+                cost: '-5💰',
+                effectText: '식량 +2 🍚 | 만족도 +7 😊',
+                effects: { money:-5, food:2, satis:7 }
+            },
+            {
+                title: '③ 각자 알아서 해결한다',
+                cost: '0💰',
+                effectText: '식량 -2 🍚 | 만족도 -8 😊',
+                effects: { food:-2, satis:-8 }
+            }
+        ]
+    },
 
 
-    {
-        icon: '🚌',
-        title: '교통 문제!',
-        description: '마을과 주변 지역을 연결하는 교통수단이 부족합니다.',
-        choices: [
-            {
-                title: '① 마을 버스를 운영한다',
-                cost: '-25💰',
-                effectText: '만족도 +8 😊 | 환경 -2 🌱',
-                effects: { money:-25, satis:8, env:-2 }
-            },
-            {
-                title: '② 주민 카풀을 운영한다',
-                cost: '-5💰',
-                effectText: '만족도 +5 😊 | 환경 +3 🌱',
-                effects: { money:-5, satis:5, env:3 }
-            },
-            {
-                title: '③ 각자 이동한다',
-                cost: '0💰',
-                effectText: '만족도 -5 😊',
-                effects: { satis:-5 }
-            }
-        ]
-    },
+    {
+        icon: '🚌',
+        title: '교통 문제!',
+        description: '마을과 주변 지역을 연결하는 교통수단이 부족합니다.',
+        choices: [
+            {
+                title: '① 마을 버스를 운영한다',
+                cost: '-25💰',
+                effectText: '만족도 +8 😊 | 환경 -2 🌱',
+                effects: { money:-25, satis:8, env:-2 }
+            },
+            {
+                title: '② 주민 카풀을 운영한다',
+                cost: '-5💰',
+                effectText: '만족도 +5 😊 | 환경 +3 🌱',
+                effects: { money:-5, satis:5, env:3 }
+            },
+            {
+                title: '③ 각자 이동한다',
+                cost: '0💰',
+                effectText: '만족도 -5 😊',
+                effects: { satis:-5 }
+            }
+        ]
+    },
 
 
-    {
-        icon: '♻️',
-        title: '쓰레기 처리 문제!',
-        description: '마을의 쓰레기가 급격히 늘었습니다. 어떻게 해결할까요?',
-        choices: [
-            {
-                title: '① 전문 업체에 맡긴다',
-                cost: '-20💰',
-                effectText: '환경 +5 🌱 | 만족도 +3 😊',
-                effects: { money:-20, env:5, satis:3 }
-            },
-            {
-                title: '② 주민들이 분리배출한다',
-                cost: '0💰',
-                effectText: '환경 +8 🌱 | 만족도 +2 😊',
-                effects: { env:8, satis:2 }
-            },
-            {
-                title: '③ 그냥 버린다',
-                cost: '0💰',
-                effectText: '환경 -10 🌱 | 만족도 -3 😊',
-                effects: { env:-10, satis:-3 }
-            }
-        ]
-    },
+    {
+        icon: '♻️',
+        title: '쓰레기 처리 문제!',
+        description: '마을의 쓰레기가 급격히 늘었습니다. 어떻게 해결할까요?',
+        choices: [
+            {
+                title: '① 전문 업체에 맡긴다',
+                cost: '-20💰',
+                effectText: '환경 +5 🌱 | 만족도 +3 😊',
+                effects: { money:-20, env:5, satis:3 }
+            },
+            {
+                title: '② 주민들이 분리배출한다',
+                cost: '0💰',
+                effectText: '환경 +8 🌱 | 만족도 +2 😊',
+                effects: { env:8, satis:2 }
+            },
+            {
+                title: '③ 그냥 버린다',
+                cost: '0💰',
+                effectText: '환경 -10 🌱 | 만족도 -3 😊',
+                effects: { env:-10, satis:-3 }
+            }
+        ]
+    },
 
 
-    {
-        icon: '💰',
-        title: '공동기금 부족!',
-        description: '마을 공동기금이 부족해졌습니다. 주민들이 선택해야 합니다.',
-        choices: [
-            {
-                title: '① 공동기금에 많이 낸다',
-                cost: '-30💰',
-                effectText: '공동체 안정 +10 😊 | 환경 +3 🌱',
-                effects: { money:-30, satis:10, env:3 }
-            },
-            {
-                title: '② 조금씩 나누어 낸다',
-                cost: '-10💰',
-                effectText: '공동체 안정 +5 😊',
-                effects: { money:-10, satis:5 }
-            },
-            {
-                title: '③ 내 돈은 지킨다',
-                cost: '0💰',
-                effectText: '만족도 -8 😊',
-                effects: { satis:-8 }
-            }
-        ]
-    },
+    {
+        icon: '💰',
+        title: '공동기금 부족!',
+        description: '마을 공동기금이 부족해졌습니다. 주민들이 선택해야 합니다.',
+        choices: [
+            {
+                title: '① 공동기금에 많이 낸다',
+                cost: '-30💰',
+                effectText: '공동체 안정 +10 😊 | 환경 +3 🌱',
+                effects: { money:-30, satis:10, env:3 }
+            },
+            {
+                title: '② 조금씩 나누어 낸다',
+                cost: '-10💰',
+                effectText: '공동체 안정 +5 😊',
+                effects: { money:-10, satis:5 }
+            },
+            {
+                title: '③ 내 돈은 지킨다',
+                cost: '0💰',
+                effectText: '만족도 -8 😊',
+                effects: { satis:-8 }
+            }
+        ]
+    },
 
 
-    {
-        icon: '🏥',
-        title: '주민 건강 문제!',
-        description: '마을 주민들의 건강을 위한 공동 대책이 필요합니다.',
-        choices: [
-            {
-                title: '① 의료 지원을 확대한다',
-                cost: '-25💰',
-                effectText: '만족도 +10 😊 | 식량 +1 🍚',
-                effects: { money:-25, satis:10, food:1 }
-            },
-            {
-                title: '② 주민들이 서로 돌본다',
-                cost: '-5💰',
-                effectText: '만족도 +7 😊',
-                effects: { money:-5, satis:7 }
-            },
-            {
-                title: '③ 각자 알아서 한다',
-                cost: '0💰',
-                effectText: '만족도 -10 😊',
-                effects: { satis:-10 }
-            }
-        ]
-    },
+    {
+        icon: '🏥',
+        title: '주민 건강 문제!',
+        description: '마을 주민들의 건강을 위한 공동 대책이 필요합니다.',
+        choices: [
+            {
+                title: '① 의료 지원을 확대한다',
+                cost: '-25💰',
+                effectText: '만족도 +10 😊 | 식량 +1 🍚',
+                effects: { money:-25, satis:10, food:1 }
+            },
+            {
+                title: '② 주민들이 서로 돌본다',
+                cost: '-5💰',
+                effectText: '만족도 +7 😊',
+                effects: { money:-5, satis:7 }
+            },
+            {
+                title: '③ 각자 알아서 한다',
+                cost: '0💰',
+                effectText: '만족도 -10 😊',
+                effects: { satis:-10 }
+            }
+        ]
+    },
 
 
-    {
-        icon: '🏘️',
-        title: '마을의 미래!',
-        description: '마지막 라운드입니다. 우리 마을의 미래를 위해 무엇을 선택할까요?',
-        choices: [
-            {
-                title: '① 대규모 공동사업 추진',
-                cost: '-30💰',
-                effectText: '환경 +8 🌱 | 만족도 +10 😊 | 에너지 +2 🔋',
-                effects: { money:-30, env:8, satis:10, energy:2 }
-            },
-            {
-                title: '② 작은 공동사업 추진',
-                cost: '-10💰',
-                effectText: '환경 +4 🌱 | 만족도 +6 😊',
-                effects: { money:-10, env:4, satis:6 }
-            },
-            {
-                title: '③ 현재 상태를 유지한다',
-                cost: '0💰',
-                effectText: '환경 -2 🌱 | 만족도 -3 😊',
-                effects: { env:-2, satis:-3 }
-            }
-        ]
-    }
+    {
+        icon: '🏘️',
+        title: '마을의 미래!',
+        description: '마지막 라운드입니다. 우리 마을의 미래를 위해 무엇을 선택할까요?',
+        choices: [
+            {
+                title: '① 대규모 공동사업 추진',
+                cost: '-30💰',
+                effectText: '환경 +8 🌱 | 만족도 +10 😊 | 에너지 +2 🔋',
+                effects: { money:-30, env:8, satis:10, energy:2 }
+            },
+            {
+                title: '② 작은 공동사업 추진',
+                cost: '-10💰',
+                effectText: '환경 +4 🌱 | 만족도 +6 😊',
+                effects: { money:-10, env:4, satis:6 }
+            },
+            {
+                title: '③ 현재 상태를 유지한다',
+                cost: '0💰',
+                effectText: '환경 -2 🌱 | 만족도 -3 😊',
+                effects: { env:-2, satis:-3 }
+            }
+        ]
+    }
 
 ];
 
 
 
 /* ============================================================
-   STATE
+   STATE
 ============================================================ */
 
 const state = {
 
-    userId: crypto.randomUUID(),
+    userId: crypto.randomUUID(),
 
-    roomCode: '',
+    roomCode: '',
 
-    nickname: '',
+    nickname: '',
 
-    isHost: false,
+    isHost: false,
 
-    channel: null,
+    channel: null,
 
-    participants: [],
-
-
-    resources: {
-        money: 100,
-        food: 5,
-        energy: 5,
-        satis: 50,
-        env: 50
-    },
+    participants: [],
 
 
-    currentRound: 1,
+    resources: {
+        money: 100,
+        food: 5,
+        energy: 5,
+        satis: 50,
+        env: 50
+    },
 
-    hasSelected: false,
 
-    timerInterval: null,
+    currentRound: 1,
 
-    roundEnded: false,
+    hasSelected: false,
 
-    appliedRounds: new Set(),
+    timerInterval: null,
 
-    finalShown: false
+    roundEnded: false,
+
+    appliedRounds: new Set(),
+
+    finalShown: false
 
 };
 
 
 
 /* ============================================================
-   NAVIGATION
+   NAVIGATION
 ============================================================ */
 
 window.navigate = (viewId) => {
 
-    document
-        .querySelectorAll('.view')
-        .forEach(el => el.classList.remove('active'));
+    document
+        .querySelectorAll('.view')
+        .forEach(el => el.classList.remove('active'));
 
-    const target =
-        document.getElementById(`view-${viewId}`);
+    const target =
+        document.getElementById(`view-${viewId}`);
 
-    if (target) {
-        target.classList.add('active');
-    }
+    if (target) {
+        target.classList.add('active');
+    }
 
 };
 
 
 
 /* ============================================================
-   TOAST
+   TOAST
 ============================================================ */
 
 window.showToast = (message, type = 'error') => {
 
-    const toast =
-        document.getElementById('toast');
+    const toast =
+        document.getElementById('toast');
 
-    toast.innerHTML = message;
+    toast.innerHTML = message;
 
-    toast.className =
-        `fixed top-4 left-1/2 transform -translate-x-1/2
-         px-6 py-3 rounded-full shadow-lg
-         transition-all duration-300 z-50
-         ${type === 'error' ? 'bg-red-500' : 'bg-green-500'}
-         text-white font-bold text-center`;
+    toast.className =
+        `fixed top-4 left-1/2 transform -translate-x-1/2
+         px-6 py-3 rounded-full shadow-lg
+         transition-all duration-300 z-50
+         ${type === 'error' ? 'bg-red-500' : 'bg-green-500'}
+         text-white font-bold text-center`;
 
-    toast.style.opacity = '1';
+    toast.style.opacity = '1';
 
-    toast.style.marginTop = '0';
+    toast.style.marginTop = '0';
 
-    setTimeout(() => {
+    setTimeout(() => {
 
-        toast.style.opacity = '0';
+        toast.style.opacity = '0';
 
-        toast.style.marginTop = '-20px';
+        toast.style.marginTop = '-20px';
 
-    }, 3000);
+    }, 3000);
 
 };
 
 
 
 /* ============================================================
-   LOADING
+   LOADING
 ============================================================ */
 
 const setLoading =
 (
-    buttonId,
-    isLoading,
-    defaultText
+    buttonId,
+    isLoading,
+    defaultText
 ) => {
 
-    const btn =
-        document.getElementById(buttonId);
+    const btn =
+        document.getElementById(buttonId);
 
-    if (!btn) return;
+    if (!btn) return;
 
-    if (isLoading) {
+    if (isLoading) {
 
-        btn.disabled = true;
+        btn.disabled = true;
 
-        btn.innerHTML =
-            `<span class="spinner"></span> 처리중...`;
+        btn.innerHTML =
+            `<span class="spinner"></span> 처리중...`;
 
-    } else {
+    } else {
 
-        btn.disabled = false;
+        btn.disabled = false;
 
-        btn.innerHTML = defaultText;
+        btn.innerHTML = defaultText;
 
-    }
+    }
 
 };
 
 
 
 /* ============================================================
-   CREATE ROOM
+   CREATE ROOM
 ============================================================ */
 
 window.createRoom = async () => {
 
-    const nicknameInput =
-        document
-            .getElementById('create-nickname')
-            .value
-            .trim();
+    const nicknameInput =
+        document
+            .getElementById('create-nickname')
+            .value
+            .trim();
 
-    if (!nicknameInput) {
+    if (!nicknameInput) {
 
-        showToast('닉네임을 입력해주세요!');
+        showToast('닉네임을 입력해주세요!');
 
-        return;
-    }
-
-
-    setLoading(
-        'btn-create-submit',
-        true,
-        '마을 만들기'
-    );
+        return;
+    }
 
 
-    const chars =
-        'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-
-    let newCode = '';
-
-    for (let i = 0; i < 4; i++) {
-
-        newCode +=
-            chars.charAt(
-                Math.floor(Math.random() * chars.length)
-            );
-
-    }
+    setLoading(
+        'btn-create-submit',
+        true,
+        '마을 만들기'
+    );
 
 
-    const { error } =
-        await supabase
-            .from('rooms')
-            .insert([
-                {
-                    code: newCode
-                }
-            ]);
+    const chars =
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+    let newCode = '';
+
+    for (let i = 0; i < 4; i++) {
+
+        newCode +=
+            chars.charAt(
+                Math.floor(Math.random() * chars.length)
+            );
+
+    }
 
 
-    setLoading(
-        'btn-create-submit',
-        false,
-        '마을 만들기'
-    );
+    const { error } =
+        await supabase
+            .from('rooms')
+            .insert([
+                {
+                    code: newCode
+                }
+            ]);
 
 
-    if (error) {
-    console.error('방 생성 상세 오류:', error);
-    showToast(`방 생성 실패: ${error.message}`);
-    return;
+    setLoading(
+        'btn-create-submit',
+        false,
+        '마을 만들기'
+    );
+
+
+    if (error) {
+    console.error('방 생성 상세 오류:', error);
+    showToast(`방 생성 실패: ${error.message}`);
+    return;
 }
-    
-    state.roomCode = newCode;
+    
+    state.roomCode = newCode;
 
-    state.nickname = nicknameInput;
+    state.nickname = nicknameInput;
 
-    state.isHost = true;
+    state.isHost = true;
 
 
-    connectToRealtimeLobby();
+    connectToRealtimeLobby();
 
 };
 
 
 
 /* ============================================================
-   JOIN ROOM
+   JOIN ROOM
 ============================================================ */
 
 window.joinRoom = async () => {
 
-    const codeInput =
-        document
-            .getElementById('join-code')
-            .value
-            .trim()
-            .toUpperCase();
+    const codeInput =
+        document
+            .getElementById('join-code')
+            .value
+            .trim()
+            .toUpperCase();
 
-    const nicknameInput =
-        document
-            .getElementById('join-nickname')
-            .value
-            .trim();
-
-
-    if (!codeInput || !nicknameInput) {
-
-        showToast(
-            '코드와 닉네임을 모두 입력하세요!'
-        );
-
-        return;
-    }
+    const nicknameInput =
+        document
+            .getElementById('join-nickname')
+            .value
+            .trim();
 
 
-    setLoading(
-        'btn-join-submit',
-        true,
-        '참가하기'
-    );
+    if (!codeInput || !nicknameInput) {
+
+        showToast(
+            '코드와 닉네임을 모두 입력하세요!'
+        );
+
+        return;
+    }
 
 
-    const { data, error } =
-        await supabase
-            .from('rooms')
-            .select('code')
-            .eq('code', codeInput)
-            .single();
+    setLoading(
+        'btn-join-submit',
+        true,
+        '참가하기'
+    );
 
 
-    setLoading(
-        'btn-join-submit',
-        false,
-        '참가하기'
-    );
+    const { data, error } =
+        await supabase
+            .from('rooms')
+            .select('code')
+            .eq('code', codeInput)
+            .single();
 
 
-    if (error || !data) {
-
-        showToast(
-            '존재하지 않는 방입니다.'
-        );
-
-        return;
-    }
+    setLoading(
+        'btn-join-submit',
+        false,
+        '참가하기'
+    );
 
 
-    state.roomCode = codeInput;
+    if (error || !data) {
 
-    state.nickname = nicknameInput;
+        showToast(
+            '존재하지 않는 방입니다.'
+        );
 
-    state.isHost = false;
+        return;
+    }
 
 
-    connectToRealtimeLobby();
+    state.roomCode = codeInput;
+
+    state.nickname = nicknameInput;
+
+    state.isHost = false;
+
+
+    connectToRealtimeLobby();
 
 };
 
 
 
 /* ============================================================
-   CONNECT REALTIME
+   CONNECT REALTIME
 ============================================================ */
 
 const connectToRealtimeLobby = () => {
 
-    navigate('lobby');
+    navigate('lobby');
 
 
-    document
-        .getElementById('display-room-code')
-        .innerText = state.roomCode;
+    document
+        .getElementById('display-room-code')
+        .innerText = state.roomCode;
 
 
-    document
-        .getElementById('host-controls')
-        .style.display =
-            state.isHost ? 'block' : 'none';
+    document
+        .getElementById('host-controls')
+        .style.display =
+            state.isHost ? 'block' : 'none';
 
 
-    document
-        .getElementById('guest-controls')
-        .style.display =
-            state.isHost ? 'none' : 'block';
+    document
+        .getElementById('guest-controls')
+        .style.display =
+            state.isHost ? 'none' : 'block';
 
 
-    if (state.channel) {
+    if (state.channel) {
 
-        supabase.removeChannel(
-            state.channel
-        );
+        supabase.removeChannel(
+            state.channel
+        );
 
-    }
+    }
 
 
-    const channelName =
-        `room:${state.roomCode}`;
+    const channelName =
+        `room:${state.roomCode}`;
 
 
-    state.channel =
-        supabase.channel(
-            channelName,
-            {
-                config: {
+    state.channel =
+        supabase.channel(
+            channelName,
+            {
+                config: {
 
-                    presence: {
-                        key: state.userId
-                    },
+                    presence: {
+                        key: state.userId
+                    },
 
-                    broadcast: {
-                        self: false
-                    }
+                    broadcast: {
+                        self: false
+                    }
 
-                }
-            }
-        );
+                }
+            }
+        );
 
 
 
-    /* PRESENCE */
+    /* PRESENCE */
 
-    state.channel.on(
-        'presence',
-        { event: 'sync' },
-        () => {
+    state.channel.on(
+        'presence',
+        { event: 'sync' },
+        () => {
 
-            const presenceState =
-                state.channel.presenceState();
+            const presenceState =
+                state.channel.presenceState();
 
-            const parsedParticipants = [];
+            const parsedParticipants = [];
 
 
-            for (
-                const key in presenceState
-            ) {
+            for (
+                const key in presenceState
+            ) {
 
-                if (
-                    presenceState[key] &&
-                    presenceState[key].length > 0
-                ) {
-
-                    parsedParticipants.push(
-                        presenceState[key][0]
-                    );
-
-                }
-
-            }
-
-
-            state.participants =
-                parsedParticipants.sort(
-                    (a, b) => {
-
-                        if (a.isHost) return -1;
-
-                        if (b.isHost) return 1;
-
-                        return a.joinedAt -
-                               b.joinedAt;
-
-                    }
-                );
-
-
-            renderParticipants();
-
-        }
-    );
-
-
-
-    /* GAME START */
-
-    state.channel.on(
-        'broadcast',
-        { event: 'game-start' },
-        (message) => {
-
-            handleGameStart(
-                message.payload
-            );
-
-        }
-    );
-
-
-
-    /* CHOICE MADE */
-
-    state.channel.on(
-        'broadcast',
-        { event: 'choice-made' },
-        async () => {
-
-            if (state.isHost) {
-
-                await checkAllChoicesCompleted();
-
-            }
-
-        }
-    );
-
-
-
-    /* ROUND END */
-
-    state.channel.on(
-        'broadcast',
-        { event: 'round-end' },
-        (message) => {
-
-            handleRoundEnd(
-                message.payload.results
-            );
-
-        }
-    );
-
-
-
-    /* NEXT ROUND */
-
-    state.channel.on(
-        'broadcast',
-        { event: 'next-round' },
-        (message) => {
-
-            handleGameStart(
-                message.payload
-            );
-
-        }
-    );
-
-
-
-    /* FINAL */
-
-    state.channel.on(
-        'broadcast',
-        { event: 'final-result' },
-        (message) => {
-
-            showFinalResult(
-                message.payload.results
-            );
-
-        }
-    );
-
-
-
-    /* SUBSCRIBE */
-
-    state.channel.subscribe(
-        async (status) => {
-
-            if (status === 'SUBSCRIBED') {
-
-                await state.channel.track({
-
-                    userId: state.userId,
-
-                    nickname: state.nickname,
-
-                    isHost: state.isHost,
-
-                    joinedAt: Date.now()
-
-                });
-
-
-                showToast(
-                    '마을에 입장했습니다!',
-                    'success'
-                );
-
-            }
-
-        }
-    );
-
-};
-
-
-
-/* ============================================================
-   PARTICIPANTS
-============================================================ */
-
-const renderParticipants = () => {
-
-    const listEl =
-        document.getElementById(
-            'participant-list'
-        );
-
-
-    document
-        .getElementById('player-count')
-        .innerText =
-            `${state.participants.length}명`;
-
-
-    listEl.innerHTML = '';
-
-
-    state.participants.forEach(
-        p => {
-
-            const isMe =
-                p.userId === state.userId;
-
-
-            const li =
-                document.createElement('li');
-
-
-            li.className =
-                `p-3 rounded-xl flex items-center
-                 shadow-sm border
-                 ${isMe
-                    ? 'bg-indigo-50 border-indigo-200'
-                    : 'bg-white border-gray-100'}`;
-
-
-            const dot =
-                `<span class="w-3 h-3 rounded-full
-                    ${p.isHost
-                        ? 'bg-yellow-400'
-                        : 'bg-green-500'}
-                    mr-3"></span>`;
-
-
-            const hostBadge =
-                p.isHost
-                    ? `<span class="ml-auto text-xs
-                        bg-yellow-100 text-yellow-700
-                        px-2 py-1 rounded-full font-bold">
-                        방장👑
-                       </span>`
-                    : '';
-
-
-            const meBadge =
-                isMe
-                    ? `<span class="ml-2 text-xs
-                        text-indigo-400 font-bold">
-                        (나)
-                       </span>`
-                    : '';
-
-
-            li.innerHTML =
-                `${dot}
-                 <span class="font-bold">
-                    ${escapeHtml(p.nickname)}
-                 </span>
-                 ${meBadge}
-                 ${hostBadge}`;
-
-
-            listEl.appendChild(li);
-
-        }
-    );
-
-};
-
-
-
-/* ============================================================
-   HTML ESCAPE
-============================================================ */
-
-const escapeHtml = (text) => {
-
-    const div =
-        document.createElement('div');
-
-    div.textContent = text;
-
-    return div.innerHTML;
-
-};
-
-
-
-/* ============================================================
-   RESOURCE UI
-============================================================ */
-
-const updateResourceUI = () => {
-
-    document.getElementById('res-money').innerText =
-        state.resources.money;
-
-    document.getElementById('res-food').innerText =
-        state.resources.food;
-
-    document.getElementById('res-energy').innerText =
-        state.resources.energy;
-
-    document.getElementById('res-satis').innerText =
-        state.resources.satis;
-
-    document.getElementById('res-env').innerText =
-        state.resources.env;
-
-};
-
-
-
-/* ============================================================
-   START GAME
-============================================================ */
-
-window.startGame = () => {
-
-    if (!state.isHost) return;
-
-
-    const payload = {
-
-        startedAt: Date.now(),
-
-        duration: ROUND_TIME,
-
-        round: 1
-
-    };
-
-
-    state.channel.send({
-
-        type: 'broadcast',
-
-        event: 'game-start',
-
-        payload
-
-    });
-
-
-    handleGameStart(payload);
-
-};
-
-
-
-/* ============================================================
-   SET ROUND UI
-============================================================ */
-
-const setupRoundUI = () => {
-
-    const round =
-        ROUND_DATA[state.currentRound - 1];
-
-
-    if (!round) return;
-
-
-    document
-        .getElementById('event-icon')
-        .innerText = round.icon;
-
-
-    document
-        .getElementById('event-title')
-        .innerText = round.title;
-
-
-    document
-        .getElementById('event-description')
-        .innerText =
-            round.description;
-
-
-    round.choices.forEach(
-        (choice, index) => {
-
-            const n = index + 1;
-
-
-            document
-                .getElementById(`choice${n}-title`)
-                .innerText =
-                    choice.title;
-
-
-            document
-                .getElementById(`choice${n}-cost`)
-                .innerText =
-                    choice.cost;
-
-
-            document
-                .getElementById(`choice${n}-effect`)
-                .innerText =
-                    choice.effectText;
-
-        }
-    );
-
-};
-
-
-
-/* ============================================================
-   GAME START / NEXT ROUND
-============================================================ */
-
-const handleGameStart = (payload) => {
-
-    state.currentRound =
-        payload.round;
-
-    state.hasSelected = false;
-
-    state.roundEnded = false;
-
-
-    navigate('game');
-
-
-    updateResourceUI();
-
-    setupRoundUI();
-
-
-    document
-        .getElementById('current-round-display')
-        .innerText =
-            state.currentRound;
-
-
-    document
-        .getElementById('choice-container')
-        .style.display =
-            'block';
-
-
-    document
-        .getElementById('result-container')
-        .classList.add('hidden');
-
-
-    document
-        .getElementById('next-round-area')
-        .classList.add('hidden');
-
-
-    const btns =
-        document.querySelectorAll(
-            '.choice-btn'
-        );
-
-
-    btns.forEach(
-        b => {
-
-            b.disabled = false;
-
-            b.classList.remove(
-                'opacity-50',
-                'cursor-not-allowed',
-                'ring-4',
-                'ring-indigo-400'
-            );
-
-        }
-    );
-
-
-    startTimer(payload);
-
-};
-
-
-
-/* ============================================================
-   TIMER
-============================================================ */
-
-const startTimer = (payload) => {
-
-    const display =
-        document.getElementById(
-            'timer-display'
-        );
-
-
-    if (state.timerInterval) {
-
-        clearInterval(
-            state.timerInterval
-        );
-
-    }
-
-
-    const tick = () => {
-
-        const elapsed =
-            Date.now() -
-            payload.startedAt;
-
-
-        let remaining =
-            Math.ceil(
-                (payload.duration - elapsed) /
-                1000
-            );
-
-
-        if (remaining < 0) {
-            remaining = 0;
-        }
-
-
-        display.innerText =
-            `${remaining}초`;
-
-
-        if (
-            remaining <= 0
-        ) {
-
-            clearInterval(
-                state.timerInterval
-            );
-
-
-            if (state.isHost) {
-
-                triggerRoundEnd();
-
-            }
-
-        }
-
-    };
-
-
-    tick();
-
-
-    state.timerInterval =
-        setInterval(
-            tick,
-            100
-        );
-
-};
-
-
-
-/* ============================================================
-   SUBMIT CHOICE
-============================================================ */
-
-window.submitChoice = async (
-    choiceIndex
-) => {
-
-    if (
-        state.hasSelected ||
-        state.roundEnded
-    ) {
-        return;
-    }
-
-
-    state.hasSelected = true;
-
-
-    const btns =
-        document.querySelectorAll(
-            '.choice-btn'
-        );
-
-
-    btns[choiceIndex - 1]
-        .classList.add(
-            'ring-4',
-            'ring-indigo-400'
-        );
-
-
-    btns.forEach(
-        b => {
-
-            b.disabled = true;
-
-            b.classList.add(
-                'opacity-50',
-                'cursor-not-allowed'
-            );
-
-        }
-    );
-
-
-    showToast(
-        '선택 완료! 다른 주민을 기다리는 중...',
-        'success'
-    );
-
-
-    /*
-    핵심:
-    DB 저장이 완전히 끝난 뒤에
-    방장에게 choice-made 신호를 보낸다.
-    */
-
-    const {
-        error
-    } =
-        await supabase
-            .from('player_choices')
-            .insert([
-                {
-                    room_code:
-                        state.roomCode,
-
-                    round_number:
-                        state.currentRound,
-
-                    user_id:
-                        state.userId,
-
-                    nickname:
-                        state.nickname,
-
-                    choice:
-                        choiceIndex
-                }
-            ]);
-
-
-    if (error) {
-
-        console.error(
-            '선택 저장 실패:',
-            error
-        );
-
-        /*
-        이미 선택은 했으므로 UI는 잠근 상태.
-        UNIQUE 오류가 발생하더라도
-        기존 선택이 있다면 진행 가능하게 둔다.
-        */
-
-    }
-
-
-    if (state.isHost) {
-
-        /*
-        방장이 마지막으로 선택한 경우
-        DB 저장이 끝난 뒤 직접 검사
-        */
-
-        await checkAllChoicesCompleted();
-
-    } else {
-
-        /*
-        참가자가 마지막으로 선택한 경우
-        DB 저장이 끝난 뒤 방장에게 알림
-        */
-
-        await state.channel.send({
-
-            type: 'broadcast',
-
-            event: 'choice-made',
-
-            payload: {
-                userId: state.userId,
-                round: state.currentRound
-            }
-
-        });
-
-    }
-
-};
-
-
-
-/* ============================================================
-   CHECK ALL CHOICES
-============================================================ */
-
-const checkAllChoicesCompleted =
-    async () => {
-
-        if (state.roundEnded) return;
-
-
-        const participantCount =
-            state.participants.length;
-
-
-        if (participantCount <= 0) return;
-
-
-        const {
-            count,
-            error
-        } =
-            await supabase
-                .from('player_choices')
-                .select(
-                    '*',
-                    {
-                        count: 'exact',
-                        head: true
-                    }
-                )
-                .eq(
-                    'room_code',
-                    state.roomCode
-                )
-                .eq(
-                    'round_number',
-                    state.currentRound
-                );
-
-
-        if (error) {
-
-            console.error(
-                '선택 수 확인 실패:',
-                error
-            );
-
-            return;
-        }
-
-
-        /*
-        참가자 수와 선택 수가 같으면
-        즉시 라운드 종료
-        */
-
-        if (
-            count >= participantCount
-        ) {
-
-            await triggerRoundEnd();
-
-        }
-
-    };
-
-
-
-/* ============================================================
-   ROUND END
-============================================================ */
-
-const triggerRoundEnd =
-    async () => {
-
-        if (state.roundEnded) return;
-
-
-        state.roundEnded = true;
-
-
-        if (state.timerInterval) {
-
-            clearInterval(
-                state.timerInterval
-            );
-
-        }
-
-
-        showToast(
-            '결과를 집계하고 있습니다...',
-            'success'
-        );
-
-
-        const {
-            data,
-            error
-        } =
-            await supabase
-                .from('player_choices')
-                .select('*')
-                .eq(
-                    'room_code',
-                    state.roomCode
-                )
-                .eq(
-                    'round_number',
-                    state.currentRound
-                );
-
-
-        if (error) {
-
-            console.error(
-                '결과 조회 실패:',
-                error
-            );
-
-        }
-
-
-        const results =
-            data || [];
-
-
-        /*
-        결과를 모든 참가자에게 전달
-        */
-
-        await state.channel.send({
-
-            type: 'broadcast',
-
-            event: 'round-end',
-
-            payload: {
-                results
-            }
-
-        });
-
-
-        /*
-        방장 본인도 처리
-        */
-
-        handleRoundEnd(results);
-
-    };
-
-
-
-/* ============================================================
-   APPLY EFFECT
-============================================================ */
-
-const applyEffects = (
-    effects
-) => {
-
-    state.resources.money +=
-        effects.money || 0;
-
-    state.resources.food +=
-        effects.food || 0;
-
-    state.resources.energy +=
-        effects.energy || 0;
-
-    state.resources.satis +=
-        effects.satis || 0;
-
-    state.resources.env +=
-        effects.env || 0;
-
-
-    /*
-    너무 낮아지거나 높아지는 것을 방지
-    */
-
-    state.resources.money =
-        Math.max(
-            0,
-            state.resources.money
-        );
-
-    state.resources.food =
-        Math.max(
-            0,
-            state.resources.food
-        );
-
-    state.resources.energy =
-        Math.max(
-            0,
-            state.resources.energy
-        );
-
-    state.resources.satis =
-        Math.max(
-            0,
-            Math.min(
-                100,
-                state.resources.satis
-            )
-        );
-
-    state.resources.env =
-        Math.max(
-            0,
-            Math.min(
-                100,
-                state.resources.env
-            )
-        );
-
-};
-
-
-
-/* ============================================================
-   ROUND RESULT
-============================================================ */
-
-const handleRoundEnd = (
-    results
-) => {
-
-    if (
-        state.appliedRounds.has(
-            state.currentRound
-        )
-    ) {
-        return;
-    }
-
-
-    state.appliedRounds.add(
-        state.currentRound
-    );
-
-
-    if (state.timerInterval) {
-
-        clearInterval(
-            state.timerInterval
-        );
-
-    }
-
-
-    document
-        .getElementById('timer-display')
-        .innerText = '종료';
-
-
-    document
-        .getElementById('choice-container')
-        .style.display = 'none';
-
-
-    const resultList =
-        document.getElementById(
-            'result-list'
-        );
-
-
-    resultList.innerHTML = '';
-
-
-    const round =
-        ROUND_DATA[
-            state.currentRound - 1
-        ];
-
-
-    state.participants.forEach(
-        participant => {
-
-            const found =
-                results.find(
-                    r =>
-                        r.user_id ===
-                        participant.userId
-                );
-
-
-            /*
-            선택하지 않은 사람은
-            자동으로 3번 처리
-            */
-
-            const choice =
-                found
-                    ? found.choice
-                    : 3;
-
-
-            const choiceData =
-                round.choices[
-                    choice - 1
-                ];
-
-
-            const isMe =
-                participant.userId ===
-                state.userId;
-
-
-            /*
-            내 선택이면 자원 적용
-            */
-
-            if (isMe) {
-
-                applyEffects(
-                    choiceData.effects
-                );
-
-                updateResourceUI();
-
-            }
-
-
-            let bg =
-                'bg-gray-50 border-gray-100';
-
-            if (choice === 1) {
-
-                bg =
-                    'bg-blue-50 border-blue-200';
-
-            } else if (choice === 2) {
-
-                bg =
-                    'bg-yellow-50 border-yellow-200';
-
-            } else {
-
-                bg =
-                    'bg-red-50 border-red-200';
-
-            }
-
-
-            const li =
-                document.createElement('li');
-
-
-            li.className =
-                `p-3 rounded-xl flex
-                 justify-between items-center
-                 text-sm border shadow-sm
-                 ${bg}
-                 ${isMe
-                    ? 'ring-2 ring-indigo-500 font-bold'
-                    : ''}`;
-
-
-            li.innerHTML = `
-
-                <span class="text-gray-800 flex items-center gap-2">
-
-                    ${escapeHtml(
-                        participant.nickname
-                    )}
-
-                    ${
-                        isMe
-                            ? `<span class="text-[10px]
-                                text-white bg-indigo-500
-                                px-2 py-0.5 rounded-full">
-                                나
-                               </span>`
-                            : ''
-                    }
-
-                </span>
-
-                <span class="text-right">
-
-                    ${
-                        escapeHtml(
-                            choiceData.title
-                                .replace(/^① |^② |^③ /, '')
-                        )
-                    }
-
-                </span>
-
-            `;
-
-
-            resultList.appendChild(li);
-
-        }
-    );
-
-
-    document
-        .getElementById('result-title')
-        .innerText =
-            `${state.currentRound}라운드 결과`;
-
-
-    document
-        .getElementById('result-container')
-        .classList.remove('hidden');
-
-
-    /*
-    8라운드라면 최종 결과
-    */
-
-    if (
-        state.currentRound >= TOTAL_ROUNDS
-    ) {
-
-        setTimeout(
-            () => {
-
-                showFinalResult(
-                    results
-                );
-
-            },
-            1200
-        );
-
-
-        return;
-    }
-
-
-    /*
-    다음 라운드 버튼
-    */
-
-    document
-        .getElementById(
-            'next-round-area'
-        )
-        .classList.remove('hidden');
-
-
-    const nextBtn =
-        document.getElementById(
-            'next-round-btn'
-        );
-
-
-    const waiting =
-        document.getElementById(
-            'waiting-next-round'
-        );
-
-
-    if (state.isHost) {
-
-        nextBtn.style.display =
-            'block';
-
-        waiting.style.display =
-            'none';
-
-    } else {
-
-        nextBtn.style.display =
-            'none';
-
-        waiting.style.display =
-            'block';
-
-    }
-
-};
-
-
-
-/* ============================================================
-   NEXT ROUND
-============================================================ */
-
-window.nextRound = () => {
-
-    if (!state.isHost) return;
-
-
-    if (
-        state.currentRound >=
-        TOTAL_ROUNDS
-    ) {
-        return;
-    }
-
-
-    const next =
-        state.currentRound + 1;
-
-
-    const payload = {
-
-        startedAt: Date.now(),
-
-        duration: ROUND_TIME,
-
-        round: next
-
-    };
-
-
-    /*
-    다음 라운드 시작 신호
-    */
-
-    state.channel.send({
-
-        type: 'broadcast',
-
-        event: 'next-round',
-
-        payload
-
-    });
-
-
-    /*
-    방장 본인도 실행
-    */
-
-    handleGameStart(payload);
-
-};
-
-
-
-/* ============================================================
-   FINAL SCORE
-============================================================ */
-
-/*
-최종 점수 계산
-
-돈       : 최대 100점
-식량     : 최대 100점
-에너지   : 최대 100점
-만족도   : 100점
-환경     : 100점
-
-각 자원을 20%씩 반영
-*/
-
-const calculateScore = (
-    resources
-) => {
-
-    const money =
-        Math.min(
-            100,
-            Math.max(
-                0,
-                resources.money
-            )
-        );
-
-
-    const food =
-        Math.min(
-            100,
-            Math.max(
-                0,
-                resources.food * 10
-            )
-        );
-
-
-    const energy =
-        Math.min(
-            100,
-            Math.max(
-                0,
-                resources.energy * 10
-            )
-        );
-
-
-    const satis =
-        Math.min(
-            100,
-            Math.max(
-                0,
-                resources.satis
-            )
-        );
-
-
-    const env =
-        Math.min(
-            100,
-            Math.max(
-                0,
-                resources.env
-            )
-        );
-
-
-    return Math.round(
-        money * 0.20 +
-        food * 0.20 +
-        energy * 0.20 +
-        satis * 0.20 +
-        env * 0.20
-    );
-
-};
-
-
-
-/* ============================================================
-   FINAL RESULT
-============================================================ */
-
-const showFinalResult = (
-    ignoredResults = []
-) => {
-
-    if (state.finalShown) return;
-
-    state.finalShown = true;
-
-
-    if (state.timerInterval) {
-
-        clearInterval(
-            state.timerInterval
-        );
-
-    }
-
-
-    /*
-    각 참가자의 최종 자원은
-    현재 구조에서는 각자의 브라우저에서 계산됨.
-
-    따라서 최종 결과 화면에서는
-    각자 자신의 결과를 먼저 보여준다.
-    */
-
-    const myScore =
-        calculateScore(
-            state.resources
-        );
-
-
-    /*
-    최종 결과 화면
-    */
-
-    navigate('final');
-
-
-    document
-        .getElementById('winner-name')
-        .innerText =
-            state.nickname;
-
-
-    document
-        .getElementById('winner-score')
-        .innerText =
-            `내 최종 점수 ${myScore}점`;
-
-
-    const ranking =
-        document.getElementById(
-            'final-ranking'
-        );
-
-
-    ranking.innerHTML = '';
-
-
-    /*
-    현재 게임 구조에서는
-    각 플레이어의 자원 정보가 서로에게
-    실시간으로 전달되지 않기 때문에
-    최종 화면에서 참가자들의 선택 횟수 기반
-    보조 정보를 함께 보여준다.
-    */
-
-    const myCard =
-        document.createElement('div');
-
-
-    myCard.className =
-        'bg-indigo-50 border-2 border-indigo-200 rounded-2xl p-4';
-
-
-    myCard.innerHTML = `
-
-        <div class="flex justify-between items-center">
-
-            <div>
-
-                <div class="font-game text-xl text-indigo-900">
-
-                    🏆 ${escapeHtml(state.nickname)}
-
-                </div>
-
-                <div class="text-sm text-gray-500 mt-1">
-
-                    최종 자원 상태
-
-                </div>
-
-            </div>
-
-            <div class="text-3xl font-game text-indigo-600">
-
-                ${myScore}점
-
-            </div>
-
-        </div>
-
-
-        <div class="grid grid-cols-5 gap-1 mt-4 text-center text-xs">
-
-            <div class="bg-white rounded-lg p-2">
-                💰<br>
-                <b>${state.resources.money}</b>
-            </div>
-
-            <div class="bg-white rounded-lg p-2">
-                🍚<br>
-                <b>${state.resources.food}</b>
-            </div>
-
-            <div class="bg-white rounded-lg p-2">
-                🔋<br>
-                <b>${state.resources.energy}</b>
-            </div>
-
-            <div class="bg-white rounded-lg p-2">
-                😊<br>
-                <b>${state.resources.satis}</b>
-            </div>
-
-            <div class="bg-white rounded-lg p-2">
-                🌱<br>
-                <b>${state.resources.env}</b>
-            </div>
-
-        </div>
-
-    `;
-
-
-    ranking.appendChild(myCard);
-
-
-    /*
-    전체 참가자 안내
-    */
-
-    if (
-        state.participants.length > 1
-    ) {
-
-        const info =
-            document.createElement('div');
-
-
-        info.className =
-            'text-center text-xs text-gray-400 mt-3';
-
-
-        info.innerText =
-            '※ 각 참가자는 자신의 최종 자원을 기준으로 점수를 확인합니다.';
-
-
-        ranking.appendChild(info);
-
-    }
-
-};
-
-
-
-/* ============================================================
-   LEAVE ROOM
-============================================================ */
-
-window.leaveRoom = async () => {
-
-    if (
-        !confirm(
-            '정말 방에서 나가시겠습니까?'
-        )
-    ) {
-        return;
-    }
-
-
-    if (state.timerInterval) {
-
-        clearInterval(
-            state.timerInterval
-        );
-
-    }
-
-
-    if (state.channel) {
-
-        try {
-
-            await state.channel.untrack();
-
-        } catch (e) {
-
-            console.error(e);
-
-        }
-
-
-        supabase.removeChannel(
-            state.channel
-        );
-
-
-        state.channel = null;
-
-    }
-
-
-    navigate('home');
-
-};
-
-
-
-/* ============================================================
-   COPY ROOM CODE
-============================================================ */
-
-window.copyRoomCode = () => {
-
-    if (!state.roomCode) return;
-
-
-    navigator.clipboard
-        .writeText(
-            state.roomCode
-        )
-        .then(
-            () => {
-
-                showToast(
-                    '방 코드가 복사되었습니다.',
-                    'success'
-                );
-
-            }
-        )
-        .catch(
-            () => {
-
-                const textArea =
-                    document.createElement(
-                        'textarea'
-                    );
-
-
-                textArea.value =
-                    state.roomCode;
-
-
-                document.body.appendChild(
-                    textArea
-                );
-
-
-                textArea.select();
-
-
-                document.execCommand(
-                    'copy'
-                );
-
-
-                document.body.removeChild(
-                    textArea
-                );
-
-
-                showToast(
-                    '방 코드가 복사되었습니다.',
-                    'success'
-                );
-
-            }
-        );
-
-};
-
-</script>
-
-</body>
-</html>
+                if (
+                    presenceState[key] &&
+                  
