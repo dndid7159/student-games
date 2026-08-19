@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>장보기 지렁이 게임</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px 10px;
+            box-sizing: border-box;
+            margin: 0;
+            background-color: #f0f8ff;
+            color: #333;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 15px;
+            padding: 0 10px;
+            box-sizing: border-box;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        #game-board {
+            background-color: #ffffff;
+            border: 4px solid #34495e;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            max-width: 100%;
+            height: auto;
+            touch-action: none; /* 모바일 터치 시 화면 스크롤 방지 */
+        }
+
+        .mobile-controls {
+            display: grid;
+            grid-template-columns: 60px 60px 60px;
+            grid-template-rows: 60px 60px 60px;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+
+        .control-btn {
+            background-color: #34495e;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none; /* 버튼 위에서 화면 스크롤 방지 */
+        }
+
+        .control-btn:active {
+            background-color: #2c3e50;
+            transform: translateY(2px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .btn-up { grid-column: 2; grid-row: 1; }
+        .btn-left { grid-column: 1; grid-row: 2; }
+        .btn-right { grid-column: 3; grid-row: 2; }
+        .btn-down { grid-column: 2; grid-row: 3; }
+
+        /* PC 화면 등 큰 화면에서는 컨트롤러 숨김 */
+        @media (min-width: 768px) {
+            .mobile-controls {
+                display: none;
+            }
+        }
+
+        .instructions {
+            margin-top: 20px;
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            max-width: 600px;
+            text-align: center;
+        }
+        
+        .instructions h3 {
+            margin-top: 0;
+            color: #27ae60;
+        }
+
+        .category-legend {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .legend-item {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* 카테고리별 색상 (CSS 변수 활용이 좋으나 캔버스 렌더링을 위해 JS에서 정의) */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .modal button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1.1rem;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .modal button:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🛒 올바른 장보기 순서 게임</h1>
+    
+    <div class="game-info">
+        <div>점수: <span id="score">0</span></div>
+        <div>난이도: <span id="level">1</span></div>
+    </div>
+
+    <canvas id="game-board" width="600" height="400"></canvas>
+
+    <div class="mobile-controls">
+        <button class="control-btn btn-up" id="btn-up">▲</button>
+        <button class="control-btn btn-left" id="btn-left">◀</button>
+        <button class="control-btn btn-right" id="btn-right">▶</button>
+        <button class="control-btn btn-down" id="btn-down">▼</button>
+    </div>
+
+    <div class="instructions">
+        <h3>💡 장보기 기본 순서 (신선도 유지)</h3>
+        <p>상온 보관 식품 ➔ 채소/과일 ➔ 냉장/냉동 가공식품 ➔ 육류 ➔ 어패류</p>
+        <p>방향키(←↑↓→)로 지렁이를 움직여 <strong>목표 카테고리</strong>에 맞는 식재료를 순서대로 드세요!</p>
+        <p><em>주의: 다른 순서의 식재료를 먹으면 점수가 깎입니다!</em></p>
+        
+        <div class="category-legend" id="legend-container">
+            <!-- 자바스크립트에서 동적으로 채워집니다 -->
+        </div>
+    </div>
+
+    <!-- 게임 오버 모달 -->
+    <div id="game-over-modal" class="modal">
+        <div class="modal-content">
+            <h2>게임 오버! 😢</h2>
+            <p>최종 점수: <span id="final-score"></span></p>
+            <p id="game-over-reason"></p>
+            <button onclick="resetGame()">다시 시작하기</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('game-board');
+        const ctx = canvas.getContext('2d');
+        const gridSize = 40; // 텍스트를 담기 위해 격자 크기를 키움
+        const width = canvas.width;
+        const height = canvas.height;
+
+        // 식재료 카테고리 및 순서 정의
+        const shoppingOrder = [
+            { id: 'ambient', name: '상온 보관 식품', color: '#8e44ad', items: ['쌀', '통조림', '라면', '밀가루', '참기름'] },
+            { id: 'produce', name: '채소/과일', color: '#27ae60', items: ['사과', '양파', '상추', '바나나', '당근'] },
+            { id: 'chilled', name: '냉장/냉동 가공식품', color: '#f39c12', items: ['두부', '우유', '어묵', '치즈', '냉동만두'] },
+            { id: 'meat', name: '육류', color: '#c0392b', items: ['삼겹살', '닭고기', '소고기', '베이컨', '다짐육'] },
+            { id: 'seafood', name: '어패류', color: '#2980b9', items: ['고등어', '오징어', '새우', '조개', '연어'] }
+        ];
+
+        let currentOrderIndex = 0;
+        let snake = [];
+        let dx = gridSize;
+        let dy = 0;
+        let score = 0;
+        let level = 1;
+        let gameLoop;
+        let gameSpeed = 300; // 초기 속도 (밀리초)
+        let foods = []; // 맵에 흩뿌려질 식재료들
+        let isGameOver = false;
+        let warningMsg = "";
+        let warningTimer = 0;
+
+        // 범례 생성
+        const legendContainer = document.getElementById('legend-container');
+        shoppingOrder.forEach(category => {
+            const legendItem = document.createElement('div');
+            legendItem.className = 'legend-item';
+            legendItem.style.backgroundColor = category.color;
+            legendItem.textContent = category.name;
+            legendContainer.appendChild(legendItem);
+        });
+
+        function initGame() {
+            // 뱀 초기 위치 (화면 중앙 부근)
+            snake = [
+                {x: Math.floor(width/2/gridSize)*gridSize, y: Math.floor(height/2/gridSize)*gridSize}
+            ];
+            dx = gridSize;
+            dy = 0;
+            score = 0;
+            isGameOver = false;
+            warningTimer = 0;
+            
+            document.getElementById('game-over-modal').style.display = 'none';
+            
+            startLevel(1);
+        }
+
+        function startLevel(newLevel) {
+            level = newLevel;
+            currentOrderIndex = 0;
+            // 레벨이 오를수록 속도 증가 (최소 100ms)
+            gameSpeed = Math.max(100, 300 - ((level - 1) * 30));
+            
+            generateFoods();
+            updateUI();
+            
+            if(gameLoop) clearInterval(gameLoop);
+            gameLoop = setInterval(draw, gameSpeed);
+        }
+
+        // 화면에 각 카테고리별로 레벨(난이도) 수만큼 랜덤한 식재료 생성
+        function generateFoods() {
+            foods = [];
+            // 난이도가 올라갈수록 각 카테고리별 생성되는 식재료 개수 증가
+            const itemsPerCategory = level; 
+            
+            shoppingOrder.forEach(category => {
+                for(let i = 0; i < itemsPerCategory; i++) {
+                    let isOccupied = true;
+                    let newFoodX, newFoodY;
+                    
+                    // 뱀의 위치나 다른 먹이와 겹치지 않는 빈 공간 찾기
+                    let attempts = 0;
+                    while (isOccupied && attempts < 100) { // 무한루프 방지
+                        newFoodX = Math.floor(Math.random() * (width / gridSize)) * gridSize;
+                        newFoodY = Math.floor(Math.random() * (height / gridSize)) * gridSize;
+                        
+                        isOccupied = snake.some(segment => segment.x === newFoodX && segment.y === newFoodY) ||
+                                     foods.some(food => food.x === newFoodX && food.y === newFoodY);
+                        attempts++;
+                    }
+
+                    // 해당 카테고리에서 랜덤한 식재료 단어 선택
+                    const randomItem = category.items[Math.floor(Math.random() * category.items.length)];
+                    
+                    foods.push({
+                        x: newFoodX,
+                        y: newFoodY,
+                        categoryIndex: shoppingOrder.indexOf(category),
+                        text: randomItem,
+                        color: category.color
+                    });
+                }
+            });
+        }
+
+        function draw() {
+            if(isGameOver) return;
+
+            // 1. 뱀 이동 위치 계산
+            const head = { x: snake[0].x + dx, y: snake[0].y + dy };
+
+            // 2. 충돌 검사 (벽)
+            if (head.x < 0 || head.x >= width || head.y < 0 || head.y >= height) {
+                gameOver("벽에 부딪혔습니다!");
+                return;
+            }
+
+            // 3. 충돌 검사 (자기 몸)
+            for (let i = 0; i < snake.length; i++) {
+                if (head.x === snake[i].x && head.y === snake[i].y) {
+                    gameOver("자기 몸에 부딪혔습니다!");
+                    return;
+                }
+            }
+
+            // 뱀 머리 추가
+            snake.unshift(head);
+
+            // 4. 먹이(식재료) 먹었는지 확인
+            let ateFoodIndex = -1;
+            for(let i=0; i<foods.length; i++) {
+                if(head.x === foods[i].x && head.y === foods[i].y) {
+                    ateFoodIndex = i;
+                    break;
+                }
+            }
+
+            if (ateFoodIndex !== -1) {
+                const eatenFood = foods[ateFoodIndex];
+                
+                // 올바른 순서의 식재료를 먹었을 때
+                if (eatenFood.categoryIndex === currentOrderIndex) {
+                    score += 10;
+                    
+                    // 먹은 식재료만 화면에서 제거! (나머지는 그대로 유지)
+                    foods.splice(ateFoodIndex, 1);
+                    
+                    // 현재 순서에 해당하는 식재료가 화면에 더 남아있는지 확인
+                    const remainingInCurrentCategory = foods.some(food => food.categoryIndex === currentOrderIndex);
+                    
+                    // 현재 카테고리의 식재료를 모두 다 먹었다면 다음 순서로 넘어감
+                    if (!remainingInCurrentCategory) {
+                        currentOrderIndex++; 
+                        
+                        // 모든 순서를 다 완료(화면의 모든 재료를 다 먹음)했으면 레벨업
+                        if (currentOrderIndex >= shoppingOrder.length) {
+                            score += 50; // 보너스 점수
+                            startLevel(level + 1); // 다음 난이도로 재시작
+                            return; // 새 레벨이 시작되었으므로 이번 프레임 그리기 종료
+                        }
+                    }
+                    updateUI();
+                } else {
+                    // 잘못된 순서의 식재료를 먹었을 때 (감점, 먹이는 사라지지 않음, 꼬리 잘림 방지)
+                    score = Math.max(0, score - 5);
+                    showWarning(`앗! '${eatenFood.text}'보다 먼저 사야 할 재료가 있어요!`);
+                    snake.pop(); // 길어지지 않게 함
+                    updateUI();
+                }
+                
+            } else {
+                // 먹이를 먹지 않았으면 꼬리 제거하여 이동 효과
+                snake.pop();
+            }
+
+            // 5. 화면 그리기
+            clearCanvas();
+            drawFoods();
+            drawSnake();
+            
+            // 경고 메시지가 있으면 그리기
+            if (warningTimer > 0) {
+                ctx.fillStyle = 'rgba(231, 76, 60, 0.8)';
+                ctx.fillRect(0, height/2 - 20, width, 40);
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 16px "Malgun Gothic"';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(warningMsg, width/2, height/2);
+                warningTimer--;
+            }
+        }
+
+        function clearCanvas() {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, width, height);
+            
+            // 격자 그리기 (선택 사항, 시각적 보조)
+            ctx.strokeStyle = '#f1f2f6';
+            for (let x = 0; x <= width; x += gridSize) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke();
+            }
+            for (let y = 0; y <= height; y += gridSize) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke();
+            }
+        }
+
+        function drawSnake() {
+            snake.forEach((part, index) => {
+                // 머리는 다른 색/스타일로
+                if (index === 0) {
+                    ctx.fillStyle = '#2c3e50';
+                    ctx.fillRect(part.x, part.y, gridSize, gridSize);
+                    // 눈 그리기
+                    ctx.fillStyle = 'white';
+                    if (dx > 0) { // 오른쪽
+                        ctx.fillRect(part.x + 25, part.y + 5, 5, 5);
+                        ctx.fillRect(part.x + 25, part.y + 25, 5, 5);
+                    } else if (dx < 0) { // 왼쪽
+                        ctx.fillRect(part.x + 10, part.y + 5, 5, 5);
+                        ctx.fillRect(part.x + 10, part.y + 25, 5, 5);
+                    } else if (dy > 0) { // 아래
+                        ctx.fillRect(part.x + 5, part.y + 25, 5, 5);
+                        ctx.fillRect(part.x + 25, part.y + 25, 5, 5);
+                    } else { // 위
+                        ctx.fillRect(part.x + 5, part.y + 10, 5, 5);
+                        ctx.fillRect(part.x + 25, part.y + 10, 5, 5);
+                    }
+                } else {
+                    ctx.fillStyle = '#34495e';
+                    // 약간 작게 그려서 마디 표현
+                    ctx.fillRect(part.x + 2, part.y + 2, gridSize - 4, gridSize - 4);
+                }
+            });
+        }
+
+        function drawFoods() {
+            ctx.font = 'bold 14px "Malgun Gothic"';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            foods.forEach(food => {
+                // 학생들이 스스로 유추하게 만들기 위해 목표 힌트(테두리 강조)를 제거했습니다.
+                
+                // 배경색 설정 (카테고리 고유색을 투명도 주어 배경으로)
+                ctx.fillStyle = food.color + '33'; // 33은 투명도(hex)
+                ctx.fillRect(food.x + 2, food.y + 2, gridSize - 4, gridSize - 4);
+
+                // 텍스트(식재료 이름) 그리기
+                ctx.fillStyle = food.color; // 글자색을 짙은 카테고리 색상으로
+                ctx.fillText(food.text, food.x + gridSize / 2, food.y + gridSize / 2);
+            });
+        }
+
+        function updateUI() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('level').textContent = level;
+        }
+
+        function showWarning(msg) {
+            warningMsg = msg;
+            warningTimer = 5; // 약 5프레임 동안 경고창 표시
+        }
+
+        function gameOver(reason) {
+            isGameOver = true;
+            clearInterval(gameLoop);
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('game-over-reason').textContent = reason;
+            document.getElementById('game-over-modal').style.display = 'flex';
+        }
+
+        function resetGame() {
+            initGame();
+        }
+
+        // 방향 전환 로직 분리 (키보드, 모바일 버튼 공통 사용)
+        function changeDirection(dir) {
+            if (dir === 'UP' && dy !== gridSize) { dx = 0; dy = -gridSize; }
+            if (dir === 'DOWN' && dy !== -gridSize) { dx = 0; dy = gridSize; }
+            if (dir === 'LEFT' && dx !== gridSize) { dx = -gridSize; dy = 0; }
+            if (dir === 'RIGHT' && dx !== -gridSize) { dx = gridSize; dy = 0; }
+        }
+
+        // 키보드 조작 이벤트 리스너
+        document.addEventListener('keydown', (event) => {
+            const keyPressed = event.key;
+            if (keyPressed === 'ArrowUp') changeDirection('UP');
+            if (keyPressed === 'ArrowDown') changeDirection('DOWN');
+            if (keyPressed === 'ArrowLeft') changeDirection('LEFT');
+            if (keyPressed === 'ArrowRight') changeDirection('RIGHT');
+        });
+
+        // 모바일 조작용 터치/클릭 이벤트 리스너
+        ['up', 'down', 'left', 'right'].forEach(dir => {
+            const btn = document.getElementById(`btn-${dir}`);
+            if (btn) {
+                // pointerdown으로 모바일 터치와 마우스 클릭 모두 부드럽게 인식
+                btn.addEventListener('pointerdown', (e) => {
+                    e.preventDefault(); // 스크롤 등 기본 터치 동작 방지
+                    changeDirection(dir.toUpperCase());
+                });
+            }
+        });
+
+        // 게임 시작
+        window.onload = () => {
+            initGame();
+        };
+    </script>
+</body>
+</html>
