@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>1인 가구 맞춤형 장보기 & 냉장고 정리 마스터</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+        
+        body { 
+            font-family: 'Jua', sans-serif; 
+            background-color: #fef08a; 
+            margin: 0;
+            padding: 0;
+            touch-action: manipulation; 
+            overflow: hidden;
+        }
+        
+        .fade-in { animation: fadeIn 0.4s ease-in-out forwards; }
+        .slide-up { animation: slideUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .bounce-in { animation: bounceIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes bounceIn {
+            0% { opacity: 0; transform: scale(0.3); }
+            50% { opacity: 1; transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); }
+        }
+
+        /* 아이템 선택 효과 수정 - 더 눈에 띄게 변경 */
+        .item-selected {
+            border: 4px solid #ef4444 !important; /* 강렬한 빨간색 테두리 */
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.8) !important;
+            transform: scale(1.15) translateY(-8px) !important;
+            background-color: #fef2f2 !important; /* 약간 붉은 배경 */
+            z-index: 20;
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* 아코디언 메뉴 호버 */
+        .menu-item:hover { background-color: #fff7ed; }
+        
+        /* 스크롤바 숨기기 (모바일 뷰 최적화) */
+        ::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="flex justify-center items-center min-h-[100dvh] text-gray-800">
+
+    <!-- 모바일 환경에서 잘리지 않도록 높이 100dvh 적용 및 flex 구조 최적화 -->
+    <div id="app" class="w-full max-w-md h-[100dvh] sm:h-[850px] bg-white sm:rounded-3xl sm:shadow-2xl relative overflow-hidden flex flex-col">
+        
+        <!-- 헤더 영역 -->
+        <header class="bg-orange-400 text-white p-4 text-center sm:rounded-t-3xl sm:rounded-b-none rounded-b-3xl shadow-md relative z-20 flex-shrink-0">
+            <h1 class="text-2xl font-bold drop-shadow-md">🛒 자취생 요리 서바이벌 🍳</h1>
+            <p id="stage-title" class="text-sm mt-1 opacity-90">내가 고른 메뉴로 마스터하기</p>
+        </header>
+
+        <!-- 콘텐츠 영역 (동적으로 변경됨) -->
+        <main id="content" class="flex-1 overflow-y-auto p-4 pb-6 relative no-scrollbar flex flex-col h-full"></main>
+
+    </div>
+
+    <!-- 모달 창 -->
+    <div id="modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl p-6 m-4 w-full max-w-sm text-center shadow-2xl transform scale-95 transition-transform duration-300 flex flex-col items-center" id="modal-content-box">
+            <div id="modal-icon" class="text-5xl mb-2">💡</div>
+            <h3 id="modal-title" class="text-2xl font-bold mb-3 text-orange-600"></h3>
+            <p id="modal-message" class="text-lg text-gray-700 mb-6 leading-relaxed whitespace-pre-line"></p>
+            <button id="modal-btn" class="bg-orange-500 text-white text-xl font-bold py-3 px-10 rounded-full hover:bg-orange-600 transition duration-300 shadow-lg active:scale-95 w-full">확인</button>
+        </div>
+    </div>
+
+    <script>
+        // --- 게임 상태 관리 ---
+        let currentStage = 0;
+        let selectedFoodName = "";
+        let recipeIngredients = []; 
+        let requiredShopCategories = [];
+        let userShopOrder = [];
+        
+        let inventory = [];
+        let storedItems = { room: [], fridge: [], freezer: [] };
+        let selectedItemId = null;
+        let score = 0;
+        let wrongResults = [];
+
+        const contentEl = document.getElementById('content');
+        const headerTitle = document.getElementById('stage-title');
+
+        // --- 요리 메뉴 데이터 ---
+        const foodMenu = [
+            {
+                category: "🍛 든든한 덮밥 & 볶음밥",
+                items: ["김치볶음밥", "참치김치덮밥", "간장계란밥", "참치마요덮밥", "스팸마요덮밥", "제육덮밥", "소고기 덮밥", "우삼겹 숙주덮밥", "닭갈비 덮밥", "오징어볶음 덮밥", "카레라이스", "하이라이스", "오므라이스", "볶음밥", "대패삼겹살 김치덮밥", "마파두부덮밥", "계란볶음밥", "굴소스 볶음밥"]
+            },
+            {
+                category: "🍜 호로록 면요리",
+                items: ["비빔국수", "김치비빔국수", "간장비빔국수", "잔치국수", "소면 참치국수", "볶음우동", "우삼겹 볶음우동", "김치우동", "어묵우동", "냉우동", "비빔면 + 삼겹살", "토마토 파스타", "크림파스타", "오일파스타", "참치 파스타", "김치 파스타", "계란 간장 라면", "대패삼겹살 라면", "만두 라면"]
+            },
+            {
+                category: "🥚 영양만점 계란요리",
+                items: ["계란말이", "계란찜", "스크램블에그", "계란후라이 + 간장밥", "계란장", "토마토 계란볶음", "계란국", "계란 덮밥", "참치계란전", "두부계란부침"]
+            },
+            {
+                category: "🥩 고기 & 든든한 반찬",
+                items: ["우삼겹 불고기", "대패삼겹살 숙주볶음", "제육볶음", "간장 돼지고기볶음", "돼지고기 김치볶음", "삼겹살 김치볶음", "닭갈비", "닭볶음탕", "닭간장조림", "닭가슴살 볶음", "소고기 장조림", "소고기 숙주볶음", "숙주나물", "콩나물무침", "시금치무침", "오이무침", "부추무침", "양배추 볶음", "양배추 계란볶음", "애호박볶음", "감자볶음", "버섯볶음", "가지볶음", "두부조림", "두부김치", "두부부침", "감자전", "부추전", "김치전"]
+            },
+            {
+                category: "🍲 따뜻한 국/찌개 & 간편식",
+                items: ["김치찌개", "된장찌개", "순두부찌개", "참치김치찌개", "돼지고기 김치찌개", "콩나물국", "어묵국", "소고기 미역국", "떡국", "만두국", "감자국", "부대찌개", "고추장찌개", "참치마요 삼각김밥", "김치+계란+밥", "스팸+김+밥", "냉동만두+계란", "떡국떡+계란", "소시지+계란", "두부+김치", "식빵+계란", "식빵+햄+치즈", "콘치즈", "전자레인지 계란찜", "전자레인지 치즈밥", "컵밥식 김치참치밥"]
+            }
+        ];
+
+        // --- 식재료 DB (교과서 순서에 맞게 카테고리 세분화) ---
+        // cat: 1. ambient(냉장 필요 없음), 2. vegFruit(채소,과일), 3. processed(가공식품), 4. meat(육류), 5. seafood(어패류), 6. readyToEat(즉석식품)
+        // storage: room(실온), fridge(냉장), freezer(냉동)
+        const ingredientDB = {
+            rice: { id: 'rice', name: '쌀/즉석밥', cat: 'ambient', storage: 'room', icon: '🍚', wrongMsg: '햇빛을 피해 서늘하고 건조한 실온에 보관하세요.' },
+            tuna: { id: 'tuna', name: '참치캔', cat: 'ambient', storage: 'room', icon: '🥫', wrongMsg: '통조림은 개봉 전에는 실온 보관입니다. (개봉 후엔 냉장)' },
+            sauce: { id: 'sauce', name: '간장/양념류', cat: 'ambient', storage: 'room', icon: '🍾', wrongMsg: '기본 양념류는 서늘한 실온에 보관하는 것이 좋습니다.' },
+            noodle: { id: 'noodle', name: '건면/파스타', cat: 'ambient', storage: 'room', icon: '🍝', wrongMsg: '습기가 없는 서늘한 실온에 보관하세요.' },
+            ramen: { id: 'ramen', name: '라면', cat: 'ambient', storage: 'room', icon: '🍜', wrongMsg: '직사광선을 피해 서늘하고 건조한 곳에 보관하세요.' },
+            
+            onion: { id: 'onion', name: '양파/대파', cat: 'vegFruit', storage: 'room', icon: '🧅', wrongMsg: '양파는 습기에 취약하므로 통풍이 잘 되는 서늘한 실온(망)에 보관하세요. (대파는 손질 후 냉장/냉동)' },
+            potato: { id: 'potato', name: '감자', cat: 'vegFruit', storage: 'room', icon: '🥔', wrongMsg: '감자를 냉장고에 넣으면 단맛이 줄고 환경호르몬이 생길 수 있어요. 서늘한 실온 보관 필수!' },
+            veggie: { id: 'veggie', name: '잎/열매채소', cat: 'vegFruit', storage: 'fridge', icon: '🥬', wrongMsg: '채소류는 수분을 유지할 수 있도록 밀폐하여 냉장고 채소칸에 보관하세요.' },
+            
+            spam: { id: 'spam', name: '통조림햄', cat: 'processed', storage: 'room', icon: '🥫', wrongMsg: '가공육 통조림은 서늘한 실온에 보관하세요.' },
+            sausage: { id: 'sausage', name: '소시지/어묵', cat: 'processed', storage: 'fridge', icon: '🌭', wrongMsg: '냉장 가공식품은 상하기 쉬우므로 꼭 냉장 보관하세요.' },
+            tofu: { id: 'tofu', name: '두부', cat: 'processed', storage: 'fridge', icon: '🧊', wrongMsg: '쉽게 상하므로 냉장 보관 필수! 개봉 후엔 밀폐용기에 깨끗한 물과 함께 보관하세요.' },
+            cheese: { id: 'cheese', name: '치즈/유제품', cat: 'processed', storage: 'fridge', icon: '🧀', wrongMsg: '유제품은 온도 변화에 취약하므로 냉장 보관이 필수입니다.' },
+            dumpling: { id: 'dumpling', name: '냉동식품', cat: 'processed', storage: 'freezer', icon: '🥟', wrongMsg: '냉동식품(만두 등)은 녹지 않게 장보기 후반부에 사고, 바로 냉동실에 보관하세요.' },
+            udong: { id: 'udong', name: '우동/생면', cat: 'processed', storage: 'fridge', icon: '🍜', wrongMsg: '생면이나 숙면류는 수분이 있어 상하기 쉬우므로 냉장 보관해야 합니다.' },
+            bread: { id: 'bread', name: '식빵', cat: 'processed', storage: 'freezer', icon: '🍞', wrongMsg: '식빵은 실온에 두면 곰팡이가 피기 쉬워요. 밀봉해서 냉동 보관하면 오래 먹을 수 있습니다!' },
+
+            egg: { id: 'egg', name: '계란', cat: 'meat', storage: 'fridge', icon: '🥚', wrongMsg: '계란은 온도 변화에 민감하므로 냉장고 안쪽에 보관하는 것이 좋습니다. (통상 육류 구매 시 함께 고려)' },
+            pork: { id: 'pork', name: '돼지고기', cat: 'meat', storage: 'freezer', icon: '🥓', wrongMsg: '당장 먹을 게 아니라면 1인분씩 소분하여 공기를 차단한 후 냉동 보관하는 것이 안전합니다.' },
+            beef: { id: 'beef', name: '소고기', cat: 'meat', storage: 'freezer', icon: '🥩', wrongMsg: '고기류는 공기를 차단해 밀봉한 후 냉동실에 보관해야 오래갑니다.' },
+            chicken: { id: 'chicken', name: '닭고기', cat: 'meat', storage: 'freezer', icon: '🍗', wrongMsg: '닭고기는 특히 상하기 쉬우므로 남은 것은 바로 냉동 보관하세요.' },
+            
+            squid: { id: 'squid', name: '해산물(어패류)', cat: 'seafood', storage: 'freezer', icon: '🦑', wrongMsg: '어패류는 가장 빨리 상하는 식재료입니다. 씻은 후 바로 냉동실로 직행하세요!' },
+
+            kimchi: { id: 'kimchi', name: '김치/반찬류', cat: 'readyToEat', storage: 'fridge', icon: '🌶️', wrongMsg: '발효식품이므로 신선도와 맛 유지를 위해 항상 냉장 보관하세요.' }
+        };
+
+        const shopCategoryInfo = {
+            ambient: { id: 'ambient', name: '냉장 필요 없는 식품', desc: '쌀, 통조림, 소스, 라면', icon: '🥫', color: 'bg-yellow-100' },
+            vegFruit: { id: 'vegFruit', name: '채소, 과일', desc: '양파, 감자, 채소', icon: '🥦', color: 'bg-green-100' },
+            processed: { id: 'processed', name: '냉장/냉동 가공식품', desc: '햄, 두부, 어묵, 만두', icon: '🧊', color: 'bg-blue-100' },
+            meat: { id: 'meat', name: '육류', desc: '돼지고기, 소고기, 닭, 계란', icon: '🥩', color: 'bg-red-100' },
+            seafood: { id: 'seafood', name: '어패류', desc: '생선, 오징어, 조개', icon: '🐟', color: 'bg-teal-100' },
+            readyToEat: { id: 'readyToEat', name: '즉석식품', desc: '김밥, 조리된 반찬, 김치', icon: '🍱', color: 'bg-purple-100' }
+        };
+
+        // 올바른 장보기 카테고리 순서 (교과서 기준 6단계)
+        const masterShopOrder = ['ambient', 'vegFruit', 'processed', 'meat', 'seafood', 'readyToEat'];
+
+        let modalCallback = null;
+        const modal = document.getElementById('modal');
+        const modalBox = document.getElementById('modal-content-box');
+        
+        function showAlert(title, message, icon = '💡', callback = null) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-message').textContent = message;
+            document.getElementById('modal-icon').textContent = icon;
+            modalCallback = callback;
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalBox.classList.remove('scale-95');
+            }, 10);
+        }
+
+        document.getElementById('modal-btn').addEventListener('click', () => {
+            modal.classList.add('opacity-0');
+            modalBox.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                if (modalCallback) modalCallback();
+            }, 300);
+        });
+
+        function generateIngredients(foodName) {
+            let ids = new Set();
+            
+            // 키워드 분석을 통해 유연하게 식재료 매칭
+            if(foodName.includes('김치')) ids.add('kimchi');
+            if(foodName.includes('밥') || foodName.includes('라이스')) ids.add('rice');
+            if(foodName.includes('계란') || foodName.includes('에그') || foodName.includes('오므') || foodName.includes('말이') || foodName.includes('스크램블')) ids.add('egg');
+            if(foodName.includes('참치')) ids.add('tuna');
+            if(foodName.includes('제육') || foodName.includes('삼겹') || foodName.includes('돼지')) ids.add('pork');
+            if(foodName.includes('스팸') || foodName.includes('햄') || foodName.includes('부대')) ids.add('spam');
+            if(foodName.includes('소시지') || foodName.includes('어묵')) ids.add('sausage');
+            if(foodName.includes('소고기') || foodName.includes('우삼겹') || foodName.includes('불고기') || foodName.includes('장조림')) ids.add('beef');
+            if(foodName.includes('닭')) ids.add('chicken');
+            if(foodName.includes('오징어')) ids.add('squid');
+            if(foodName.includes('국수') || foodName.includes('소면') || foodName.includes('비빔면')) ids.add('noodle');
+            if(foodName.includes('파스타')) ids.add('noodle');
+            if(foodName.includes('우동')) ids.add('udong');
+            if(foodName.includes('라면')) ids.add('ramen');
+            if(foodName.includes('숙주') || foodName.includes('콩나물') || foodName.includes('시금치') || foodName.includes('오이') || foodName.includes('부추') || foodName.includes('양배추') || foodName.includes('애호박') || foodName.includes('버섯') || foodName.includes('가지') || foodName.includes('나물') || foodName.includes('무침') || foodName.includes('미역')) ids.add('veggie');
+            if(foodName.includes('두부') || foodName.includes('마파')) ids.add('tofu');
+            if(foodName.includes('감자')) ids.add('potato');
+            if(foodName.includes('만두')) ids.add('dumpling');
+            if(foodName.includes('식빵')) ids.add('bread');
+            if(foodName.includes('치즈') || foodName.includes('크림') || foodName.includes('콘치즈')) ids.add('cheese');
+            if(foodName.includes('국') || foodName.includes('찌개') || foodName.includes('탕')) { ids.add('onion'); ids.add('sauce'); }
+            if(foodName.includes('간장') || foodName.includes('카레') || foodName.includes('하이라이스') || foodName.includes('굴소스') || foodName.includes('조림') || foodName.includes('볶음') || foodName.includes('비빔')) ids.add('sauce');
+            if(foodName.includes('전') || foodName.includes('부침')) { ids.add('sauce'); ids.add('onion'); }
+            
+            // 재료가 너무 적으면 기본 재료 추가 (게임성을 위해 최소 3개 권장)
+            if(!ids.has('onion') && !ids.has('veggie') && !ids.has('potato')) ids.add('onion');
+            if(ids.size < 3) ids.add('sauce');
+            if(ids.size < 2) ids.add('rice'); 
+            
+            return Array.from(ids).map(id => ingredientDB[id]);
+        }
+
+        function renderIntro() {
+            headerTitle.textContent = "1인 가구 만렙 달성 프로젝트";
+            contentEl.innerHTML = `
+                <div class="flex flex-col items-center justify-center h-full fade-in text-center pb-10">
+                    <div class="text-7xl mb-4 bounce-in">🧑‍🍳</div>
+                    <h2 class="text-3xl font-bold text-orange-600 mb-4 leading-tight">자취생 맞춤형<br>장보기 & 냉장고 정리</h2>
+                    <div class="bg-orange-50 p-4 rounded-2xl mb-6 text-gray-700 text-base shadow-inner w-full text-left leading-relaxed">
+                        <p class="mb-2">✅ 내가 먹고 싶은 요리를 직접 고르세요!</p>
+                        <p class="mb-2">✅ 식중독 예방을 위해 <b>올바른 순서로 장보기</b></p>
+                        <p>✅ 신선도 유지를 위한 <b>냉장고 보관법 마스터</b></p>
+                    </div>
+                    <button onclick="renderMenuSelection()" class="w-full bg-orange-500 text-white text-2xl font-bold py-4 rounded-full shadow-[0_5px_0_#c2410c] active:shadow-[0_0px_0_#c2410c] active:translate-y-[5px] transition-all">
+                        요리 메뉴 고르기 🍴
+                    </button>
+                </div>
+            `;
+        }
+
+        function renderMenuSelection() {
+            headerTitle.textContent = "오늘 뭐 먹지? 메뉴 선택";
+            
+            let menuHTML = foodMenu.map((group, index) => `
+                <div class="mb-3 slide-up" style="animation-delay: ${index * 0.1}s">
+                    <button onclick="toggleAccordion(${index})" class="w-full bg-white text-left p-4 rounded-2xl shadow-sm border-2 border-orange-200 font-bold text-lg text-gray-800 flex justify-between items-center focus:outline-none">
+                        <span>${group.category}</span>
+                        <span id="icon-${index}" class="text-orange-500 transition-transform duration-300">▼</span>
+                    </button>
+                    <div id="content-${index}" class="hidden mt-2 bg-orange-50 rounded-2xl p-2 grid grid-cols-2 gap-2 max-h-60 overflow-y-auto border border-orange-100">
+                        ${group.items.map(item => `
+                            <div onclick="selectFood('${item}')" class="menu-item bg-white p-3 rounded-xl text-center text-sm font-bold text-gray-700 cursor-pointer shadow-sm border border-gray-100 transition-colors">
+                                ${item}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+
+            contentEl.innerHTML = `
+                <div class="flex flex-col h-full">
+                    <div class="bg-orange-100 p-3 rounded-xl mb-4 text-center">
+                        <p class="text-orange-800 font-bold">만들고 싶은 요리를 하나 선택하세요!</p>
+                    </div>
+                    <div class="flex-1 overflow-y-auto no-scrollbar pb-10">
+                        ${menuHTML}
+                    </div>
+                </div>
+            `;
+        }
+
+        window.toggleAccordion = function(index) {
+            const content = document.getElementById(`content-${index}`);
+            const icon = document.getElementById(`icon-${index}`);
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                icon.style.transform = 'rotate(180deg)';
+            } else {
+                content.classList.add('hidden');
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        window.selectFood = function(foodName) {
+            selectedFoodName = foodName;
+            recipeIngredients = generateIngredients(foodName);
+            
+            // 요리에 필요한 카테고리만 추출 및 올바른 순서대로 정렬
+            let neededCats = new Set(recipeIngredients.map(ing => ing.cat));
+            requiredShopCategories = masterShopOrder.filter(cat => neededCats.has(cat));
+            
+            const ingIcons = recipeIngredients.map(ing => ing.icon).join(' ');
+            const ingNames = recipeIngredients.map(ing => ing.name).join(', ');
+
+            showAlert(
+                `🍳 ${foodName}`, 
+                `이 요리를 만들려면 다음 재료들이 필요해요!\n\n${ingIcons}\n(${ingNames})\n\n이제 마트에서 안전한 순서대로 장을 볼까요?`, 
+                '🛒', 
+                startStage1
+            );
+        };
+
+        function startStage1() {
+            currentStage = 1;
+            userShopOrder = [];
+            headerTitle.textContent = "Stage 1: 장보기 순서";
+            renderStage1();
+        }
+
+        function renderStage1() {
+            // 사용해야 할 카테고리(requiredShopCategories)만 카드 형태로 출력
+            let optionsHTML = requiredShopCategories.map(catId => {
+                const info = shopCategoryInfo[catId];
+                const isSelected = userShopOrder.includes(catId);
+                
+                // 해당 카테고리에 속하는 실제 재료들 표시
+                const itemsInCat = recipeIngredients.filter(ing => ing.cat === catId).map(ing => ing.name).join(', ');
+
+                return `
+                    <button onclick="selectShopCategory('${catId}')" 
+                            class="${info.color} p-4 rounded-2xl shadow-md border-2 ${isSelected ? 'border-gray-400 opacity-40 scale-95' : 'border-transparent hover:scale-[1.02] active:scale-95'} transition-all flex flex-col justify-center relative w-full mb-3 text-left"
+                            ${isSelected ? 'disabled' : ''}>
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="text-3xl">${info.icon}</span>
+                            <span class="font-bold text-lg">${info.name}</span>
+                        </div>
+                        <div class="bg-white bg-opacity-60 p-2 rounded-lg text-sm text-gray-700 font-bold">
+                            📦 필요 재료: ${itemsInCat}
+                        </div>
+                    </button>
+                `;
+            }).join('');
+
+            // 선택된 순서 슬롯
+            let slotsHTML = '';
+            for (let i = 0; i < requiredShopCategories.length; i++) {
+                const catId = userShopOrder[i];
+                if (catId) {
+                    const info = shopCategoryInfo[catId];
+                    slotsHTML += `
+                        <div onclick="removeShopCategory(${i})" class="${info.color} w-full p-2 rounded-xl border-2 border-orange-400 shadow-sm flex items-center gap-3 cursor-pointer hover:bg-red-50 transition slide-up relative mb-2">
+                            <div class="bg-white rounded-full w-6 h-6 flex items-center justify-center font-bold text-orange-600 flex-shrink-0 text-sm">${i+1}</div>
+                            <span class="text-xl">${info.icon}</span>
+                            <span class="font-bold text-sm">${info.name}</span>
+                            <span class="absolute right-3 text-red-400 font-bold">✕</span>
+                        </div>
+                    `;
+                } else {
+                    slotsHTML += `
+                        <div class="bg-gray-100 border-2 border-dashed border-gray-300 w-full p-2 rounded-xl flex items-center gap-3 opacity-70 mb-2">
+                            <div class="bg-gray-200 text-gray-500 rounded-full w-6 h-6 flex items-center justify-center font-bold flex-shrink-0 text-sm">${i+1}</div>
+                            <span class="text-gray-400 text-sm">이곳에 순서대로 담으세요</span>
+                        </div>
+                    `;
+                }
+            }
+
+            contentEl.innerHTML = `
+                <div class="fade-in flex flex-col h-full">
+                    <div class="bg-blue-50 p-2 rounded-xl mb-3 text-center shadow-sm">
+                        <p class="text-blue-800 text-xs sm:text-sm">상온 식품부터 담고, 상하기 쉬운 식품은 마지막에 담으세요!</p>
+                    </div>
+                    
+                    <div class="flex-1 overflow-y-auto no-scrollbar pb-4">
+                        <h4 class="font-bold text-gray-600 mb-2 px-1 text-sm">🛒 진열대 (터치하여 장바구니에 담기)</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            ${optionsHTML}
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-3 rounded-t-3xl shadow-[0_-5px_15px_rgba(0,0,0,0.05)] border-t border-gray-200 mt-auto flex-shrink-0">
+                        <h4 class="font-bold mb-2 text-gray-700 text-sm">내 장바구니 순서</h4>
+                        <div class="max-h-[25vh] overflow-y-auto no-scrollbar">
+                            ${slotsHTML}
+                        </div>
+                        
+                        <button onclick="checkStage1()" class="mt-3 bg-orange-500 text-white text-lg font-bold py-3 w-full rounded-full shadow-[0_4px_0_#c2410c] active:shadow-[0_0px_0_#c2410c] active:translate-y-[4px] transition-all disabled:bg-gray-300 disabled:shadow-[0_4px_0_#9ca3af] disabled:text-gray-500" ${userShopOrder.length < requiredShopCategories.length ? 'disabled' : ''}>
+                            계산대로 가기
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.selectShopCategory = function(catId) {
+            if (userShopOrder.length < requiredShopCategories.length && !userShopOrder.includes(catId)) {
+                userShopOrder.push(catId);
+                renderStage1();
+            }
+        };
+
+        window.removeShopCategory = function(index) {
+            userShopOrder.splice(index, 1);
+            renderStage1();
+        };
+
+        window.checkStage1 = function() {
+            let isCorrect = true;
+            for (let i = 0; i < requiredShopCategories.length; i++) {
+                if (userShopOrder[i] !== requiredShopCategories[i]) {
+                    isCorrect = false;
+                    break;
+                }
+            }
+
+            if (isCorrect) {
+                showAlert('🎉 완벽한 장보기!', '온도 변화에 민감한 식품을 마지막에 담는 센스!\n안전하게 집까지 가져왔습니다.\n\n이제 사온 재료들을 냉장고에 정리해볼까요?', '👍', startStage2);
+            } else {
+                showAlert('🤔 아쉽네요!', '순서가 틀렸어요.\n\n교과서 권장 순서:\n1. 냉장이 필요 없는 식품\n2. 채소, 과일\n3. 냉장/냉동 가공식품\n4. 육류\n5. 어패류\n6. 즉석식품\n\n다시 담아보세요!', '🛒', () => {
+                    userShopOrder = [];
+                    renderStage1();
+                });
+            }
+        };
+
+        window.startStage2 = function() {
+            currentStage = 2;
+            headerTitle.textContent = `Stage 2: ${selectedFoodName} 재료 보관`;
+            inventory = [...recipeIngredients];
+            storedItems = { room: [], fridge: [], freezer: [] };
+            selectedItemId = null;
+            renderStage2();
+        };
+
+        function renderStage2() {
+            // 인벤토리 (아직 배치 안 한 아이템들) 렌더링
+            let inventoryHTML = inventory.map((item, idx) => `
+                <div onclick="selectStorageItem('${item.id}')" 
+                     class="bg-white w-[70px] h-[75px] rounded-xl shadow-sm border border-gray-200 flex flex-col items-center justify-center cursor-pointer transition-all duration-200 ${selectedItemId === item.id ? 'item-selected ring-4 ring-red-400 ring-offset-2' : 'hover:-translate-y-1'} flex-shrink-0 snap-center slide-up relative" style="animation-delay: ${idx * 0.05}s">
+                    <span class="text-3xl">${item.icon}</span>
+                    <span class="text-[10px] font-bold mt-1 text-gray-600 truncate w-full text-center px-1">${item.name}</span>
+                    ${selectedItemId === item.id ? `<div class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shadow-md animate-bounce">선택</div>` : ''}
+                </div>
+            `).join('');
+
+            if (inventory.length === 0) {
+                inventoryHTML = `<div class="w-full text-center text-gray-500 font-bold py-4">모든 식재료를 정리했어요!</div>`;
+            }
+
+            // 보관 장소 렌더링 함수
+            const renderPlace = (placeId, title, icon, colorClass, borderClass) => {
+                let itemsHTML = storedItems[placeId].map(item => `
+                    <div onclick="returnItemToInventory('${item.id}', '${placeId}')" class="bg-white bg-opacity-80 p-2 rounded-xl cursor-pointer hover:bg-red-100 transition-colors shadow-sm flex flex-col items-center border border-gray-100" title="터치하여 빼기">
+                        <span class="text-2xl">${item.icon}</span>
+                        <span class="text-[9px] font-bold mt-1 truncate w-full text-center">${item.name}</span>
+                    </div>
+                `).join('');
+
+                return `
+                    <div onclick="placeItemTo('${placeId}')" class="${colorClass} ${borderClass} border-4 p-4 rounded-2xl flex-1 flex flex-col cursor-pointer transition-all hover:opacity-90 relative active:scale-[0.98] ${selectedItemId ? 'ring-2 ring-red-400 ring-offset-2 animate-pulse' : ''}">
+                        <div class="flex items-center justify-between mb-2 border-b-2 ${borderClass} pb-1 border-opacity-30">
+                            <h4 class="font-bold text-lg flex items-center gap-2"><span>${icon}</span> ${title}</h4>
+                            <span class="text-xs font-bold text-gray-700 bg-white px-2 py-1 rounded-full opacity-80 shadow-sm">${storedItems[placeId].length}개</span>
+                        </div>
+                        <div class="grid grid-cols-4 gap-2 content-start flex-1 min-h-[65px]">
+                            ${itemsHTML}
+                            ${storedItems[placeId].length === 0 ? '<div class="col-span-4 text-gray-500 text-sm flex items-center justify-center h-full opacity-60 font-bold">이곳을 터치하여 보관</div>' : ''}
+                        </div>
+                    </div>
+                `;
+            };
+
+            contentEl.innerHTML = `
+                <div class="fade-in flex flex-col h-full">
+                    <div class="bg-green-50 p-3 rounded-xl mb-3 text-center shadow-sm">
+                        <p class="text-green-800 text-sm"><b>식재료를 터치</b>하고 <b>알맞은 장소를 터치</b>해서 정리하세요.</p>
+                    </div>
+                    
+                    <!-- 보관할 아이템 목록 -->
+                    <div class="bg-gray-100 p-3 rounded-2xl mb-3 shadow-inner border border-gray-200 ${selectedItemId ? 'bg-red-50' : ''} transition-colors duration-300">
+                        <h4 class="text-sm font-bold text-gray-700 mb-2 flex items-center gap-1 justify-between">
+                            <span><span>🧺</span> 장바구니</span>
+                            ${selectedItemId ? '<span class="text-red-500 text-xs animate-pulse">👇 아래 보관장소를 터치하세요!</span>' : ''}
+                        </h4>
+                        <div class="flex gap-4 overflow-x-auto pb-4 px-2 pt-2 snap-x no-scrollbar min-h-[90px] items-center">
+                            ${inventoryHTML}
+                        </div>
+                    </div>
+                    
+                    <!-- 보관 장소들 -->
+                    <div class="flex flex-col gap-3 flex-1 mb-4 overflow-y-auto no-scrollbar pb-2">
+                        ${renderPlace('room', '실온 보관장', '📦', 'bg-[#e5d3b3]', 'border-[#cda87c]')}
+                        ${renderPlace('fridge', '냉장실 (0~5℃)', '🧊', 'bg-[#cbf0f8]', 'border-[#89c8d9]')}
+                        ${renderPlace('freezer', '냉동실 (-18℃)', '❄️', 'bg-[#d8e3e7]', 'border-[#a3b8cc]')}
+                    </div>
+                    
+                    <button onclick="checkStage2()" class="mt-auto bg-green-600 text-white text-xl font-bold py-4 w-full rounded-full shadow-[0_4px_0_#166534] active:shadow-[0_0px_0_#166534] active:translate-y-[4px] transition-all disabled:bg-gray-400 disabled:shadow-[0_4px_0_#9ca3af] disabled:text-gray-200" ${inventory.length > 0 ? 'disabled' : ''}>
+                        정리 완료! 결과 보기
+                    </button>
+                </div>
+            `;
+        }
+
+        window.selectStorageItem = function(id) {
+            selectedItemId = id;
+            renderStage2();
+        };
+
+        window.placeItemTo = function(placeId) {
+            if (!selectedItemId) return;
+            const itemIndex = inventory.findIndex(item => item.id === selectedItemId);
+            if (itemIndex > -1) {
+                const item = inventory.splice(itemIndex, 1)[0];
+                storedItems[placeId].push(item);
+                selectedItemId = null;
+                renderStage2();
+            }
+        };
+
+        window.returnItemToInventory = function(itemId, placeId) {
+            event.stopPropagation();
+            const itemIndex = storedItems[placeId].findIndex(item => item.id === itemId);
+            if (itemIndex > -1) {
+                const item = storedItems[placeId].splice(itemIndex, 1)[0];
+                inventory.push(item);
+                selectedItemId = null; 
+                renderStage2();
+            }
+        };
+
+        window.checkStage2 = function() {
+            score = 0;
+            wrongResults = [];
+
+            ['room', 'fridge', 'freezer'].forEach(place => {
+                storedItems[place].forEach(item => {
+                    if (item.storage === place) {
+                        score += 10;
+                    } else {
+                        wrongResults.push({ item: item, wrongPlace: place });
+                    }
+                });
+            });
+
+            const maxScore = recipeIngredients.length * 10;
+            const percentage = Math.round((score / maxScore) * 100);
+            showResult(percentage);
+        };
+
+        function showResult(percentage) {
+            headerTitle.textContent = "최종 결과";
+            
+            let resultIcon = percentage === 100 ? '🏆' : (percentage >= 70 ? '👏' : '😅');
+            let resultTitle = percentage === 100 ? '완벽한 자취 요리사!' : (percentage >= 70 ? '거의 완벽해요!' : '조금 더 연습이 필요해요!');
+
+            let wrongFeedbackHTML = '';
+            if (wrongResults.length > 0) {
+                wrongFeedbackHTML = `
+                    <div class="bg-red-50 border border-red-200 p-4 rounded-2xl mb-6 text-left w-full shadow-inner flex-1 overflow-y-auto no-scrollbar">
+                        <h4 class="font-bold text-red-600 mb-3 text-center border-b border-red-200 pb-2">❌ 잘못 보관한 식재료 복습하기</h4>
+                        <div class="flex flex-col gap-3">
+                            ${wrongResults.map(err => `
+                                <div class="bg-white p-3 rounded-xl shadow-sm border border-red-100 flex gap-3 items-start">
+                                    <div class="text-3xl bg-gray-50 border border-gray-100 rounded-lg p-2 flex-shrink-0">${err.item.icon}</div>
+                                    <div>
+                                        <p class="font-bold text-gray-800">
+                                            ${err.item.name} 
+                                            <span class="text-xs text-red-500 font-normal bg-red-50 px-1 rounded">(${getPlaceName(err.wrongPlace)} 보관함)</span>
+                                        </p>
+                                        <p class="text-xs text-gray-600 mt-1 leading-relaxed">${err.item.wrongMsg}</p>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            } else {
+                wrongFeedbackHTML = `
+                    <div class="bg-green-100 p-6 rounded-2xl mb-6 w-full text-green-800 shadow-inner text-lg font-bold">
+                        🎉 대단해요!<br>모든 식재료를 완벽하게 보관했습니다.<br>이제 맛있는 '${selectedFoodName}'을(를) 만들어 드세요!
+                    </div>
+                `;
+            }
+
+            contentEl.innerHTML = `
+                <div class="fade-in flex flex-col items-center text-center h-full pb-4">
+                    <div class="text-7xl mb-2 bounce-in">${resultIcon}</div>
+                    <h2 class="text-4xl font-bold text-orange-600 mb-2">${percentage}점</h2>
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">${resultTitle}</h3>
+                    
+                    ${wrongFeedbackHTML}
+
+                    <div class="mt-auto w-full pt-2">
+                        <button onclick="renderMenuSelection()" class="bg-blue-500 text-white text-xl font-bold py-4 w-full rounded-full shadow-[0_4px_0_#1d4ed8] active:shadow-[0_0px_0_#1d4ed8] active:translate-y-[4px] transition-all flex items-center justify-center gap-2">
+                            <span>🔄</span> 다른 요리 도전하기
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function getPlaceName(placeId) {
+            if(placeId === 'room') return '실온';
+            if(placeId === 'fridge') return '냉장실';
+            if(placeId === 'freezer') return '냉동실';
+            return placeId;
+        }
+
+        // 게임 시작
+        renderIntro();
+
+    </script>
+</body>
+</html>
