@@ -41,10 +41,10 @@
 
         /* 아이템 선택 효과 수정 - 더 눈에 띄게 변경 */
         .item-selected {
-            border: 4px solid #ef4444 !important; /* 강렬한 빨간색 테두리 */
-            box-shadow: 0 0 20px rgba(239, 68, 68, 0.8) !important;
-            transform: scale(1.15) translateY(-8px) !important;
-            background-color: #fef2f2 !important; /* 약간 붉은 배경 */
+            border: 3px solid #ef4444 !important; /* 레이아웃 밀림 방지를 위해 약간 조절 */
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.6) !important;
+            transform: scale(1.05) !important; /* 위로 이동하는 translateY 제거, 살짝만 커지게 변경 */
+            background-color: #fef2f2 !important; 
             z-index: 20;
             transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
@@ -436,10 +436,10 @@
             // 인벤토리 (아직 배치 안 한 아이템들) 렌더링
             let inventoryHTML = inventory.map((item, idx) => `
                 <div onclick="selectStorageItem('${item.id}')" 
-                     class="bg-white w-[70px] h-[75px] rounded-xl shadow-sm border border-gray-200 flex flex-col items-center justify-center cursor-pointer transition-all duration-200 ${selectedItemId === item.id ? 'item-selected ring-4 ring-red-400 ring-offset-2' : 'hover:-translate-y-1'} flex-shrink-0 snap-center slide-up relative" style="animation-delay: ${idx * 0.05}s">
+                     class="bg-white w-[70px] h-[75px] rounded-xl shadow-sm border border-gray-200 flex flex-col items-center justify-center cursor-pointer transition-all duration-200 ${selectedItemId === item.id ? 'item-selected' : 'hover:-translate-y-1'} flex-shrink-0 snap-center slide-up relative" style="animation-delay: ${idx * 0.05}s">
                     <span class="text-3xl">${item.icon}</span>
                     <span class="text-[10px] font-bold mt-1 text-gray-600 truncate w-full text-center px-1">${item.name}</span>
-                    ${selectedItemId === item.id ? `<div class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shadow-md animate-bounce">선택</div>` : ''}
+                    ${selectedItemId === item.id ? `<div class="absolute -top-3 -right-2 bg-red-500 text-white rounded-full w-8 h-5 flex items-center justify-center text-[10px] font-bold shadow-md animate-bounce">선택</div>` : ''}
                 </div>
             `).join('');
 
@@ -482,7 +482,7 @@
                             <span><span>🧺</span> 장바구니</span>
                             ${selectedItemId ? '<span class="text-red-500 text-xs animate-pulse">👇 아래 보관장소를 터치하세요!</span>' : ''}
                         </h4>
-                        <div class="flex gap-4 overflow-x-auto pb-4 px-2 pt-2 snap-x no-scrollbar min-h-[90px] items-center">
+                        <div class="flex gap-4 overflow-x-auto pb-4 px-3 pt-4 snap-x no-scrollbar min-h-[100px] items-center">
                             ${inventoryHTML}
                         </div>
                     </div>
@@ -610,5 +610,7 @@
         renderIntro();
 
     </script>
+</body>
+</html>
 </body>
 </html>
