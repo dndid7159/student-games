@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>공유경제 마을 쟁탈전</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        .font-game {
+            font-family: 'Jua', sans-serif;
+        }
+        .view {
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+        .view.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* 로딩 스피너 애니메이션 */
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid white;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 min-h-screen flex items-center justify-center p-4 text-gray-800">
+
+    <!-- 토스트 메시지 팝업 -->
+    <div id="toast" class="fixed top-4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-full shadow-lg transition-all duration-300 opacity-0 pointer-events-none z-50 text-white font-bold"></div>
+
+    <div class="w-full max-w-md bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden relative">
+        
+        <div id="view-home" class="view active p-8 text-center">
+            <div class="mb-8">
+                <span class="text-6xl block mb-4">🏘️</span>
+                <h1 class="font-game text-4xl text-indigo-900 mb-2 leading-tight">공유경제<br>마을 쟁탈전</h1>
+                <p class="text-gray-500 text-sm">함께 만드는 자급자족 공동체</p>
+            </div>
+            <div class="space-y-4">
+                <button onclick="navigate('create')" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-2xl shadow-lg transition-transform active:scale-95 text-lg">
+                    방 만들기
+                </button>
+                <button onclick="navigate('join')" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-4 rounded-2xl shadow-lg transition-transform active:scale-95 text-lg">
+                    방 참가하기
+                </button>
+            </div>
+        </div>
+
+        <div id="view-create" class="view p-8">
+            <h2 class="font-game text-3xl text-indigo-900 mb-6 text-center">새로운 마을 건설</h2>
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">방장 닉네임</label>
+                    <input type="text" id="create-nickname" placeholder="멋진 이름을 입력하세요" class="w-full bg-gray-100 border-2 border-transparent focus:bg-white focus:border-indigo-500 rounded-xl px-4 py-3 outline-none transition-colors" maxlength="10">
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="navigate('home')" class="w-1/3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 rounded-xl transition-colors">
+                        취소
+                    </button>
+                    <button id="btn-create-submit" onclick="createRoom()" class="w-2/3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-md transition-transform active:scale-95">
+                        마을 만들기
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-join" class="view p-8">
+            <h2 class="font-game text-3xl text-pink-600 mb-6 text-center">마을로 이주하기</h2>
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">방 코드 (4~6자리)</label>
+                    <input type="text" id="join-code" placeholder="예: A7K2" class="w-full bg-gray-100 border-2 border-transparent focus:bg-white focus:border-pink-500 rounded-xl px-4 py-3 outline-none transition-colors uppercase font-mono tracking-widest text-lg" maxlength="6">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">당신의 닉네임</label>
+                    <input type="text" id="join-nickname" placeholder="멋진 이름을 입력하세요" class="w-full bg-gray-100 border-2 border-transparent focus:bg-white focus:border-pink-500 rounded-xl px-4 py-3 outline-none transition-colors" maxlength="10">
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="navigate('home')" class="w-1/3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 rounded-xl transition-colors">
+                        취소
+                    </button>
+                    <button id="btn-join-submit" onclick="joinRoom()" class="w-2/3 bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 rounded-xl shadow-md transition-transform active:scale-95">
+                        참가하기
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-lobby" class="view p-6 flex flex-col h-[500px]">
+            <div class="flex justify-between items-center mb-4">
+                <div class="font-game text-xl text-indigo-900">🏘️ 공유경제 마을</div>
+                <button onclick="leaveRoom()" class="text-sm text-red-500 hover:bg-red-50 px-3 py-1 rounded-lg transition-colors font-bold">
+                    나가기
+                </button>
+            </div>
+            
+            <div class="bg-indigo-50 rounded-2xl p-4 mb-4 flex justify-between items-center cursor-pointer hover:bg-indigo-100 transition-colors" onclick="copyRoomCode()">
+                <div>
+                    <span class="text-xs text-indigo-500 font-bold uppercase block mb-1">초대 코드 (클릭하여 복사)</span>
+                    <span id="display-room-code" class="text-3xl font-mono font-bold text-indigo-900 tracking-widest">----</span>
+                </div>
+                <div class="text-indigo-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                </div>
+            </div>
+
+            <div class="flex-1 bg-gray-50 rounded-2xl p-4 overflow-y-auto border border-gray-100">
+                <div class="flex justify-between items-end mb-3 border-b border-gray-200 pb-2">
+                    <span class="font-bold text-gray-700">참가자 목록</span>
+                    <span id="player-count" class="text-xs font-bold bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full">0명</span>
+                </div>
+                <ul id="participant-list" class="space-y-2">
+                    <!-- 참가자 목록이 여기에 동적으로 렌더링 됩니다 -->
+                </ul>
+            </div>
+
+            <!-- 방장 전용 게임 시작 버튼 -->
+            <div id="host-controls" class="mt-4 hidden">
+                <button onclick="startGame()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl shadow-lg transition-transform active:scale-95 text-lg flex items-center justify-center">
+                    🚀 게임 시작하기
+                </button>
+            </div>
+            <!-- 일반 참가자 대기 메시지 -->
+            <div id="guest-controls" class="mt-4 text-center text-gray-500 font-bold py-4">
+                ⏳ 방장이 게임을 시작하기를 기다리고 있습니다...
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+        const SUPABASE_URL = 'https://lfqgowhcfwrmtvxivyjh.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_NSxWcogbVY6qWPBOdWivcg_sQzfFQop';
+
+        let supabase;
+        try {
+            supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            console.log("🟢 [Init] Supabase 클라이언트 생성 성공");
+        } catch (e) {
+            console.error("🔴 [Init] Supabase 초기화 실패:", e);
+        }
+
+        // 상태 변수
+        const state = {
+            userId: crypto.randomUUID(),
+            roomCode: '',
+            nickname: '',
+            isHost: false,
+            channel: null,
+            participants: []
+        };
+
+        window.navigate = (viewId) => {
+            document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+            document.getElementById(`view-${viewId}`).classList.add('active');
+        };
+
+        window.showToast = (message, type = 'error') => {
+            const toast = document.getElementById('toast');
+            toast.innerHTML = message;
+            toast.className = `fixed top-4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-full shadow-lg transition-all duration-300 z-50 ${type === 'error' ? 'bg-red-500' : 'bg-green-500'} text-white font-bold text-center`;
+            toast.style.opacity = '1';
+            toast.style.marginTop = '0';
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.marginTop = '-20px';
+            }, 3000);
+        };
+
+        const setLoading = (buttonId, isLoading, defaultText) => {
+            const btn = document.getElementById(buttonId);
+            if (isLoading) {
+                btn.disabled = true;
+                btn.innerHTML = `<span class="spinner"></span> 처리중...`;
+                btn.classList.add('opacity-70');
+            } else {
+                btn.disabled = false;
+                btn.innerHTML = defaultText;
+                btn.classList.remove('opacity-70');
+            }
+        };
+
+        window.onload = () => {
+            console.log("🔵 [App] 페이지 로드됨. 현재 Session userId:", state.userId);
+            const savedState = sessionStorage.getItem('lobby_state');
+            if (savedState) {
+                const parsed = JSON.parse(savedState);
+                state.userId = parsed.userId;
+                state.roomCode = parsed.roomCode;
+                state.nickname = parsed.nickname;
+                state.isHost = parsed.isHost;
+                
+                console.log("🔵 [App] 저장된 세션 복구 완료. 방 자동 접속 시도:", state.roomCode);
+                connectToRealtimeLobby();
+            }
+        };
+
+        const saveState = () => {
+            sessionStorage.setItem('lobby_state', JSON.stringify({
+                userId: state.userId,
+                roomCode: state.roomCode,
+                nickname: state.nickname,
+                isHost: state.isHost
+            }));
+        };
+        
+        const generateCode = () => {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let code = '';
+            for(let i=0; i<4; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
+            return code;
+        };
+
+        window.createRoom = async () => {
+            const nicknameInput = document.getElementById('create-nickname').value.trim();
+            if (!nicknameInput) return showToast('닉네임을 입력해주세요!');
+            
+            setLoading('btn-create-submit', true, '마을 만들기');
+            const newCode = generateCode();
+            console.log(`🔵 [Room] 방 생성 시도: ${newCode}`);
+            
+            const { error } = await supabase.from('rooms').insert([{ code: newCode }]);
+            setLoading('btn-create-submit', false, '마을 만들기');
+
+            if (error) {
+                console.error("🔴 [Room] 방 DB 생성 에러:", error);
+                return showToast('방 생성에 실패했습니다. DB 연결을 확인해주세요.');
+            }
+
+            state.roomCode = newCode;
+            state.nickname = nicknameInput;
+            state.isHost = true;
+            saveState();
+            
+            connectToRealtimeLobby();
+        };
+
+        window.joinRoom = async () => {
+            // 대소문자 방지 및 공백 제거
+            let codeInput = document.getElementById('join-code').value.trim().toUpperCase();
+            const nicknameInput = document.getElementById('join-nickname').value.trim();
+            
+            if (!codeInput || !nicknameInput) return showToast('방 코드와 닉네임을 모두 입력해주세요!');
+            
+            setLoading('btn-join-submit', true, '참가하기');
+            console.log(`🔵 [Room] 방 참가 시도: ${codeInput}`);
+
+            const { data, error } = await supabase.from('rooms').select('code').eq('code', codeInput).single();
+            setLoading('btn-join-submit', false, '참가하기');
+
+            if (error || !data) {
+                console.warn("🟠 [Room] 방 찾기 실패:", error || '데이터 없음');
+                return showToast('존재하지 않거나 종료된 방입니다.', 'error');
+            }
+
+            state.roomCode = codeInput;
+            state.nickname = nicknameInput;
+            state.isHost = false;
+            saveState();
+            
+            connectToRealtimeLobby();
+        };
+
+        const connectToRealtimeLobby = () => {
+            navigate('lobby');
+            document.getElementById('display-room-code').innerText = state.roomCode;
+            document.getElementById('host-controls').style.display = state.isHost ? 'block' : 'none';
+            document.getElementById('guest-controls').style.display = state.isHost ? 'none' : 'block';
+
+            const channelName = `room:${state.roomCode}`;
+            console.log(`\n==========================================`);
+            console.log(`🚀 [Realtime] 채널 연결 시작: ${channelName}`);
+            console.log(`👤 [Realtime] 내 정보 - 닉네임: ${state.nickname}, ID: ${state.userId}, 방장여부: ${state.isHost}`);
+            
+            if (state.channel) {
+                console.log('🔄 [Realtime] 기존 채널 연결 해제 중...');
+                supabase.removeChannel(state.channel);
+            }
+
+            // Realtime Channel 생성 (Public channel)
+            state.channel = supabase.channel(channelName, {
+                config: {
+                    presence: { key: state.userId }
+                }
+            });
+
+            // 1. Presence Sync (전체 동기화)
+            state.channel.on('presence', { event: 'sync' }, () => {
+                const presenceState = state.channel.presenceState();
+                console.log('\n🔄 [Presence Sync] 상태가 동기화되었습니다.');
+                console.log('📦 [Presence Sync] 전체 Raw 데이터:', JSON.parse(JSON.stringify(presenceState)));
+                
+                // 파싱 로직 점검: 
+                // Supabase presenceState는 { 'userId': [ {상태객체} ] } 구조입니다.
+                // 동일 유저가 여러 탭을 띄우면 배열에 여러 개가 들어갈 수 있으므로 첫 번째 요소([0])를 가져옵니다.
+                const parsedParticipants = [];
+                for (const key in presenceState) {
+                    const presences = presenceState[key];
+                    if (presences && presences.length > 0) {
+                        parsedParticipants.push(presences[0]);
+                    }
+                }
+
+                state.participants = parsedParticipants.sort((a, b) => {
+                    if (a.isHost) return -1;
+                    if (b.isHost) return 1;
+                    return a.joinedAt - b.joinedAt;
+                });
+                
+                console.log(`👥 [Presence Sync] 렌더링될 참가자 목록 (${state.participants.length}명):`, state.participants);
+                renderParticipants();
+            });
+
+            // 2. Presence Join (누군가 들어옴)
+            state.channel.on('presence', { event: 'join' }, ({ key, newPresences }) => {
+                console.log(`🟢 [Presence Join] 누군가 들어왔습니다! ID: ${key}`, newPresences);
+            });
+
+            // 3. Presence Leave (누군가 나감)
+            state.channel.on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
+                console.log(`🔴 [Presence Leave] 누군가 나갔습니다! ID: ${key}`, leftPresences);
+            });
+
+            // 4. Subscribe (연결 시도 및 추적)
+            try {
+                console.log(`⏳ [Realtime] 서버 연결(Subscribe) 대기 중...`);
+                state.channel.subscribe(async (status, err) => {
+                    console.log(`📡 [Realtime] 연결 상태 변경: -> ${status}`);
+
+                    if (status === 'SUBSCRIBED') {
+                        console.log('✅ [Realtime] 채널 구독 완료! (웹소켓 연결 성공)');
+                        try {
+                            const myStatus = {
+                                nickname: state.nickname,
+                                isHost: state.isHost,
+                                joinedAt: Date.now()
+                            };
+                            console.log('📤 [Realtime] 내 상태 정보(track) 전송 시도:', myStatus);
+                            
+                            // track() 결과 반환값 확인
+                            const trackResult = await state.channel.track(myStatus);
+                            console.log('📥 [Realtime] track() 서버 응답 결과:', trackResult);
+                            
+                            showToast('마을에 입장했습니다!', 'success');
+                        } catch (e) {
+                            console.error('❌ [Realtime] track() 중 에러 발생:', e);
+                        }
+                    } else if (status === 'CHANNEL_ERROR') {
+                        console.error('❌ [Realtime] CHANNEL_ERROR 발생:', err);
+                        showToast('실시간 연결에 문제가 발생했습니다.', 'error');
+                    } else if (status === 'TIMED_OUT') {
+                        console.error('❌ [Realtime] TIMED_OUT: 연결 시간이 초과되었습니다.');
+                    } else if (status === 'CLOSED') {
+                        console.warn('⚠️ [Realtime] CLOSED: 연결이 종료되었습니다.');
+                    }
+                });
+            } catch (error) {
+                console.error("❌ [Realtime] 채널 subscribe() 호출 자체 실패:", error);
+            }
+        };
+
+        window.addEventListener('unhandledrejection', (event) => {
+            const errorMsg = event.reason && (event.reason.message || event.reason.toString());
+            if (errorMsg && errorMsg.includes('WebSocket')) {
+                event.preventDefault();
+                console.error('🚫 [System] WebSocket 연결이 환경에 의해 강제 차단되었습니다:', event.reason);
+                showToast('네트워크 방화벽이나 미리보기 환경에 의해 실시간 통신이 차단되었습니다.', 'error');
+                
+                if (state.participants.length === 0) {
+                    state.participants = [{ nickname: state.nickname, isHost: state.isHost, joinedAt: Date.now() }];
+                    renderParticipants();
+                }
+            }
+        });
+
+        const renderParticipants = () => {
+            const listEl = document.getElementById('participant-list');
+            const countEl = document.getElementById('player-count');
+            
+            listEl.innerHTML = '';
+            countEl.innerText = `${state.participants.length}명`;
+
+            state.participants.forEach(p => {
+                const isMe = p.nickname === state.nickname;
+                const li = document.createElement('li');
+                li.className = `p-3 rounded-xl flex items-center shadow-sm border ${isMe ? 'bg-indigo-50 border-indigo-200' : 'bg-white border-gray-100'} transition-all`;
+                
+                const dot = `<span class="w-3 h-3 rounded-full ${p.isHost ? 'bg-yellow-400' : 'bg-green-500'} mr-3 shadow-sm inline-block"></span>`;
+                const hostBadge = p.isHost ? `<span class="ml-auto text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full font-bold">방장👑</span>` : '';
+                const meBadge = isMe ? `<span class="ml-2 text-xs text-indigo-400 font-bold">(나)</span>` : '';
+
+                li.innerHTML = `${dot}<span class="font-bold text-gray-800">${p.nickname}</span>${meBadge}${hostBadge}`;
+                listEl.appendChild(li);
+            });
+        };
+
+        window.leaveRoom = async () => {
+            if (!confirm('정말 방에서 나가시겠습니까?')) return;
+            
+            if (state.channel) {
+                console.log('👋 [Realtime] 방 나가기 - untrack 요청');
+                await state.channel.untrack();
+                supabase.removeChannel(state.channel);
+                state.channel = null;
+            }
+            
+            sessionStorage.removeItem('lobby_state');
+            state.roomCode = '';
+            state.isHost = false;
+            
+            navigate('home');
+        };
+
+        window.addEventListener('beforeunload', () => {
+            if (state.channel) {
+                state.channel.untrack();
+            }
+        });
+
+        window.startGame = () => {
+            showToast('콘솔 로그를 확인해주세요!', 'success');
+        };
+
+        window.copyRoomCode = () => {
+            if(!state.roomCode) return;
+            try {
+                navigator.clipboard.writeText(state.roomCode).then(() => {
+                    showToast('방 코드가 복사되었습니다.', 'success');
+                });
+            } catch (err) {
+                const textArea = document.createElement("textarea");
+                textArea.value = state.roomCode;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showToast('방 코드가 복사되었습니다.', 'success');
+            }
+        };
+
+        document.getElementById('join-code').addEventListener('keyup', (e) => { if(e.key === 'Enter') document.getElementById('join-nickname').focus(); });
+        document.getElementById('join-nickname').addEventListener('keyup', (e) => { if(e.key === 'Enter') joinRoom(); });
+        document.getElementById('create-nickname').addEventListener('keyup', (e) => { if(e.key === 'Enter') createRoom(); });
+
+    </script>
+</body>
+</html>
