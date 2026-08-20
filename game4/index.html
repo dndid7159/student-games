@@ -3,342 +3,109 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
 <title>공유경제 마을 쟁탈전</title>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <style>
-*{
-    box-sizing:border-box;
-    -webkit-tap-highlight-color:transparent;
-}
-
-body{
-    margin:0;
-    background:#f4f6f8;
-    color:#222;
-    font-family:Arial,"Noto Sans KR",sans-serif;
-    touch-action:manipulation;
-}
-
-.wrap{
-    max-width:900px;
-    margin:auto;
-    padding:24px 16px 60px;
-}
-
-h1{
-    text-align:center;
-    margin:5px 0;
-}
-
-.sub{
-    text-align:center;
-    color:#666;
-    margin-bottom:22px;
-}
-
-.card{
-    background:#fff;
-    border-radius:18px;
-    padding:20px;
-    margin:14px 0;
-    box-shadow:0 3px 14px #0000000d;
-}
-
-input{
-    width:100%;
-    padding:13px;
-    margin:5px 0;
-    border:1px solid #ddd;
-    border-radius:10px;
-    font-size:16px;
-}
-
-button{
-    width:100%;
-    padding:14px;
-    margin-top:8px;
-    border:0;
-    border-radius:10px;
-    background:#222;
-    color:white;
-    font-size:16px;
-    font-weight:bold;
-    cursor:pointer;
-
-    /* 모바일 터치 안정화 */
-    touch-action:manipulation;
-    -webkit-user-select:none;
-    user-select:none;
-}
-
-button:disabled{
-    opacity:.4;
-    cursor:not-allowed;
-}
-
-.secondary{
-    background:#eee;
-    color:#222;
-}
-
-.hidden{
-    display:none!important;
-}
-
-.msg{
-    padding:12px;
-    background:#f0f2f4;
-    border-radius:10px;
-    margin-top:10px;
-    white-space:pre-line;
-}
-
-.code{
-    text-align:center;
-    font-size:42px;
-    font-weight:bold;
-    letter-spacing:8px;
-    margin:12px;
-}
-
-.players div,
-.rank div{
-    display:flex;
-    justify-content:space-between;
-    padding:11px 4px;
-    border-bottom:1px solid #eee;
-}
-
-.stats{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:8px;
-}
-
-.stat{
-    background:#f5f5f5;
-    border-radius:12px;
-    text-align:center;
-    padding:12px;
-}
-
-.num{
-    font-size:21px;
-    font-weight:bold;
-    margin-top:4px;
-}
-
-.round{
-    font-size:24px;
-    font-weight:bold;
-}
-
-.choices{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:12px;
-    margin-top:15px;
-}
-
-/* 기존 div 대신 실제 button을 사용 */
-.choice{
-    width:100%;
-    min-height:120px;
-
-    border:2px solid #ddd;
-    border-radius:14px;
-    padding:16px;
-
-    background:#fff;
-    color:#222;
-
-    text-align:left;
-    cursor:pointer;
-
-    margin:0;
-
-    touch-action:manipulation;
-    -webkit-user-select:none;
-    user-select:none;
-}
-
-.choice:active{
-    transform:scale(.98);
-}
-
-.choice.sel{
-    border-color:#111;
-    background:#eee;
-}
-
-.choice b{
-    display:block;
-    font-size:18px;
-    margin-bottom:7px;
-}
-
-.choice small{
-    color:#666;
-    line-height:1.5;
-}
-
-.project{
-    border:2px solid #ddd;
-    border-radius:14px;
-    padding:16px;
-    margin-top:15px;
-    text-align:center;
-}
-
-.big{
-    font-size:23px;
-    font-weight:bold;
-    margin:10px;
-}
-
-.final{
-    text-align:center;
-}
-
-.final .score{
-    font-size:34px;
-    font-weight:bold;
-}
-
-.style{
-    background:#f5f5f5;
-    padding:15px;
-    border-radius:12px;
-    margin-top:10px;
-}
-
-#confirm{
-    margin-top:15px;
-}
-
+* { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body { margin:0; background:#f4f6f8; color:#222; font-family:Arial,"Noto Sans KR",sans-serif; touch-action:manipulation; }
+.wrap { max-width:900px; margin:auto; padding:24px 16px 60px; }
+h1 { text-align:center; margin:5px 0; }
+.sub { text-align:center; color:#666; margin-bottom:22px; }
+.card { background:#fff; border-radius:18px; padding:20px; margin:14px 0; box-shadow:0 3px 14px #0000000d; }
+input { width:100%; padding:13px; margin:5px 0; border:1px solid #ddd; border-radius:10px; font-size:16px; }
+button { width:100%; padding:14px; margin-top:8px; border:0; border-radius:10px; background:#222; color:white; font-size:16px; font-weight:bold; cursor:pointer; touch-action:manipulation; user-select:none; }
+button:disabled { opacity:.4; cursor:not-allowed; }
+.secondary { background:#eee; color:#222; }
+.hidden { display:none!important; }
+.msg { padding:12px; background:#f0f2f4; border-radius:10px; margin-top:10px; white-space:pre-line; line-height: 1.4; }
+.code { text-align:center; font-size:42px; font-weight:bold; letter-spacing:8px; margin:12px; }
+.players div, .rank div { display:flex; justify-content:space-between; padding:11px 4px; border-bottom:1px solid #eee; }
+.stats { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+.stat { background:#f5f5f5; border-radius:12px; text-align:center; padding:12px; font-size:14px;}
+.num { font-size:21px; font-weight:bold; margin-top:4px; }
+.round { font-size:24px; font-weight:bold; }
+.choices { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-top:15px; }
+.choice { width:100%; min-height:120px; border:2px solid #ddd; border-radius:14px; padding:16px; background:#fff; color:#222; text-align:left; cursor:pointer; margin:0; touch-action:manipulation; user-select:none; }
+.choice:active { transform:scale(.98); }
+.choice.sel { border-color:#111; background:#eee; }
+.choice b { display:block; font-size:18px; margin-bottom:7px; }
+.choice small { color:#666; line-height:1.5; }
+.project { border:2px solid #ddd; border-radius:14px; padding:16px; margin-top:15px; text-align:center; background:#fdfdfd;}
+.big { font-size:20px; font-weight:bold; margin:10px 0; }
+.final { text-align:center; }
+.final .score { font-size:28px; font-weight:bold; margin-top: 10px; color:#222;}
+.style { background:#fff; padding:20px; border-radius:12px; margin-top:15px; border: 2px solid #eee; text-align:left;}
+.style-title { font-size: 20px; font-weight: bold; margin-bottom: 10px; color: #111; }
+.style-stars { font-size: 15px; color: #555; line-height: 1.6; }
 @media(max-width:600px){
-
-    .wrap{
-        padding:16px 12px 40px;
-    }
-
-    .stats{
-        grid-template-columns:repeat(2,1fr);
-    }
-
-    .choices{
-        grid-template-columns:1fr;
-    }
-
-    .choice{
-        min-height:105px;
-    }
-
-    .code{
-        font-size:36px;
-    }
+    .wrap { padding:16px 12px 40px; }
+    .stats { grid-template-columns:repeat(2,1fr); }
+    .choices { grid-template-columns:1fr; }
+    .choice { min-height:105px; }
 }
 </style>
 </head>
-
 <body>
 
 <div class="wrap">
-
 <h1>🏘️ 공유경제 마을 쟁탈전</h1>
 <div class="sub">소유할 것인가, 공유할 것인가?</div>
 
-
-<!-- =========================
-     시작 화면
-========================= -->
-
+<!-- 게임 로비 및 시작 -->
 <section id="start">
-
     <div class="card">
         <h2>👑 방 만들기</h2>
         <input id="hostName" maxlength="20" placeholder="방장 이름">
         <button id="createRoomBtn" type="button">방 만들기</button>
     </div>
-
     <div class="card">
         <h2>🙋 방 참가하기</h2>
         <input id="joinName" maxlength="20" placeholder="내 이름">
         <input id="joinCode" maxlength="4" inputmode="numeric" placeholder="4자리 방 번호">
         <button id="joinRoomBtn" type="button">방 참가</button>
     </div>
-
     <div id="startMsg" class="msg hidden"></div>
-
 </section>
 
-
-<!-- =========================
-     로비
-========================= -->
-
+<!-- 게임 대기실 -->
 <section id="lobby" class="hidden">
-
     <div class="card">
         <h2>🏘️ 게임 대기실</h2>
         <div>방 번호</div>
         <div id="roomCode" class="code"></div>
         <div id="hostText"></div>
     </div>
-
     <div class="card">
         <h2>👥 참가자</h2>
         <div id="lobbyPlayers" class="players"></div>
         <div id="lobbyCount" class="msg"></div>
     </div>
-
     <div id="hostStart" class="card hidden">
         <h2>🎮 게임 시작</h2>
         <p>참가자가 모두 들어오면 시작하세요.</p>
         <button id="startGameBtn" type="button">게임 시작</button>
     </div>
-
 </section>
 
-
-<!-- =========================
-     게임 화면
-========================= -->
-
+<!-- 메인 게임 화면 -->
 <section id="game" class="hidden">
-
     <div class="card">
         <div id="roundTitle" class="round"></div>
         <p id="roundDesc"></p>
         <div id="statusMsg" class="msg"></div>
     </div>
 
-    <!-- 능력치 -->
+    <!-- 스탯 -->
     <div class="card">
         <div class="stats">
-            <div class="stat">
-                💰 돈
-                <div id="money" class="num">1000</div>
-            </div>
-            <div class="stat">
-                🌱 환경
-                <div id="environment" class="num">50</div>
-            </div>
-            <div class="stat">
-                🤝 공동체
-                <div id="community" class="num">50</div>
-            </div>
-            <div class="stat">
-                😊 만족도
-                <div id="satisfaction" class="num">50</div>
-            </div>
+            <div class="stat">💰 돈<div id="money" class="num">1000</div></div>
+            <div class="stat">🌱 환경<div id="environment" class="num">50</div></div>
+            <div class="stat">🤝 공동체<div id="community" class="num">50</div></div>
+            <div class="stat">😊 만족도<div id="satisfaction" class="num">50</div></div>
         </div>
     </div>
 
-    <!-- 일반 선택 -->
+    <!-- 일반 선택지 -->
     <div id="normalBox" class="card">
         <h2>선택하세요</h2>
         <div id="choices" class="choices"></div>
@@ -350,38 +117,33 @@ button:disabled{
         <h2>🤝 공동 프로젝트</h2>
         <p id="projectDesc"></p>
         <div id="projectBox" class="project"></div>
-        <button id="joinProject" type="button">프로젝트 참여하기</button>
-        <button id="leaveProject" type="button" class="secondary">참여 취소</button>
+        <button id="joinProject" type="button">✅ 참여하기</button>
+        <button id="leaveProject" type="button" class="secondary hidden">❌ 참여 취소</button>
     </div>
 
-    <!-- 방장 결과 확인 -->
+    <!-- 방장 컨트롤 (결과 산출) -->
     <div id="hostControl" class="card hidden">
-        <button id="resolveRoundBtn" type="button">라운드 결과 확인</button>
+        <button id="resolveRoundBtn" type="button">📊 전체 선택 종료 및 결과 산출</button>
     </div>
 
-    <!-- 라운드 결과 -->
+    <!-- 결과 안내 창 -->
     <div id="resultBox" class="card hidden">
         <h2>📊 라운드 결과</h2>
-        <div id="resultText"></div>
-        <button id="nextRoundBtn" type="button">다음 라운드</button>
+        <div id="resultText" class="msg">결과를 불러오는 중입니다...</div>
+        <button id="nextRoundBtn" type="button" class="hidden">다음 라운드 진행</button>
     </div>
 
-    <!-- 순위 -->
     <div class="card">
-        <h2>🏆 현재 순위</h2>
+        <h2>🏆 현재 순위 (이전 라운드 기준)</h2>
         <div id="ranking" class="rank"></div>
     </div>
-
 </section>
 
-
-<!-- =========================
-     최종 결과
-========================= -->
-
+<!-- 최종 결과 화면 -->
 <section id="final" class="hidden">
     <div class="card final">
         <h1>🏆 최종 결과</h1>
+        <p>게임이 종료되었습니다! 여러분의 소비 성향을 확인해보세요.</p>
         <div id="finalList"></div>
     </div>
 </section>
@@ -389,31 +151,16 @@ button:disabled{
 </div>
 
 <script>
-
-/* =========================================================
-   SUPABASE
-========================================================= */
 const SUPABASE_URL = "https://lfqgowhcfwrmtvxivyjh.supabase.co";
 const SUPABASE_KEY = "sb_publishable_NSxWcogbVY6qWPBOdWivcg_sQzfFQop";
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-/* =========================================================
-   게임 기본 변수
-========================================================= */
 const TOTAL = 10;
-let roomId = null;
-let roomCode = null;
-let playerId = null;
-let host = false;
-let roundNo = 0;
-let currentRenderedRound = 0;
-let selected = null;
-let poll = null;
-let currentProject = null;
+let roomId = null, roomCode = null, playerId = null, host = false;
+let roundNo = 0, currentRenderedRound = 0;
+let selected = null, poll = null, currentProject = null;
 
-/* =========================================================
-   라운드 데이터
-========================================================= */
+// 라운드 데이터
 const rounds = [
 { n:1, title:"🚗 이동수단", desc:"학교에 가기 위한 이동수단을 선택하세요.", choices:[ { id:"car", t:"🚗 개인 자동차", d:"편리하지만 비용과 환경 부담이 큽니다.", m:-300, e:-10, c:0, s:15 }, { id:"carshare", t:"🚙 카셰어링", d:"필요할 때만 차를 함께 이용합니다.", m:-100, e:5, c:10, s:5, share:1 }, { id:"bus", t:"🚌 대중교통", d:"저렴하고 환경 부담이 적습니다.", m:-50, e:10, c:5, s:-5 }, { id:"bike", t:"🚲 자전거", d:"가장 친환경적인 이동 방법입니다.", m:-20, e:15, c:5, s:-5 } ] },
 { n:2, title:"🏠 주거", desc:"새로운 집을 선택해야 합니다.", choices:[ { id:"big", t:"🏠 넓은 집", d:"공간은 넓지만 비용과 에너지 소비가 큽니다.", m:-250, e:-10, c:0, s:20 }, { id:"small", t:"🏡 작은 집", d:"비용과 에너지 소비를 줄입니다.", m:-100, e:5, c:0, s:5 }, { id:"sharehouse", t:"🏘️ 공유주택", d:"주거 공간과 시설을 함께 사용합니다.", m:-70, e:10, c:15, s:-5, share:1 } ] },
@@ -424,198 +171,130 @@ const rounds = [
 { n:7, title:"🏖️ 여가", desc:"주말에 무엇을 할까요?", choices:[ { id:"trip", t:"🏖️ 개인 여행", d:"자유롭고 만족도가 높습니다.", m:-180, e:-10, c:0, s:20 }, { id:"stay", t:"🏡 공유 숙소", d:"숙박 공간을 함께 이용합니다.", m:-80, e:5, c:10, s:10, share:1 }, { id:"event", t:"🎉 마을 공동행사", d:"이웃들과 함께 시간을 보냅니다.", m:-30, e:5, c:20, s:10 } ] },
 { n:8, title:"⚡ 갑작스러운 사건", desc:"마을에 갑작스러운 정전이 발생했습니다.", choices:[ { id:"generator", t:"🔋 개인 발전기", d:"미리 준비한 개인 발전기를 사용합니다.", m:-100, e:-5, c:0, s:10 }, { id:"sharedgen", t:"🔋 공유 발전기", d:"여러 사람이 공동으로 사용합니다.", m:-40, e:5, c:15, s:5, share:1 }, { id:"wait", t:"🕯️ 그냥 기다린다", d:"돈은 들지 않지만 불편합니다.", m:0, e:5, c:0, s:-15 } ] },
 { n:9, type:"project", title:"🤝 공동 세탁방", desc:"마을에 공동 세탁방을 만들 수 있습니다.", project:{ id:"laundry", name:"공동 세탁방", cost:500, min:3, env:15, comm:20, sat:5 } },
-{ n:10, title:"🌳 마지막 선택", desc:"마을의 마지막 선택입니다.", choices:[ { id:"env", t:"🌳 환경 프로젝트", d:"마을의 환경을 개선합니다.", m:0, e:30, c:5, s:5 }, { id:"platform", t:"🤝 공유 플랫폼", d:"공유경제 서비스를 발전시킵니다.", m:0, e:10, c:30, s:5 }, { id:"shop", t:"🏪 개인 상점 투자", d:"개인적인 경제적 이익을 얻습니다.", m:150, e:-5, c:-5, s:10 } ] }
+{ n:10, title:"🌳 마지막 선택", desc:"마을의 마지막 자금을 어디에 투자할까요?", choices:[ { id:"env", t:"🌳 환경 프로젝트", d:"마을의 환경을 크게 개선합니다.", m:0, e:30, c:5, s:5 }, { id:"platform", t:"🤝 공유 플랫폼", d:"공유경제 서비스를 발전시킵니다.", m:0, e:10, c:30, s:5 }, { id:"shop", t:"🏪 개인 상점 투자", d:"개인적인 경제적 이익을 얻습니다.", m:150, e:-5, c:-5, s:10 } ] }
 ];
 
-/* =========================================================
-   공통 함수
-========================================================= */
-function esc(x){
-    const d = document.createElement("div");
-    d.textContent = x ?? "";
-    return d.innerHTML;
-}
+function esc(x){ const d = document.createElement("div"); d.textContent = x ?? ""; return d.innerHTML; }
+function msg(x){ const e = document.getElementById("startMsg"); e.textContent = x; e.classList.remove("hidden"); }
+function hideStartMsg(){ document.getElementById("startMsg").classList.add("hidden"); }
 
-function msg(x){
-    const e = document.getElementById("startMsg");
-    e.textContent = x;
-    e.classList.remove("hidden");
-}
-
-function hideStartMsg(){
-    document.getElementById("startMsg").classList.add("hidden");
-}
-
-/* =========================================================
-   방 만들기 / 참가
-========================================================= */
+// 방 관리 로직
 async function createRoom(){
     const name = document.getElementById("hostName").value.trim();
     if(!name){ msg("방장 이름을 입력해주세요."); return; }
-    hideStartMsg();
-    const btn = document.getElementById("createRoomBtn");
-    btn.disabled = true;
-
+    hideStartMsg(); document.getElementById("createRoomBtn").disabled = true;
     try{
         let code = null;
         for(let i=0;i<30;i++){
             const c = String(Math.floor(1000 + Math.random()*9000));
-            const {data,error} = await client.from("rooms").select("id").eq("room_code",c).maybeSingle();
-            if(error) throw error;
+            const {data} = await client.from("rooms").select("id").eq("room_code",c).maybeSingle();
             if(!data){ code = c; break; }
         }
-        if(!code) throw new Error("방 번호 생성 실패");
-
-        const { data:r, error } = await client.from("rooms").insert({
-            room_code:code, host_name:name, status:"waiting", current_round:0
-        }).select().single();
-        if(error) throw error;
-
-        const { data:p, error:pe } = await client.from("players").insert({
-            room_id:r.id, player_name:name, is_host:true, score:0
-        }).select().single();
-        if(pe) throw pe;
-
-        roomId = r.id; roomCode = code; playerId = p.id; host = true;
-        roundNo = 0; currentRenderedRound = 0;
-        showLobby();
-    }catch(e){
-        console.error(e);
-        msg("방 만들기 실패\n" + (e.message || "알 수 없는 오류"));
-    }finally{
-        btn.disabled = false;
-    }
+        const { data:r, error } = await client.from("rooms").insert({ room_code:code, host_name:name, status:"waiting", current_round:0 }).select().single();
+        const { data:p } = await client.from("players").insert({ room_id:r.id, player_name:name, is_host:true, money:1000, environment:50, community:50, satisfaction:50, score:0 }).select().single();
+        roomId = r.id; roomCode = code; playerId = p.id; host = true; roundNo = 0; currentRenderedRound = 0; showLobby();
+    }catch(e){ msg("방 만들기 실패"); document.getElementById("createRoomBtn").disabled = false; }
 }
 
 async function joinRoom(){
     const name = document.getElementById("joinName").value.trim();
     const code = document.getElementById("joinCode").value.trim();
-    if(!name){ msg("이름을 입력해주세요."); return; }
-    if(!/^\d{4}$/.test(code)){ msg("4자리 방 번호를 입력해주세요."); return; }
-    hideStartMsg();
-
-    const btn = document.getElementById("joinRoomBtn");
-    btn.disabled = true;
-
+    if(!name || !/^\d{4}$/.test(code)){ msg("이름과 4자리 방 번호를 확인하세요."); return; }
+    hideStartMsg(); document.getElementById("joinRoomBtn").disabled = true;
     try{
-        const { data:r, error } = await client.from("rooms").select("*").eq("room_code",code).maybeSingle();
-        if(error) throw error;
-        if(!r){ msg("존재하지 않는 방입니다."); return; }
-        if(r.status !== "waiting"){ msg("이미 시작된 방입니다."); return; }
-
-        const { data:p, error:pe } = await client.from("players").insert({
-            room_id:r.id, player_name:name, is_host:false, score:0
-        }).select().single();
-        if(pe) throw pe;
-
-        roomId = r.id; roomCode = code; playerId = p.id; host = false;
-        roundNo = 0; currentRenderedRound = 0;
-        showLobby();
-    }catch(e){
-        console.error(e);
-        msg("방 참가 실패\n" + (e.message || "알 수 없는 오류"));
-    }finally{
-        btn.disabled = false;
-    }
+        const { data:r } = await client.from("rooms").select("*").eq("room_code",code).maybeSingle();
+        if(!r || r.status !== "waiting"){ msg("입장할 수 없는 방입니다."); document.getElementById("joinRoomBtn").disabled = false; return; }
+        const { data:p } = await client.from("players").insert({ room_id:r.id, player_name:name, is_host:false, money:1000, environment:50, community:50, satisfaction:50, score:0 }).select().single();
+        roomId = r.id; roomCode = code; playerId = p.id; host = false; roundNo = 0; currentRenderedRound = 0; showLobby();
+    }catch(e){ msg("참가 실패"); document.getElementById("joinRoomBtn").disabled = false; }
 }
 
-/* =========================================================
-   로비 / 게임 상태 변경
-========================================================= */
 function showLobby(){
     document.getElementById("start").classList.add("hidden");
     document.getElementById("lobby").classList.remove("hidden");
     document.getElementById("roomCode").textContent = roomCode;
-    document.getElementById("hostText").textContent = host ? "👑 방장: " + document.getElementById("hostName").value.trim() : "방장 확인 중";
-
-    if(host){
-        document.getElementById("hostStart").classList.remove("hidden");
-    }else{
-        document.getElementById("hostStart").classList.add("hidden");
-    }
-
+    document.getElementById("hostText").textContent = host ? "👑 방장: " + document.getElementById("hostName").value.trim() : "방장 대기중...";
+    document.getElementById("hostStart").classList.toggle("hidden", !host);
     refreshLobby();
-    clearInterval(poll);
     poll = setInterval(refreshRoom, 1000);
 }
 
 async function refreshLobby(){
     if(!roomId) return;
-    const { data, error } = await client.from("players").select("*").eq("room_id",roomId).order("created_at");
-    if(error) return;
-
-    const box = document.getElementById("lobbyPlayers");
-    box.innerHTML = "";
+    const { data } = await client.from("players").select("*").eq("room_id",roomId).order("created_at");
+    const box = document.getElementById("lobbyPlayers"); box.innerHTML = "";
     (data || []).forEach(p=>{
-        const d = document.createElement("div");
-        d.innerHTML = `<span>${esc(p.player_name)} ${p.is_host ? " 👑" : ""}</span><span>${p.id === playerId ? "나" : ""}</span>`;
-        box.appendChild(d);
+        box.innerHTML += `<div><span>${esc(p.player_name)} ${p.is_host ? "👑" : ""}</span><span>${p.id === playerId ? "나" : ""}</span></div>`;
     });
     document.getElementById("lobbyCount").textContent = `현재 ${data?.length || 0}명 참가`;
 }
 
 async function startGame(){
     if(!host) return;
-    const btn = document.getElementById("startGameBtn");
-    btn.disabled = true;
-    try{
-        const {error} = await client.from("rooms").update({
-            status:"playing", current_round:1, round_started_at: new Date().toISOString()
-        }).eq("id",roomId);
-        if(error) throw error;
-        roundNo = 1;
-        await showGame();
-    }catch(e){
-        alert("게임 시작 실패\n" + e.message);
-    }finally{
-        btn.disabled = false;
-    }
+    document.getElementById("startGameBtn").disabled = true;
+    await client.from("rooms").update({ status:"playing", current_round:1 }).eq("id",roomId);
 }
 
+// 핵심 주기적 상태 체크
 async function refreshRoom(){
     if(!roomId) return;
-    const { data:r, error } = await client.from("rooms").select("*").eq("id",roomId).single();
-    if(error || !r) return;
+    const { data:r } = await client.from("rooms").select("*").eq("id",roomId).single();
+    if(!r) return;
 
+    // 로비 상태일 때 참가자 목록 지속 업데이트
+    if(r.status === "waiting") {
+        await refreshLobby();
+        return;
+    }
+    
+    // 게임 진행 중 (선택 단계)
     if(r.status === "playing"){
         const newRound = Number(r.current_round);
         if(document.getElementById("game").classList.contains("hidden")){
-            roundNo = newRound;
-            await showGame();
+            roundNo = newRound; showGame();
+        } else if(newRound !== currentRenderedRound){
+            roundNo = newRound; renderGame();
+        } else {
+            // 공동 프로젝트 실시간 카운트 동기화
+            if(rounds[roundNo - 1]?.type === "project") renderProject(rounds[roundNo - 1].project, true);
         }
-        else if(newRound !== currentRenderedRound){
-            roundNo = newRound;
-            await renderGame();
-        }
-        await stats();
-        await ranking();
     }
-    if(r.status === "finished"){
-        if(document.getElementById("final").classList.contains("hidden")){
-            await showFinal();
-        }
+    
+    // 게임 진행 중 (결과 확인 단계)
+    if (r.status === "resolving") {
+        document.getElementById("normalBox").classList.add("hidden");
+        document.getElementById("projectBoxWrap").classList.add("hidden");
+        document.getElementById("resultBox").classList.remove("hidden");
+        document.getElementById("hostControl").classList.add("hidden");
+        
+        if (host) document.getElementById("nextRoundBtn").classList.remove("hidden");
+        await displayRoundResult(); // 각자 결과 텍스트 도출 후 스탯 리프레시
+    }
+
+    if(r.status === "finished" && document.getElementById("final").classList.contains("hidden")){
+        await showFinal();
     }
 }
 
-async function showGame(){
+function showGame(){
     document.getElementById("lobby").classList.add("hidden");
     document.getElementById("game").classList.remove("hidden");
-    await renderGame();
+    renderGame();
 }
 
 async function renderGame(){
     const rd = rounds[roundNo - 1];
     if(!rd) return;
-
-    currentRenderedRound = roundNo;
-    selected = null;
-
+    currentRenderedRound = roundNo; selected = null;
+    
     document.getElementById("roundTitle").textContent = `ROUND ${rd.n} · ${rd.title}`;
     document.getElementById("roundDesc").textContent = rd.desc;
-    document.getElementById("hostControl").classList.toggle("hidden", !host);
     document.getElementById("resultBox").classList.add("hidden");
+    document.getElementById("statusMsg").textContent = "선택을 골라주세요.";
+    document.getElementById("hostControl").classList.toggle("hidden", !host);
+    document.getElementById("resolveRoundBtn").disabled = false;
 
-    await stats();
+    await stats(); await ranking();
 
     if(rd.type === "project"){
         document.getElementById("normalBox").classList.add("hidden");
@@ -626,207 +305,258 @@ async function renderGame(){
         document.getElementById("normalBox").classList.remove("hidden");
         await renderChoices(rd);
     }
-    await ranking();
 }
 
 async function stats(){
     if(!playerId) return;
-    const { data:p, error } = await client.from("players").select("*").eq("id",playerId).single();
-    if(error || !p) return;
-
-    document.getElementById("money").textContent = p.money ?? 1000;
-    document.getElementById("environment").textContent = p.environment ?? 50;
-    document.getElementById("community").textContent = p.community ?? 50;
-    document.getElementById("satisfaction").textContent = p.satisfaction ?? 50;
+    const { data:p } = await client.from("players").select("*").eq("id",playerId).single();
+    if(p){
+        document.getElementById("money").textContent = p.money ?? 1000;
+        document.getElementById("environment").textContent = p.environment ?? 50;
+        document.getElementById("community").textContent = p.community ?? 50;
+        document.getElementById("satisfaction").textContent = p.satisfaction ?? 50;
+    }
 }
 
-/* =========================================================
-   선택지 렌더링 및 처리
-========================================================= */
+// 선택지 로직
 async function renderChoices(rd){
-    const { data:mine, error } = await client.from("player_choices")
-        .select("choice_id").eq("room_id",roomId).eq("player_id",playerId).eq("round_number",roundNo).maybeSingle();
-    
-    if(error) return;
-
+    const { data:mine } = await client.from("player_choices").select("choice_id").eq("room_id",roomId).eq("player_id",playerId).eq("round_number",roundNo).maybeSingle();
     const alreadyChosen = !!mine;
     if(alreadyChosen) selected = mine.choice_id;
 
-    const choicesEl = document.getElementById("choices");
-    choicesEl.innerHTML = "";
-
+    const choicesEl = document.getElementById("choices"); choicesEl.innerHTML = "";
     rd.choices.forEach(c=>{
-        const button = document.createElement("button");
-        button.type = "button";
-        button.className = "choice" + (selected === c.id ? " sel" : "");
-        button.innerHTML = `<b>${c.t}</b><small>${c.d}</small>`;
-
-        button.addEventListener("click", function(e){
-            // 모바일에서 클릭 버그를 유발하던 e.preventDefault(); 삭제
+        const btn = document.createElement("button");
+        btn.type = "button"; btn.className = "choice" + (selected === c.id ? " sel" : "");
+        btn.innerHTML = `<b>${c.t}</b><small>${c.d}</small>`;
+        btn.addEventListener("click", () => {
             if(alreadyChosen) return;
-
             selected = c.id;
-            document.querySelectorAll(".choice").forEach(el=>{
-                el.classList.remove("sel");
-            });
-            button.classList.add("sel");
-
+            document.querySelectorAll(".choice").forEach(el=>el.classList.remove("sel"));
+            btn.classList.add("sel");
             document.getElementById("confirm").disabled = false;
-            document.getElementById("statusMsg").textContent = `선택됨: ${c.t}\n아래의 '선택 확정' 버튼을 눌러주세요.`;
+            document.getElementById("statusMsg").textContent = `선택 대기중: ${c.t}\n'선택 확정' 버튼을 눌러주세요.`;
         });
-        choicesEl.appendChild(button);
+        choicesEl.appendChild(btn);
     });
 
     const confirm = document.getElementById("confirm");
     confirm.disabled = alreadyChosen || !selected;
-    document.getElementById("statusMsg").textContent = alreadyChosen 
-        ? "✅ 선택 완료! 다른 참가자를 기다리는 중..." 
-        : (selected ? "선택을 확인하고 확정해주세요." : "선택을 골라주세요.");
+    if(alreadyChosen) document.getElementById("statusMsg").textContent = "✅ 선택 완료! 방장의 결과 산출을 기다려주세요.";
 }
 
 async function confirmChoice(){
     if(!selected) return;
-    const confirm = document.getElementById("confirm");
-    confirm.disabled = true;
-
-    const { error } = await client.from("player_choices").upsert(
-        { room_id:roomId, player_id:playerId, round_number:roundNo, choice_id:selected },
-        { onConflict: "room_id,player_id,round_number" }
-    );
-
-    if(error){
-        alert("선택 확정 실패\n" + error.message);
-        confirm.disabled = false;
-        return;
-    }
-
-    document.getElementById("statusMsg").textContent = "✅ 선택 완료! 다른 참가자를 기다리는 중...";
+    document.getElementById("confirm").disabled = true;
+    await client.from("player_choices").upsert({ room_id:roomId, player_id:playerId, round_number:roundNo, choice_id:selected }, { onConflict: "room_id,player_id,round_number" });
+    document.getElementById("statusMsg").textContent = "✅ 선택 완료! 방장의 결과 산출을 기다려주세요.";
     document.querySelectorAll(".choice").forEach(el=> el.disabled = true);
 }
 
-/* =========================================================
-   공동 프로젝트 (잘려있던 뒷부분 완성)
-========================================================= */
-async function renderProject(p){
+// 공동 프로젝트 로직
+async function renderProject(p, isUpdate = false){
     currentProject = p;
-    const { data:ps, error } = await client.from("project_participants")
-        .select("*").eq("room_id",roomId).eq("project_id",p.id);
-
-    if(error) return;
-
-    const arr = ps || [];
-    const count = arr.length;
-    const joined = arr.some(x => x.player_id === playerId);
+    const { data:ps } = await client.from("project_participants").select("*").eq("room_id",roomId).eq("project_id",p.id);
+    const count = ps ? ps.length : 0;
+    const joined = (ps || []).some(x => x.player_id === playerId);
     const cost = count ? Math.ceil(p.cost / count) : p.cost;
 
-    document.getElementById("projectDesc").textContent = `총 비용 ${p.cost}원 · 최소 인원 ${p.min}명`;
-    
+    document.getElementById("projectDesc").textContent = `총 필요 자금 ${p.cost}원 · 최소 인원 ${p.min}명 이상`;
     document.getElementById("projectBox").innerHTML = `
         <div class="big">${p.name}</div>
-        <div>현재 참여자: <strong>${count}</strong>명</div>
-        <div>1인당 예상 비용: <strong>${cost}</strong>원</div>
+        <div>현재 참여 신청자: <strong>${count}</strong>명</div>
+        <div>(현재 기준 1인당 예상 비용: <strong>${cost}</strong>원)</div>
     `;
 
-    const joinBtn = document.getElementById("joinProject");
-    const leaveBtn = document.getElementById("leaveProject");
-
-    if (joined) {
-        joinBtn.classList.add("hidden");
-        leaveBtn.classList.remove("hidden");
-        document.getElementById("statusMsg").textContent = "✅ 프로젝트에 참여했습니다. 결과를 기다려주세요.";
-    } else {
-        joinBtn.classList.remove("hidden");
-        leaveBtn.classList.add("hidden");
-        document.getElementById("statusMsg").textContent = "프로젝트에 참여하시겠습니까?";
+    if(!isUpdate) { // 버튼 상태는 직접 클릭했을 때만 깜빡임 방지용으로 렌더링
+        const joinBtn = document.getElementById("joinProject");
+        const leaveBtn = document.getElementById("leaveProject");
+        if (joined) {
+            joinBtn.classList.add("hidden"); leaveBtn.classList.remove("hidden");
+            document.getElementById("statusMsg").textContent = "✅ 공동 프로젝트에 자금을 투자하기로 했습니다.";
+        } else {
+            joinBtn.classList.remove("hidden"); leaveBtn.classList.add("hidden");
+            document.getElementById("statusMsg").textContent = "마을의 공유경제를 위해 투자하시겠습니까?";
+        }
     }
 }
 
-async function handleJoinProject() {
+document.getElementById("joinProject").addEventListener("click", async () => {
     if (!currentProject) return;
-    const { error } = await client.from("project_participants").upsert({
-        room_id: roomId, player_id: playerId, project_id: currentProject.id
-    }, { onConflict: "room_id,player_id,project_id" });
-    if (!error) await renderProject(currentProject);
-}
+    await client.from("project_participants").upsert({ room_id: roomId, player_id: playerId, project_id: currentProject.id }, { onConflict: "room_id,player_id,project_id" });
+    await renderProject(currentProject); // 즉시 리렌더링
+});
 
-async function handleLeaveProject() {
+document.getElementById("leaveProject").addEventListener("click", async () => {
     if (!currentProject) return;
-    const { error } = await client.from("project_participants")
-        .delete().match({ room_id: roomId, player_id: playerId, project_id: currentProject.id });
-    if (!error) await renderProject(currentProject);
-}
+    await client.from("project_participants").delete().match({ room_id: roomId, player_id: playerId, project_id: currentProject.id });
+    await renderProject(currentProject); // 즉시 리렌더링
+});
 
 /* =========================================================
-   순위 표시 및 방장 컨트롤
+   [핵심] 결과 산출 로직 (방장 전용) 
 ========================================================= */
-async function ranking(){
-    const { data, error } = await client.from("players")
-        .select("*").eq("room_id",roomId).order("score", { ascending: false });
-    if(error || !data) return;
+document.getElementById("resolveRoundBtn").addEventListener("click", async () => {
+    if(!host) return;
+    document.getElementById("resolveRoundBtn").disabled = true;
 
-    const rankBox = document.getElementById("ranking");
-    rankBox.innerHTML = "";
-    data.forEach((p, i) => {
+    const rd = rounds[roundNo - 1];
+    const {data: players} = await client.from("players").select("*").eq("room_id", roomId);
+    
+    // 1. 결과 DB 적용 로직 
+    if (rd.type === "project") {
+        const {data: parts} = await client.from("project_participants").select("*").eq("room_id", roomId).eq("project_id", rd.project.id);
+        const count = parts.length;
+        if (count >= rd.project.min) {
+            const costPer = Math.ceil(rd.project.cost / count);
+            for (let p of players) {
+                if (parts.some(x => x.player_id === p.id)) {
+                    p.money -= costPer; p.environment += rd.project.env; p.community += rd.project.comm; p.satisfaction += rd.project.sat;
+                }
+            }
+        }
+    } else {
+        const {data: choices} = await client.from("player_choices").select("*").eq("room_id", roomId).eq("round_number", roundNo);
+        const choiceCounts = {};
+        (choices || []).forEach(c => { choiceCounts[c.choice_id] = (choiceCounts[c.choice_id] || 0) + 1; });
+        const overThreshold = Math.max(3, Math.floor(players.length * 0.4)); // 몰림 현상 기준점
+
+        for (let p of players) {
+            const myChoice = choices.find(x => x.player_id === p.id);
+            if(myChoice) {
+                const cData = rd.choices.find(x => x.id === myChoice.choice_id);
+                if(cData) {
+                    p.money += cData.m || 0; p.environment += cData.e || 0; p.community += cData.c || 0; p.satisfaction += cData.s || 0;
+                    
+                    // 페널티 이벤트 적용 (공유경제 과부하 vs 소유 과부하)
+                    if (cData.share && choiceCounts[cData.id] >= overThreshold) {
+                        p.satisfaction -= 10; // 인원 과다로 인한 공유재 대기시간 발생
+                    } else if (!cData.share && cData.m <= -150 && choiceCounts[cData.id] >= overThreshold) {
+                        p.environment -= 10; // 과도한 개인소비로 인한 쓰레기/매연 발생
+                    }
+                }
+            }
+        }
+    }
+
+    // 최종 스코어 계산 및 DB 일괄 업데이트
+    for (let p of players) {
+        const formulaScore = Math.floor(p.money / 10) + (p.environment * 2) + (p.community * 2) + (p.satisfaction * 2);
+        await client.from("players").update({ money: p.money, environment: p.environment, community: p.community, satisfaction: p.satisfaction, score: formulaScore }).eq("id", p.id);
+    }
+
+    // 2. 방 상태를 결과 확인 단계로 변경
+    await client.from("rooms").update({ status: "resolving" }).eq("id", roomId);
+});
+
+// 클라이언트 공통: 라운드 결과 도출 텍스트 (방장이 변경한 DB를 바탕으로 알림 생성)
+async function displayRoundResult() {
+    await stats(); // 최신 스탯 갱신
+    await ranking(); // 최신 랭킹 갱신
+    
+    const rd = rounds[roundNo - 1];
+    let text = "";
+
+    if (rd.type === "project") {
+        const {data: parts} = await client.from("project_participants").select("*").eq("room_id", roomId).eq("project_id", rd.project.id);
+        if (parts && parts.length >= rd.project.min) {
+            text = `🎉 <b>${rd.project.name} 건설 성공!</b>\n총 ${parts.length}명이 합심하여 자금을 모았습니다.\n(참여자는 공동체, 환경 점수 상승)`;
+        } else {
+            text = `❌ <b>${rd.project.name} 무산</b>\n참여 인원이 부족하여 프로젝트가 취소되었습니다.`;
+        }
+    } else {
+        const {data: choices} = await client.from("player_choices").select("*").eq("room_id", roomId).eq("round_number", roundNo);
+        const {data: players} = await client.from("players").select("id").eq("room_id", roomId);
+        
+        const counts = {}; (choices || []).forEach(c => { counts[c.choice_id] = (counts[c.choice_id] || 0) + 1; });
+        const overThreshold = Math.max(3, Math.floor(players.length * 0.4));
+        
+        let events = [];
+        rd.choices.forEach(c => {
+            if(counts[c.id] >= overThreshold) {
+                if (c.share) events.push(`⚠️ 너무 많은 사람이 <b>[${c.t}]</b>을(를) 선택해 대기시간이 발생했습니다! (해당 유저 만족도 하락)`);
+                else if (c.m <= -150) events.push(`🌫️ 과도한 <b>[${c.t}]</b> 소비로 마을에 환경 부담이 가중되었습니다! (해당 유저 환경 점수 하락)`);
+            }
+        });
+        text = events.length > 0 ? events.join("\n\n") : "마을 사람들이 조화롭게 자원을 나누어 사용했습니다. 평화로운 라운드였습니다.";
+    }
+    
+    document.getElementById("resultText").innerHTML = text;
+}
+
+document.getElementById("nextRoundBtn").addEventListener("click", async () => {
+    if(!host) return;
+    if (roundNo >= TOTAL) await client.from("rooms").update({ status: "finished" }).eq("id", roomId);
+    else await client.from("rooms").update({ status: "playing", current_round: roundNo + 1 }).eq("id", roomId);
+});
+
+async function ranking(){
+    const { data } = await client.from("players").select("*").eq("room_id",roomId).order("score", { ascending: false });
+    const rankBox = document.getElementById("ranking"); rankBox.innerHTML = "";
+    (data || []).forEach((p, i) => {
         rankBox.innerHTML += `<div><span>${i+1}위. ${esc(p.player_name)}</span> <span>${p.score || 0}점</span></div>`;
     });
 }
 
-// 방장이 "다음 라운드" 버튼을 누를 때
-async function nextRound(){
-    if(!host) return;
-    if (roundNo >= TOTAL) {
-        await client.from("rooms").update({ status: "finished" }).eq("id", roomId);
-        return;
+// 칭호 및 별점 계산 함수
+function getPlayerStyle(p) {
+    const eco = p.environment || 0;
+    const comm = p.community || 0;
+    const sat = p.satisfaction || 0;
+    const mon = Math.floor((p.money || 0) / 10);
+    
+    // 최대치에 따른 칭호
+    const maxVal = Math.max(eco, comm, sat, mon);
+    let title = "⚖️ 균형형 시민";
+    
+    if (Math.abs(eco - comm) <= 10 && Math.abs(comm - sat) <= 10) title = "⚖️ 균형형 시민"; // 비등비등할 경우
+    else if (maxVal === eco) title = "🌱 친환경 시민";
+    else if (maxVal === comm) title = "🤝 공동체 시민";
+    else if (maxVal === sat) title = "😊 욜로(YOLO) 시민";
+    else if (maxVal === mon) title = "💰 경제형 시민";
+
+    // 단순 별점 계산 (시각적 재미용)
+    const getStars = (val) => {
+        if(val >= 80) return "★★★★★";
+        if(val >= 60) return "★★★★☆";
+        if(val >= 40) return "★★★☆☆";
+        if(val >= 20) return "★★☆☆☆";
+        return "★☆☆☆☆";
     }
-    await client.from("rooms").update({ current_round: roundNo + 1 }).eq("id", roomId);
+
+    return `
+        <div class="style">
+            <div class="style-title">${title} : ${esc(p.player_name)}</div>
+            <div class="style-stars">
+                💰 경제: ${getStars(mon)} <br>
+                🌱 환경: ${getStars(eco)} <br>
+                🤝 공동체: ${getStars(comm)} <br>
+                😊 만족도: ${getStars(sat)}
+            </div>
+            <div class="score">종합 ${p.score || 0}점</div>
+        </div>
+    `;
 }
 
-/* =========================================================
-   최종 결과 화면
-========================================================= */
 async function showFinal() {
     document.getElementById("game").classList.add("hidden");
     document.getElementById("final").classList.remove("hidden");
+    const { data } = await client.from("players").select("*").eq("room_id",roomId).order("score", { ascending: false });
     
-    const { data, error } = await client.from("players")
-        .select("*").eq("room_id",roomId).order("score", { ascending: false });
-    
-    if (error || !data) return;
-
-    const finalList = document.getElementById("finalList");
-    finalList.innerHTML = "";
-    data.forEach((p, i) => {
-        finalList.innerHTML += `
-            <div class="style">
-                <div class="big">${i === 0 ? "🥇" : (i === 1 ? "🥈" : (i === 2 ? "🥉" : ""))} ${i+1}위 : ${esc(p.player_name)}</div>
-                <div class="score">총점: ${p.score || 0}점</div>
-            </div>
-        `;
+    const finalList = document.getElementById("finalList"); finalList.innerHTML = "";
+    (data || []).forEach((p, i) => {
+        const medal = i === 0 ? "🥇 1위" : (i === 1 ? "🥈 2위" : (i === 2 ? "🥉 3위" : `${i+1}위`));
+        finalList.innerHTML += `<div class="big" style="margin-top:20px;">${medal}</div>` + getPlayerStyle(p);
     });
     clearInterval(poll);
 }
 
-/* =========================================================
-   이벤트 리스너 연결 (페이지 로드 시)
-========================================================= */
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("createRoomBtn").addEventListener("click", createRoom);
     document.getElementById("joinRoomBtn").addEventListener("click", joinRoom);
     document.getElementById("startGameBtn").addEventListener("click", startGame);
     document.getElementById("confirm").addEventListener("click", confirmChoice);
-    
-    // 잘려있던 이벤트들 연결
-    document.getElementById("joinProject").addEventListener("click", handleJoinProject);
-    document.getElementById("leaveProject").addEventListener("click", handleLeaveProject);
-    document.getElementById("nextRoundBtn").addEventListener("click", nextRound);
-    
-    // (선택 사항) 라운드 결과를 방장이 확정/계산하는 함수가 필요하다면 이 버튼에 추가 로직을 연결할 수 있습니다.
-    document.getElementById("resolveRoundBtn").addEventListener("click", () => {
-        document.getElementById("resultBox").classList.remove("hidden");
-        document.getElementById("resultText").textContent = "라운드가 종료되었습니다.";
-    });
 });
-
 </script>
 </body>
 </html>
