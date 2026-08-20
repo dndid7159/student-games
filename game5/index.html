@@ -566,8 +566,8 @@
             const holeIdx = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
             activeHoles[holeIdx] = true;
 
-            // Pick habit type (65% chance good, 35% chance bad)
-            const isGood = Math.random() < 0.65;
+            // Pick habit type (40% chance good, 60% chance bad - 오답 비율을 높여 난이도 상승)
+            const isGood = Math.random() < 0.40;
             const habitList = isGood ? GOOD_HABITS : BAD_HABITS;
             const habit = habitList[Math.floor(Math.random() * habitList.length)];
 
