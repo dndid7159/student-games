@@ -104,14 +104,14 @@ button:disabled { opacity:.4; cursor:not-allowed; }
         </div>
     </div>
 
-    <!-- 공통 선택 상자 (일반/프로젝트 통합) -->
+    <!-- 공통 선택 상자 -->
     <div id="choiceBox" class="card hidden">
         <h2>🤔 당신의 선택은?</h2>
         
         <div id="projectInfo" class="project hidden">
             <div class="big" id="piName"></div>
             <div id="piDesc"></div>
-            <div style="margin-top: 10px;">현재 참여 확정: <strong id="piCount">0</strong>명 / 최소 <span id="piMin"></span>명</div>
+            <div style="margin-top: 10px;">현재 참여 확정: <strong id="piCount">0</strong>명 / 최소 필요 <strong id="piMin">0</strong>명</div>
             <div>(현재 기준 예상 비용: 1인당 <strong id="piCost">0</strong>원)</div>
         </div>
 
@@ -158,7 +158,7 @@ let roomId = null, roomCode = null, playerId = null, host = false;
 let roundNo = 0, currentRenderedRound = 0;
 let selected = null, poll = null;
 
-// 라운드 데이터
+// 라운드 데이터 (프로젝트 최소 인원 min 항목은 이제 동적으로 계산되므로 무시됨)
 const rounds = [
 { n:1, title:"🚗 이동수단", desc:"학교에 가기 위한 이동수단을 선택하세요.", choices:[ { id:"car", t:"🚗 개인 자동차", d:"편리하지만 비용과 환경 부담이 큽니다.", m:-300, e:-10, c:0, s:15 }, { id:"carshare", t:"🚙 카셰어링", d:"필요할 때만 차를 함께 이용합니다.", m:-100, e:5, c:10, s:5, share:1 }, { id:"bus", t:"🚌 대중교통", d:"저렴하고 환경 부담이 적습니다.", m:-50, e:10, c:5, s:-5 }, { id:"bike", t:"🚲 자전거", d:"가장 친환경적인 이동 방법입니다.", m:-20, e:15, c:5, s:-5 } ] },
 { n:2, title:"🏠 주거", desc:"새로운 집을 선택해야 합니다.", choices:[ { id:"big", t:"🏠 넓은 집", d:"공간은 넓지만 비용과 에너지 소비가 큽니다.", m:-250, e:-10, c:0, s:20 }, { id:"small", t:"🏡 작은 집", d:"비용과 에너지 소비를 줄입니다.", m:-100, e:5, c:0, s:5 }, { id:"sharehouse", t:"🏘️ 공유주택", d:"주거 공간과 시설을 함께 사용합니다.", m:-70, e:10, c:15, s:-5, share:1 } ] },
@@ -168,7 +168,7 @@ const rounds = [
 { n:6, title:"📱 디지털 생활", desc:"새로운 태블릿이 필요합니다.", choices:[ { id:"tablet", t:"📱 새 제품", d:"최신 제품을 구입합니다.", m:-250, e:-10, c:0, s:15 }, { id:"usedtablet", t:"♻️ 중고 제품", d:"사용하던 제품을 다시 활용합니다.", m:-100, e:10, c:5, s:5 }, { id:"tabletshare", t:"🤝 공유 태블릿", d:"필요한 시간에 함께 사용합니다.", m:-40, e:10, c:15, s:0, share:1 } ] },
 { n:7, title:"🏖️ 여가", desc:"주말에 무엇을 할까요?", choices:[ { id:"trip", t:"🏖️ 개인 여행", d:"자유롭고 만족도가 높습니다.", m:-180, e:-10, c:0, s:20 }, { id:"stay", t:"🏡 공유 숙소", d:"숙박 공간을 함께 이용합니다.", m:-80, e:5, c:10, s:10, share:1 }, { id:"event", t:"🎉 마을 공동행사", d:"이웃들과 함께 시간을 보냅니다.", m:-30, e:5, c:20, s:10 } ] },
 { n:8, title:"⚡ 갑작스러운 사건", desc:"마을에 갑작스러운 정전이 발생했습니다.", choices:[ { id:"generator", t:"🔋 개인 발전기", d:"미리 준비한 개인 발전기를 사용합니다.", m:-100, e:-5, c:0, s:10 }, { id:"sharedgen", t:"🔋 공유 발전기", d:"여러 사람이 공동으로 사용합니다.", m:-40, e:5, c:15, s:5, share:1 }, { id:"wait", t:"🕯️ 그냥 기다린다", d:"돈은 들지 않지만 불편합니다.", m:0, e:5, c:0, s:-15 } ] },
-{ n:9, type:"project", title:"🤝 공동 세탁방", desc:"마을에 공동 세탁방을 만들 수 있습니다.", project:{ id:"laundry", name:"공동 세탁방", cost:500, min:3, env:15, comm:20, sat:5 } },
+{ n:9, type:"project", title:"🤝 공동 세탁방", desc:"마을에 공동 세탁방을 만들 수 있습니다.", project:{ id:"laundry", name:"공동 세탁방", cost:500, env:15, comm:20, sat:5 } },
 { n:10, title:"🌳 마지막 선택", desc:"마을의 마지막 자금을 어디에 투자할까요?", choices:[ { id:"env", t:"🌳 환경 프로젝트", d:"마을의 환경을 크게 개선합니다.", m:0, e:30, c:5, s:5 }, { id:"platform", t:"🤝 공유 플랫폼", d:"공유경제 서비스를 발전시킵니다.", m:0, e:10, c:30, s:5 }, { id:"shop", t:"🏪 개인 상점 투자", d:"개인적인 경제적 이익을 얻습니다.", m:150, e:-5, c:-5, s:10 } ] }
 ];
 
@@ -251,7 +251,6 @@ async function refreshRoom(){
         } else if(newRound !== currentRenderedRound){
             roundNo = newRound; renderGame();
         } else {
-            // 공동 프로젝트 실시간 카운트 갱신
             if(rounds[roundNo - 1]?.type === "project") updateProjectRealtime();
         }
     }
@@ -295,7 +294,6 @@ async function renderGame(){
         document.getElementById("projectInfo").classList.remove("hidden");
         document.getElementById("piName").textContent = rd.project.name;
         document.getElementById("piDesc").textContent = `총 필요 자금 ${rd.project.cost}원`;
-        document.getElementById("piMin").textContent = rd.project.min;
         await updateProjectRealtime();
     } else {
         document.getElementById("projectInfo").classList.add("hidden");
@@ -315,13 +313,21 @@ async function stats(){
     }
 }
 
-// 공동 프로젝트 실시간 현황
+// 공동 프로젝트 실시간 현황 및 최소 요구 인원 60% 동적 계산
 async function updateProjectRealtime() {
     const rd = rounds[roundNo - 1];
     if(!rd || rd.type !== "project") return;
-    const { data } = await client.from("player_choices").select("choice_id").eq("room_id", roomId).eq("round_number", roundNo);
-    const joins = (data || []).filter(c => c.choice_id === "join").length;
+    
+    // 전체 참가자 수 조회하여 60% 이상 계산
+    const { data: allPlayers } = await client.from("players").select("id").eq("room_id", roomId);
+    const totalPlayers = allPlayers ? allPlayers.length : 1;
+    const minRequired = Math.ceil(totalPlayers * 0.6); // 60% 이상 필요
+
+    const { data: choices } = await client.from("player_choices").select("choice_id").eq("room_id", roomId).eq("round_number", roundNo);
+    const joins = (choices || []).filter(c => c.choice_id === "join").length;
     const cost = joins > 0 ? Math.ceil(rd.project.cost / joins) : rd.project.cost;
+    
+    document.getElementById("piMin").textContent = minRequired;
     document.getElementById("piCount").textContent = joins;
     document.getElementById("piCost").textContent = cost;
 }
@@ -334,7 +340,6 @@ async function renderChoices(rd){
 
     const choicesEl = document.getElementById("choices"); choicesEl.innerHTML = "";
     
-    // 프로젝트 라운드인 경우 선택지 강제 생성
     let choicesList = rd.type === "project" ? [
         { id:"join", t:"✅ 프로젝트 참여", d:"자금을 모아 마을에 공동 시설을 세웁니다." },
         { id:"pass", t:"❌ 참여하지 않기", d:"참여하지 않고 개인 자금을 아낍니다." }
@@ -348,7 +353,6 @@ async function renderChoices(rd){
         btn.addEventListener("click", () => {
             if(alreadyChosen) return;
             
-            // 토글 기능: 선택된 것을 다시 누르면 취소
             if (selected === c.id) {
                 selected = null;
                 btn.classList.remove("sel");
@@ -378,16 +382,13 @@ async function confirmChoice(){
     document.querySelectorAll(".choice").forEach(el=> el.disabled = true);
 }
 
-/* =========================================================
-   [수정됨] 결과 산출 및 방어 로직 (방장 전용) 
-========================================================= */
+// 방장 산출
 document.getElementById("resolveRoundBtn").addEventListener("click", async () => {
     if(!host) return;
     
     const {data: players} = await client.from("players").select("*").eq("room_id", roomId);
     const {data: choices} = await client.from("player_choices").select("*").eq("room_id", roomId).eq("round_number", roundNo);
     
-    // 1. 모든 참가자가 선택을 완료했는지 확인
     if (choices.length < players.length) {
         alert(`⚠️ 아직 모든 참가자가 선택을 완료하지 않았습니다!\n(완료: ${choices.length}명 / 전체: ${players.length}명)`);
         return;
@@ -398,10 +399,10 @@ document.getElementById("resolveRoundBtn").addEventListener("click", async () =>
     const choiceCounts = {};
     choices.forEach(c => { choiceCounts[c.choice_id] = (choiceCounts[c.choice_id] || 0) + 1; });
     
-    // 2. 결과 DB 적용 로직 
     if (rd.type === "project") {
+        const minReq = Math.ceil(players.length * 0.6); // 60% 동적 계산
         const joins = choiceCounts["join"] || 0;
-        if (joins >= rd.project.min) {
+        if (joins >= minReq) {
             const costPer = Math.ceil(rd.project.cost / joins);
             for (let p of players) {
                 const myChoice = choices.find(x => x.player_id === p.id);
@@ -425,7 +426,6 @@ document.getElementById("resolveRoundBtn").addEventListener("click", async () =>
         }
     }
 
-    // 최종 스코어 계산 및 일괄 업데이트
     for (let p of players) {
         const formulaScore = Math.floor(p.money / 10) + (p.environment * 2) + (p.community * 2) + (p.satisfaction * 2);
         await client.from("players").update({ money: p.money, environment: p.environment, community: p.community, satisfaction: p.satisfaction, score: formulaScore }).eq("id", p.id);
@@ -434,7 +434,7 @@ document.getElementById("resolveRoundBtn").addEventListener("click", async () =>
     await client.from("rooms").update({ status: "resolving" }).eq("id", roomId);
 });
 
-// 클라이언트 공통: 라운드 결과 도출 텍스트 (동적 멘트 적용)
+// 결과 도출 (프로젝트 실패/성공 여부 판단 시 동적 최소 인원 적용)
 async function displayRoundResult() {
     await stats(); 
     await ranking(); 
@@ -448,11 +448,12 @@ async function displayRoundResult() {
     const counts = {}; (choices || []).forEach(c => { counts[c.choice_id] = (counts[c.choice_id] || 0) + 1; });
 
     if (rd.type === "project") {
+        const minReq = Math.ceil(players.length * 0.6); // 60% 동적 계산
         const joins = counts["join"] || 0;
-        if (joins >= rd.project.min) {
-            text = `🎉 <b>${rd.project.name} 건설 성공!</b>\n총 ${joins}명이 합심하여 자금을 모았습니다.\n(참여자: 공동체 및 환경 점수 상승, 자금 차감)`;
+        if (joins >= minReq) {
+            text = `🎉 <b>${rd.project.name} 건설 성공!</b>\n총 ${joins}명(최소 ${minReq}명 달성)이 합심하여 자금을 모았습니다.\n(참여자: 공동체 및 환경 점수 상승, 자금 차감)`;
         } else {
-            text = `❌ <b>${rd.project.name} 무산</b>\n참여 인원이 부족하여 프로젝트가 취소되었습니다. 투자된 자금은 소모되지 않았습니다.`;
+            text = `❌ <b>${rd.project.name} 무산</b>\n참여 인원이 부족하여(현재 ${joins}명 / 최소 ${minReq}명 필요) 프로젝트가 취소되었습니다. 투자된 자금은 소모되지 않았습니다.`;
         }
     } else {
         const overThreshold = Math.max(3, Math.floor(players.length * 0.4));
@@ -468,7 +469,6 @@ async function displayRoundResult() {
         if (events.length > 0) {
             text = events.join("\n\n");
         } else {
-            // 페널티가 없을 때 무조건 똑같은 멘트가 나오는 것을 방지 (가장 많이 득표한 선택지 찾기)
             const maxChoiceId = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b, null);
             const maxChoiceData = rd.choices.find(c => c.id === maxChoiceId);
             
