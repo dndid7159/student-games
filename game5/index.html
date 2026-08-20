@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>신용점수 디펜스: 두더지 잡기!</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <!-- Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+
+        /* mole hole animation & structure */
+        .hole {
+            position: relative;
+            overflow: hidden;
+        }
+        .hole::after {
+            content: '';
+            display: block;
+            background: #6d4c41;
+            border-radius: 50%;
+            width: 100%;
+            height: 25%;
+            position: absolute;
+            bottom: -5%;
+            z-index: 2;
+            box-shadow: inset 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .mole-wrapper {
+            position: absolute;
+            left: 4%;
+            right: 4%;
+            bottom: -120%;
+            height: 90%;
+            transition: bottom 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .mole-wrapper.up {
+            bottom: 12%;
+        }
+
+        .mole-wrapper.hit {
+            transform: scale(0.9) translateY(10px);
+            transition: transform 0.1s;
+        }
+
+        .sign-board {
+            background-color: #fdf6e3;
+            border: 3px solid #8b5a2b;
+            border-radius: 8px;
+            width: 100%;
+            padding: 8px 6px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 70px;
+            word-break: keep-all;
+        }
+
+        .mole-character {
+            font-size: 3rem;
+            margin-top: -15px; /* overlap with sign */
+            z-index: 1;
+            line-height: 1;
+            text-shadow: 0 4px 4px rgba(0,0,0,0.2);
+        }
+
+        /* Floating Score Effect */
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-50px) scale(1.3); }
+        }
+
+        .floating-score {
+            position: absolute;
+            animation: floatUp 0.8s ease-out forwards;
+            font-weight: 900;
+            pointer-events: none;
+            z-index: 10;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        /* Custom Scrollbar for review modal */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-amber-50 text-slate-800 min-h-screen flex flex-col items-center justify-between p-2 sm:p-4 selection:bg-none">
+
+    <!-- Main Game Container -->
+    <div class="w-full max-w-2xl bg-white rounded-3xl shadow-xl border border-amber-200 flex flex-col overflow-hidden my-auto">
+        
+        <!-- Header & Dashboard -->
+        <header class="bg-amber-100 p-4 sm:p-5 border-b border-amber-200">
+            <div class="flex justify-between items-center mb-3">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl sm:text-3xl">🛡️</span>
+                    <div>
+                        <h1 class="font-black text-lg sm:text-2xl bg-gradient-to-r from-blue-600 to-emerald-600 bg-clip-text text-transparent">
+                            신용점수 디펜스
+                        </h1>
+                        <p class="text-xs text-slate-500">올바른 신용관리 요령만 쏙쏙 터치하세요!</p>
+                    </div>
+                </div>
+                <!-- Sound & Help buttons -->
+                <div class="flex items-center gap-2">
+                    <button id="soundToggleBtn" onclick="toggleSound()" class="p-2.5 rounded-xl bg-white hover:bg-amber-50 border border-amber-200 text-slate-600 text-sm font-semibold transition shadow-sm">
+                        <i class="fa-solid fa-volume-high" id="soundIcon"></i>
+                    </button>
+                    <button onclick="openRulesModal()" class="p-2.5 rounded-xl bg-white hover:bg-amber-50 border border-amber-200 text-slate-600 text-sm font-semibold transition shadow-sm">
+                        <i class="fa-solid fa-circle-question"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Bar (Score Meter & Timer) -->
+            <div class="grid grid-cols-12 gap-3 items-center bg-white p-3.5 rounded-2xl border border-amber-200 shadow-sm">
+                <!-- Score Meter (0 ~ 1000) -->
+                <div class="col-span-8 flex flex-col gap-1">
+                    <div class="flex justify-between items-center text-xs sm:text-sm font-bold">
+                        <span class="text-slate-500">현재 신용점수</span>
+                        <span id="scoreText" class="text-emerald-600 text-base sm:text-lg font-black">600 점</span>
+                    </div>
+                    <!-- Gauge Bar -->
+                    <div class="w-full bg-slate-100 h-4 rounded-full overflow-hidden p-0.5 shadow-inner border border-slate-200">
+                        <div id="scoreBar" class="bg-gradient-to-r from-red-500 via-yellow-400 to-emerald-500 h-full rounded-full transition-all duration-300" style="width: 60%;"></div>
+                    </div>
+                    <div class="flex justify-between text-[10px] text-slate-400 font-bold px-0.5">
+                        <span>0점 (위험)</span>
+                        <span>500점</span>
+                        <span>1000점 (최우수)</span>
+                    </div>
+                </div>
+
+                <!-- Timer & Combo -->
+                <div class="col-span-4 flex flex-col justify-between items-end border-l border-amber-100 pl-3">
+                    <div class="text-right">
+                        <span class="text-[10px] text-slate-500 font-semibold block">남은 시간</span>
+                        <span id="timerText" class="text-2xl sm:text-3xl font-black text-rose-500 tracking-tight">40<span class="text-xs font-normal">초</span></span>
+                    </div>
+                    <div class="text-[11px] font-bold text-blue-500">
+                        연속 성공: <span id="comboText" class="text-blue-600 font-extrabold">0</span>회
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Mole Game Grid (3x3) -->
+        <main class="p-4 sm:p-6 bg-green-50/30 relative">
+            
+            <!-- Quick Helper Indicator Bar -->
+            <div class="flex justify-center items-center gap-4 text-xs font-bold mb-4 bg-white py-2.5 px-4 rounded-xl border border-amber-200 shadow-sm text-slate-600">
+                💡 푯말의 글씨를 꼼꼼히 읽고 <span class="text-emerald-600">올바른 습관</span>만 찾아 누르세요!
+            </div>
+
+            <div class="grid grid-cols-3 gap-3 sm:gap-4 w-full max-w-md mx-auto">
+                <!-- Hole 0 -->
+                <div class="hole bg-emerald-50/50 rounded-2xl border-2 border-emerald-100 shadow-inner h-36 sm:h-44" id="hole-0">
+                    <div class="mole-wrapper select-none" onclick="whackMole(0, event)">
+                        <div class="sign-board">
+                            <span class="mole-text text-[11px] sm:text-[13px] font-extrabold text-slate-800 leading-snug"></span>
+                        </div>
+                        <div class="mole-character">🐹</div>
+                    </div>
+                </div>
+                <!-- Hole 1 -->
+                <div class="hole bg-emerald-50/50 rounded-2xl border-2 border-emerald-100 shadow-inner h-36 sm:h-44" id="hole-1">
+                    <div class="mole-wrapper select-none" onclick="whackMole(1, event)">
+                        <div class="sign-board">
+                            <span class="mole-text text-[11px] sm:text-[13px] font-extrabold text-slate-800 leading-snug"></span>
+                        </div>
+                        <div class="mole-character">🐹</div>
+                    </div>
+                </div>
+                <!-- Hole 2 -->
+                <div class="hole bg-emerald-50/50 rounded-2xl border-2 border-emerald-100 shadow-inner h-36 sm:h-44" id="hole-2">
+                    <div class="mole-wrapper select-none" onclick="whackMole(2, event)">
+                        <div class="sign-board">
+                            <span class="mole-text text-[11px] sm:text-[13px] font-extrabold text-slate-800 leading-snug"></span>
+                        </div>
+                        <div class="mole-character">🐹</div>
+                    </div>
+                </div>
+                <!-- Hole 3 -->
+                <div class="hole bg-emerald-50/50 rounded-2xl border-2 border-emerald-100 shadow-inner h-36 sm:h-44" id="hole-3">
+                    <div class="mole-wrapper select-none" onclick="whackMole(3, event)">
+                        <div class="sign-board">
+                            <span class="mole-text text-[11px] sm:text-[13px] font-extrabold text-slate-800 leading-snug"></span>
+                        </div>
+                        <div class="mole-character">🐹</div>
+                    </div>
+                </div>
+                <!-- Hole 4 -->
+                <div class="hole bg-emerald-50/50 rounded-2xl border-2 border-emerald-100 shadow-inner h-36 sm:h-44" id="hole-4">
+                    <div class="mole-wrapper select-none" onclick="whackMole(4, event)">
+                        <div class="sign-board">
+                            <span class="mole-text text-[11px] sm:text-[13px] font-extrabold text-slate-800 leading-snug"></span>
+                        </div>
+                        <div class="mole-character">🐹</div>
+                    </div>
+                </div>
+                <!-- Hole 5 -->
+                <div class="hole bg-emerald-50/50 rounded-2xl border-2 border-emerald-100 shadow-inner h-36 sm:h-44" id="hole-5">
+                    <div class="mole-wrapper select-none" onclick="whackMole(5, event)">
+                        <div class="sign-board">
+                            <span class="mole-text text-[11px] sm:text-[13px] font-extrabold text-slate-800 leading-snug"></span>
+                        </div>
+                        <div class="mole-character">🐹</div>
+                    </div>
+                </div>
+                <!-- Hole 6 -->
+                <div class="hole bg-emerald-50/50 rounded-2xl border-2 border-emerald-100 shadow-inner h-36 sm:h-44" id="hole-6">
+                    <div class="mole-wrapper select-none" onclick="whackMole(6, event)">
+                        <div class="sign-board">
+                            <span class="mole-text text-[11px] sm:text-[13px] font-extrabold text-slate-800 leading-snug"></span>
+                        </div>
+                        <div class="mole-character">🐹</div>
+                    </div>
+                </div>
+                <!-- Hole 7 -->
+                <div class="hole bg-emerald-50/50 rounded-2xl border-2 border-emerald-100 shadow-inner h-36 sm:h-44" id="hole-7">
+                    <div class="mole-wrapper select-none" onclick="whackMole(7, event)">
+                        <div class="sign-board">
+                            <span class="mole-text text-[11px] sm:text-[13px] font-extrabold text-slate-800 leading-snug"></span>
+                        </div>
+                        <div class="mole-character">🐹</div>
+                    </div>
+                </div>
+                <!-- Hole 8 -->
+                <div class="hole bg-emerald-50/50 rounded-2xl border-2 border-emerald-100 shadow-inner h-36 sm:h-44" id="hole-8">
+                    <div class="mole-wrapper select-none" onclick="whackMole(8, event)">
+                        <div class="sign-board">
+                            <span class="mole-text text-[11px] sm:text-[13px] font-extrabold text-slate-800 leading-snug"></span>
+                        </div>
+                        <div class="mole-character">🐹</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer Bar Controls -->
+        <footer class="p-4 bg-amber-50 border-t border-amber-200 flex justify-between items-center gap-3">
+            <button id="startBtn" onclick="startGame()" class="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-blue-500 to-emerald-500 hover:from-blue-600 hover:to-emerald-600 text-white font-black text-base sm:text-lg shadow-lg shadow-emerald-900/30 active:scale-95 transition transform">
+                🚀 게임 시작하기!
+            </button>
+        </footer>
+    </div>
+
+    <!-- Start & Rules Modal -->
+    <div id="rulesModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white border border-amber-200 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-5">
+            <div class="text-center space-y-2">
+                <div class="text-4xl">🎓🏦</div>
+                <h2 class="text-2xl font-black text-slate-800">고등학생 신용점수 디펜스</h2>
+                <p class="text-xs text-slate-500">금융감독원 지정 필수 신용관리 요령 학습 게임</p>
+            </div>
+
+            <div class="bg-amber-50 rounded-2xl p-4 border border-amber-200 space-y-3 text-xs sm:text-sm text-slate-700 leading-relaxed">
+                <div class="flex items-start gap-2.5">
+                    <span class="bg-emerald-100 text-emerald-600 p-1.5 rounded-lg text-base shadow-sm">🟢</span>
+                    <div>
+                        <strong class="text-emerald-600">올바른 신용관리 요령</strong>을 튀어나올 때 빠르게 클릭하세요! <span class="text-emerald-500 font-bold">+30 ~ +50점</span>
+                    </div>
+                </div>
+                <div class="flex items-start gap-2.5">
+                    <span class="bg-rose-100 text-rose-600 p-1.5 rounded-lg text-base shadow-sm">🔴</span>
+                    <div>
+                        <strong class="text-rose-600">신용을 낮추는 행동</strong>은 절대 누르면 안 됩니다! <span class="text-rose-500 font-bold">-50점 손실</span>
+                    </div>
+                </div>
+                <div class="flex items-start gap-2.5">
+                    <span class="bg-blue-100 text-blue-600 p-1.5 rounded-lg text-base shadow-sm">💡</span>
+                    <div>
+                        두더지가 들고 있는 <strong>푯말의 내용을 꼼꼼히 읽어보세요!</strong> 색상 힌트 없이 진짜 지식으로만 승부합니다.
+                    </div>
+                </div>
+                <div class="flex items-start gap-2.5">
+                    <span class="bg-amber-200 text-amber-700 p-1.5 rounded-lg text-base shadow-sm">📊</span>
+                    <div>
+                        게임 종료 후 <strong>최종 신용점수 (0~1000점)</strong>와 나의 <strong>신용등급 리포트</strong>를 확인할 수 있습니다.
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="closeRulesModal()" class="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-extrabold rounded-xl shadow-lg transition">
+                이해했습니다! 게임 시작 준비
+            </button>
+        </div>
+    </div>
+
+    <!-- Game Over Result Modal -->
+    <div id="resultModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white border border-amber-200 rounded-3xl p-5 sm:p-6 max-w-lg w-full shadow-2xl space-y-4 max-h-[90vh] flex flex-col">
+            
+            <!-- Result Header -->
+            <div class="text-center space-y-1">
+                <span id="resultBadgeIcon" class="text-5xl inline-block animate-bounce">🏆</span>
+                <h2 class="text-2xl font-black text-slate-800">최종 신용 점수 평가</h2>
+                <p class="text-xs text-slate-500">나의 신용 관리 습관 성적표</p>
+            </div>
+
+            <!-- Score Display Box -->
+            <div class="bg-amber-50 rounded-2xl p-4 border border-amber-200 text-center space-y-2 shadow-inner">
+                <div class="text-xs text-slate-500 font-bold">최종 신용 점수</div>
+                <div id="finalScoreDisplay" class="text-4xl sm:text-5xl font-black text-emerald-600">
+                    850 <span class="text-lg font-normal text-slate-400">/ 1000점</span>
+                </div>
+                <!-- Grade Tag -->
+                <div id="gradeTag" class="inline-block px-4 py-1.5 rounded-full text-sm font-black bg-emerald-100 text-emerald-600 border border-emerald-200">
+                    1등급 (최우수 신용 등급)
+                </div>
+                <!-- Summary description -->
+                <p id="gradeAdvice" class="text-xs text-slate-600 pt-1 leading-relaxed px-2"></p>
+            </div>
+
+            <!-- Educational Credit Tips Review List -->
+            <div class="flex-1 overflow-hidden flex flex-col bg-slate-50 rounded-2xl p-3 border border-slate-200">
+                <h3 class="text-xs font-black text-blue-600 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                    <i class="fa-solid fa-lightbulb"></i> 반드시 기억해야 할 고등학생 신용관리 11계명
+                </h3>
+                <div class="overflow-y-auto custom-scrollbar space-y-2 pr-1 text-xs text-slate-700 text-left" id="tipsReviewContainer">
+                    <!-- Dynamic tips populated via JS -->
+                </div>
+            </div>
+
+            <!-- Result Buttons -->
+            <div class="flex gap-2 pt-1">
+                <button onclick="startGame()" class="flex-1 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-extrabold rounded-xl shadow-lg transition text-sm">
+                    🔄 다시 도전하기
+                </button>
+                <button onclick="closeResultModal()" class="py-3 px-4 bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold rounded-xl transition text-sm">
+                    닫기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA DEFINITIONS ---
+        // Positive Habits (Credit Boosters) based on prompt requirements
+        const GOOD_HABITS = [
+            { text: "주거래 은행 정하여 꾸준히 이용하기", icon: "🏦", score: 40 },
+            { text: "소득에 맞는 적정한 채무 규모 설정하기", icon: "⚖️", score: 40 },
+            { text: "통신비·공과금·세금 단 하루도 연체하지 않기", icon: "📱", score: 50 },
+            { text: "주기적인 결제 대금 자동 이체 등록하기", icon: "🔄", score: 35 },
+            { text: "연체 발생 시 오래된 채무부터 상환하기", icon: "🗓️", score: 45 },
+            { text: "건전한 신용 거래 이력 꾸준히 쌓기", icon: "📈", score: 40 },
+            { text: "연락처/주소 변경 시 금융회사에 통보하기", icon: "📞", score: 30 },
+            { text: "인터넷/전화 손쉬운 대출은 신중하게 결정하기", icon: "🛑", score: 45 },
+            { text: "내 신용 정보 모바일 앱으로 주기적으로 확인하기", icon: "🔍", score: 35 },
+            { text: "무분별한 신용카드 사용 자제 및 체크카드 사용", icon: "💳", score: 40 },
+            { text: "신용과 금융 상식에 항상 관심 갖고 실천하기", icon: "💡", score: 35 }
+        ];
+
+        // Negative Habits (Credit Risks)
+        const BAD_HABITS = [
+            { text: "통신비, 공과금 3개월 이상 장기 연체하기", icon: "⚠️", score: -50 },
+            { text: "카드론 / 현금서비스 습관적으로 이용하기", icon: "💸", score: -50 },
+            { text: "고금리 대출 여러 곳에서 받아서 돌려막기", icon: "❌", score: -60 },
+            { text: "연체 독촉장 왔는데 무시하고 방치하기", icon: "🙈", score: -50 },
+            { text: "이사 후 금융회사에 주소 변경 알리지 않기", icon: "📮", score: -35 },
+            { text: "친구/타인 대출 보증 무심코 서주기", icon: "📜", score: -60 },
+            { text: "리볼빙(이월결제) 무분별하게 신청 및 사용", icon: "⏳", score: -45 },
+            { text: "신용카드 한도 끝까지 꽉 채워 계속 쓰기", icon: "🚨", score: -40 },
+            { text: "인터넷 초스피드 대출 광고 보고 즉흥 신청", icon: "💥", score: -50 }
+        ];
+
+        // Educational 11 Rules List for Final Modal Review
+        const EDUCATIONAL_TIPS = [
+            "1. 주거래 은행 이용하기 - 한 은행과 오래 거래하면 신용평가 시 유리합니다.",
+            "2. 적정한 채무 규모 설정하기 - 감당할 수 있는 범위 내에서만 대출을 이용하세요.",
+            "3. 결제 대금 자동 이체 신청하기 - 깜빡하고 연체하는 불상사를 방지할 수 있습니다.",
+            "4. 연체 시 오래된 채무부터 상환하기 - 오래된 연체일수록 신용 점수에 치명적입니다.",
+            "5. 건전한 신용 거래 이력 꾸준히 쌓기 - 체크카드를 꾸준히 사용하는 것도 도움이 됩니다.",
+            "6. 연락처 변경 시 금융회사 통보하기 - 중요한 연체 안내 및 금융 정보를 놓치지 마세요.",
+            "7. 손쉬운 대출은 신중하게 - 고금리 대출은 신용점수를 급격히 떨어뜨립니다.",
+            "8. 신용 정보 주기적으로 확인하기 - 토스/카카오페이 등으로 무료 신용 조회가 가능합니다.",
+            "9. 과도한 신용 카드 사용 자제 - 체크카드와 신용카드를 균형있게 사용하세요.",
+            "10. 통신비·공과금 단 하루도 연체 금지 - 6개월 이상 비금융 납부 실적 제출 시 점수가 올라갑니다.",
+            "11. 신용과 금융에 상시 관심 가지기 - 올바른 금융 지식이 내 소중한 재산을 지킵니다."
+        ];
+
+        // --- GAME STATE ---
+        let currentScore = 600; // Standard starting credit score
+        let timeLeft = 40;
+        let combo = 0;
+        let gameInterval = null;
+        let moleTimer = null;
+        let isPlaying = false;
+        let activeHoles = new Array(9).fill(false);
+        let soundEnabled = true;
+
+        // --- WEB AUDIO API (SYNTHESIZER FOR SOUND EFFECTS) ---
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new AudioContext();
+            }
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                initAudio();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'good') {
+                    // Pleasant high double beep
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(587.33, now); // D5
+                    osc.frequency.exponentialRampToValueAtTime(880, now + 0.12); // A5
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                } else if (type === 'bad') {
+                    // Low buzzing error tone
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(180, now);
+                    osc.frequency.setValueAtTime(110, now + 0.1);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'finish') {
+                    // Fanfare chord
+                    [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+                        const o = audioCtx.createOscillator();
+                        const g = audioCtx.createGain();
+                        o.connect(g);
+                        g.connect(audioCtx.destination);
+                        o.frequency.value = freq;
+                        g.gain.setValueAtTime(0.1, now + idx * 0.08);
+                        g.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.4);
+                        o.start(now + idx * 0.08);
+                        o.stop(now + idx * 0.08 + 0.4);
+                    });
+                }
+            } catch(e) {
+                console.log("Audio play suppressed");
+            }
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const icon = document.getElementById('soundIcon');
+            if (soundEnabled) {
+                icon.className = 'fa-solid fa-volume-high';
+            } else {
+                icon.className = 'fa-solid fa-volume-xmark text-rose-400';
+            }
+        }
+
+        // --- GAME CONTROLLERS ---
+        function openRulesModal() {
+            document.getElementById('rulesModal').classList.remove('hidden');
+        }
+
+        function closeRulesModal() {
+            document.getElementById('rulesModal').classList.add('hidden');
+        }
+
+        function closeResultModal() {
+            document.getElementById('resultModal').classList.add('hidden');
+        }
+
+        function startGame() {
+            closeRulesModal();
+            closeResultModal();
+            initAudio();
+
+            // Reset States
+            currentScore = 600;
+            timeLeft = 40;
+            combo = 0;
+            isPlaying = true;
+            activeHoles.fill(false);
+
+            updateUI();
+
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('startBtn').innerText = "게임 진행 중...";
+            document.getElementById('startBtn').classList.add('opacity-50', 'cursor-not-allowed');
+
+            // Hide all moles initially
+            for (let i = 0; i < 9; i++) {
+                hideMole(i);
+            }
+
+            // Main Timer
+            clearInterval(gameInterval);
+            gameInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timerText').innerHTML = `${timeLeft}<span class="text-xs font-normal">초</span>`;
+
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+
+            // Spawn loop
+            scheduleNextMole();
+        }
+
+        function scheduleNextMole() {
+            if (!isPlaying) return;
+
+            // 속도를 조금 늦춤 (학생들이 읽을 시간을 충분히 확보)
+            const speedFactor = Math.max(0.7, timeLeft / 40);
+            const delay = (Math.random() * 800 + 800) * speedFactor;
+
+            moleTimer = setTimeout(() => {
+                popRandomMole();
+                scheduleNextMole();
+            }, delay);
+        }
+
+        function popRandomMole() {
+            if (!isPlaying) return;
+
+            // Find empty holes
+            const emptyIndices = activeHoles
+                .map((active, idx) => active ? null : idx)
+                .filter(val => val !== null);
+
+            if (emptyIndices.length === 0) return;
+
+            const holeIdx = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
+            activeHoles[holeIdx] = true;
+
+            // Pick habit type (65% chance good, 35% chance bad)
+            const isGood = Math.random() < 0.65;
+            const habitList = isGood ? GOOD_HABITS : BAD_HABITS;
+            const habit = habitList[Math.floor(Math.random() * habitList.length)];
+
+            const holeEl = document.getElementById(`hole-${holeIdx}`);
+            const moleWrapper = holeEl.querySelector('.mole-wrapper');
+            const signBoard = holeEl.querySelector('.sign-board');
+
+            // Reset click tracking flag and visual states
+            moleWrapper.dataset.clicked = "false";
+            moleWrapper.dataset.isGood = isGood ? "true" : "false";
+            moleWrapper.dataset.scoreVal = habit.score;
+            
+            // 색상 힌트 제거: 모든 푯말을 동일한 디자인으로 초기화
+            signBoard.className = "sign-board"; 
+
+            // 텍스트 설정
+            moleWrapper.querySelector('.mole-text').innerText = habit.text;
+
+            // 위로 올라오는 애니메이션
+            moleWrapper.classList.add('up');
+
+            // Stay visible for duration (읽을 수 있도록 기존보다 체류 시간 대폭 증가)
+            const stayDuration = Math.max(2500, 3500 * (timeLeft / 40));
+            setTimeout(() => {
+                hideMole(holeIdx);
+            }, stayDuration);
+        }
+
+        function hideMole(holeIdx) {
+            const holeEl = document.getElementById(`hole-${holeIdx}`);
+            if (!holeEl) return;
+            const moleWrapper = holeEl.querySelector('.mole-wrapper');
+            moleWrapper.classList.remove('up', 'hit');
+            activeHoles[holeIdx] = false;
+        }
+
+        function whackMole(holeIdx, event) {
+            if (!isPlaying) return;
+
+            const holeEl = document.getElementById(`hole-${holeIdx}`);
+            const moleWrapper = holeEl.querySelector('.mole-wrapper');
+            const signBoard = holeEl.querySelector('.sign-board');
+
+            if (!moleWrapper.classList.contains('up') || moleWrapper.dataset.clicked === "true") return;
+
+            moleWrapper.dataset.clicked = "true";
+            moleWrapper.classList.add('hit');
+
+            const isGood = moleWrapper.dataset.isGood === "true";
+            const scoreChange = parseInt(moleWrapper.dataset.scoreVal, 10);
+
+            if (isGood) {
+                combo++;
+                // Bonus for high combo
+                const bonus = Math.floor(combo / 3) * 5;
+                const totalAdd = scoreChange + bonus;
+                currentScore = Math.min(1000, currentScore + totalAdd);
+                playSound('good');
+                showFloatingText(event, `+${totalAdd}점!`, 'text-emerald-500');
+                
+                // 정답(좋은 습관)을 맞췄을 때 푯말이 초록색으로 변하는 피드백
+                signBoard.classList.add('bg-emerald-100', 'border-emerald-500');
+            } else {
+                combo = 0;
+                currentScore = Math.max(0, currentScore + scoreChange);
+                playSound('bad');
+                showFloatingText(event, `${scoreChange}점!`, 'text-rose-500');
+                
+                // 오답(나쁜 습관)을 눌렀을 때 푯말이 빨간색으로 변하는 피드백
+                signBoard.classList.add('bg-rose-100', 'border-rose-500');
+            }
+
+            updateUI();
+
+            setTimeout(() => {
+                hideMole(holeIdx);
+            }, 300);
+        }
+
+        function showFloatingText(event, text, colorClass) {
+            const rect = event.currentTarget.getBoundingClientRect();
+            const el = document.createElement('div');
+            el.className = `floating-score ${colorClass} text-lg sm:text-xl`;
+            el.innerText = text;
+            el.style.left = `${event.clientX - rect.left + 10}px`;
+            el.style.top = `${event.clientY - rect.top - 10}px`;
+            
+            event.currentTarget.appendChild(el);
+            setTimeout(() => {
+                el.remove();
+            }, 800);
+        }
+
+        function updateUI() {
+            // Update Score Display
+            document.getElementById('scoreText').innerText = `${currentScore} 점`;
+            const percentage = Math.min(100, Math.max(0, (currentScore / 1000) * 100));
+            document.getElementById('scoreBar').style.width = `${percentage}%`;
+
+            // Update Combo Display
+            document.getElementById('comboText').innerText = combo;
+        }
+
+        function endGame() {
+            isPlaying = false;
+            clearInterval(gameInterval);
+            clearTimeout(moleTimer);
+
+            // Hide all moles
+            for (let i = 0; i < 9; i++) {
+                hideMole(i);
+            }
+
+            // Restore Start Button
+            const startBtn = document.getElementById('startBtn');
+            startBtn.disabled = false;
+            startBtn.innerText = "🚀 다시 게임 시작하기";
+            startBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+            playSound('finish');
+
+            // Evaluate Grade
+            const gradeInfo = getCreditGradeInfo(currentScore);
+
+            // Populate Result Modal
+            document.getElementById('finalScoreDisplay').innerHTML = `${currentScore} <span class="text-lg font-normal text-slate-400">/ 1000점</span>`;
+            document.getElementById('gradeTag').innerText = `${gradeInfo.grade} (${gradeInfo.title})`;
+            document.getElementById('gradeTag').className = `inline-block px-4 py-1.5 rounded-full text-sm font-black ${gradeInfo.bgClass} ${gradeInfo.textClass} border ${gradeInfo.borderClass}`;
+            document.getElementById('gradeAdvice').innerText = gradeInfo.advice;
+            document.getElementById('resultBadgeIcon').innerText = gradeInfo.icon;
+
+            // Populate Review Tips
+            const tipsContainer = document.getElementById('tipsReviewContainer');
+            tipsContainer.innerHTML = '';
+            EDUCATIONAL_TIPS.forEach(tip => {
+                const item = document.createElement('div');
+                item.className = 'p-2 rounded-lg bg-white border border-slate-200 leading-relaxed shadow-sm';
+                item.innerText = tip;
+                tipsContainer.appendChild(item);
+            });
+
+            // Show Confetti if high score
+            if (currentScore >= 800 && typeof confetti === 'function') {
+                confetti({
+                    particleCount: 80,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            }
+
+            document.getElementById('resultModal').classList.remove('hidden');
+        }
+
+        // Credit Score Range Grade Calculator (Standard Korea Credit Rating Matrix)
+        function getCreditGradeInfo(score) {
+            if (score >= 900) {
+                return {
+                    grade: "1등급",
+                    title: "최우수 신용등급",
+                    icon: "👑",
+                    bgClass: "bg-emerald-100",
+                    textClass: "text-emerald-700",
+                    borderClass: "border-emerald-300",
+                    advice: "축하합니다! 완벽한 신용 지식을 갖추셨네요! 금융 거래 시 가장 낮은 금리 우대 혜택과 높은 대출 한도를 제공받을 수 있는 최우수 신용인입니다."
+                };
+            } else if (score >= 820) {
+                return {
+                    grade: "2~3등급",
+                    title: "우수 신용등급",
+                    icon: "🥇",
+                    bgClass: "bg-blue-100",
+                    textClass: "text-blue-700",
+                    borderClass: "border-blue-300",
+                    advice: "훌륭합니다! 올바른 신용 관리 습관이 잘 정착되어 있습니다. 공과금 미연체와 주거래 은행 꾸준한 이용을 유지하면 1등급도 금방 달성합니다."
+                };
+            } else if (score >= 700) {
+                return {
+                    grade: "4~5등급",
+                    title: "보통 신용등급",
+                    icon: "🥈",
+                    bgClass: "bg-amber-100",
+                    textClass: "text-amber-700",
+                    borderClass: "border-amber-300",
+                    advice: "일반적인 성인의 평균 수준입니다. 작은 통신비나 공과금 연체도 신용점수에 영향을 줄 수 있으므로 항상 자동이체를 등록해두는 습관을 기르세요!"
+                };
+            } else if (score >= 600) {
+                return {
+                    grade: "6~7등급",
+                    title: "주의 필요 등급",
+                    icon: "⚠️",
+                    bgClass: "bg-orange-100",
+                    textClass: "text-orange-700",
+                    borderClass: "border-orange-300",
+                    advice: "주의가 필요한 단계입니다! 현금서비스, 카드론이나 고금리 대출은 피하고, 오래된 연체 채무부터 빠르게 상환하여 점수를 끌어올려야 합니다."
+                };
+            } else {
+                return {
+                    grade: "8~10등급",
+                    title: "위험 등급",
+                    icon: "🚨",
+                    bgClass: "bg-rose-100",
+                    textClass: "text-rose-700",
+                    borderClass: "border-rose-300",
+                    advice: "신용 위험 상태입니다! 신용 거래가 제한될 수 있습니다. 단 하루의 연체도 하지 않는 습관과 함께 올바른 금융 지식을 바로 실천해야 합니다."
+                };
+            }
+        }
+
+        // Initialize display on window load
+        window.onload = function() {
+            updateUI();
+        };
+    </script>
+</body>
+</html>
