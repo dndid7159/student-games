@@ -73,7 +73,7 @@ button:disabled{opacity:.4;cursor:not-allowed}.secondary{background:#eee;color:#
 <script>
 const URL="https://lfqgowhcfwrmtvxivyjh.supabase.co";
 const KEY="sb_publishable_NSxWcogbVY6qWPBOdWivcg_sQzfFQop";
-const sb=supabase.createClient(URL,KEY);
+const client=supabase.createClient(URL,KEY);
 const TOTAL=10;
 let roomId=null,roomCode=null,playerId=null,host=false,roundNo=0,selected=null,poll=null;
 
@@ -124,10 +124,10 @@ async function createRoom(){
  const name=document.getElementById("hostName").value.trim(); if(!name)return msg("방장 이름을 입력해주세요.");
  try{
   let code=null;
-  for(let i=0;i<30;i++){let c=String(Math.floor(1000+Math.random()*9000));let {data}=await sb.from("rooms").select("id").eq("room_code",c).maybeSingle();if(!data){code=c;break}}
+  for(let i=0;i<30;i++){let c=String(Math.floor(1000+Math.random()*9000));let {data}=await client.from("rooms").select("id").eq("room_code",c).maybeSingle();if(!data){code=c;break}}
   if(!code)throw Error("방 번호 생성 실패");
-  let {data:r,error}=await sb.from("rooms").insert({room_code:code,host_name:name,status:"waiting",current_round:0}).select().single();if(error)throw error;
-  let {data:p,error:pe}=await sb.from("players").insert({room_id:r.id,player_name:name,is_host:true,score:0}).select().single();if(pe)throw pe;
+  let {data:r,error}=await client.from("rooms").insert({room_code:code,host_name:name,status:"waiting",current_round:0}).select().single();if(error)throw error;
+  let {data:p,error:pe}=await client.from("players").insert({room_id:r.id,player_name:name,is_host:true,score:0}).select().single();if(pe)throw pe;
   roomId=r.id;roomCode=code;playerId=p.id;host=true;showLobby();
  }catch(e){console.error(e);msg("방 만들기 실패\n"+e.message)}
 }
@@ -135,32 +135,32 @@ async function joinRoom(){
  const name=document.getElementById("joinName").value.trim(),code=document.getElementById("joinCode").value.trim();
  if(!name)return msg("이름을 입력해주세요."); if(!/^\d{4}$/.test(code))return msg("4자리 방 번호를 입력해주세요.");
  try{
-  let {data:r,error}=await sb.from("rooms").select("*").eq("room_code",code).maybeSingle();if(error)throw error;
+  let {data:r,error}=await client.from("rooms").select("*").eq("room_code",code).maybeSingle();if(error)throw error;
   if(!r)return msg("존재하지 않는 방입니다."); if(r.status!=="waiting")return msg("이미 시작된 방입니다.");
-  let {data:p,error:pe}=await sb.from("players").insert({room_id:r.id,player_name:name,is_host:false,score:0}).select().single();if(pe)throw pe;
+  let {data:p,error:pe}=await client.from("players").insert({room_id:r.id,player_name:name,is_host:false,score:0}).select().single();if(pe)throw pe;
   roomId=r.id;roomCode=code;playerId=p.id;host=false;showLobby();
  }catch(e){console.error(e);msg("방 참가 실패\n"+e.message)}
 }
 function showLobby(){
- start.classList.add("hidden");lobby.classList.remove("hidden");roomCodeEl=document.getElementById("roomCode");roomCodeEl.textContent=roomCode;
+ document.getElementById('start').classList.add("hidden");document.getElementById('lobby').classList.remove("hidden");roomCodeEl=document.getElementById("roomCode");roomCodeEl.textContent=roomCode;
  document.getElementById("hostText").textContent=host?"👑 방장: "+document.getElementById("hostName").value.trim():"방장 확인 중";
  if(host)document.getElementById("hostStart").classList.remove("hidden");
  refreshLobby();clearInterval(poll);poll=setInterval(refreshRoom,1000);
 }
 async function refreshLobby(){
- let {data}=await sb.from("players").select("*").eq("room_id",roomId).order("created_at");
+ let {data}=await client.from("players").select("*").eq("room_id",roomId).order("created_at");
  let box=document.getElementById("lobbyPlayers");box.innerHTML="";
  (data||[]).forEach(p=>{let d=document.createElement("div");d.innerHTML=`<span>${esc(p.player_name)}${p.is_host?" 👑":""}</span><span>${p.id===playerId?"나":""}</span>`;box.appendChild(d)});
  document.getElementById("lobbyCount").textContent=`현재 ${data?.length||0}명 참가`;
 }
-async function startGame(){if(!host)return;let {error}=await sb.from("rooms").update({status:"playing",current_round:1,round_started_at:new Date().toISOString()}).eq("id",roomId);if(error)alert(error.message)}
+async function startGame(){if(!host)return;let {error}=await client.from("rooms").update({status:"playing",current_round:1,round_started_at:new Date().toISOString()}).eq("id",roomId);if(error)alert(error.message)}
 async function refreshRoom(){
- let {data:r}=await sb.from("rooms").select("*").eq("id",roomId).single();if(!r)return;
- if(r.status==="playing"){roundNo=r.current_round; if(game.classList.contains("hidden"))showGame();else renderGame();}
- if(r.status==="finished"&&!final.classList.contains("hidden"))return;
+ let {data:r}=await client.from("rooms").select("*").eq("id",roomId).single();if(!r)return;
+ if(r.status==="playing"){roundNo=r.current_round; if(document.getElementById('game').classList.contains("hidden"))showGame();else renderGame();}
+ if(r.status==="finished"&&!document.getElementById('final').classList.contains("hidden"))return;
  if(r.status==="finished")showFinal();
 }
-function showGame(){lobby.classList.add("hidden");game.classList.remove("hidden");renderGame()}
+function showGame(){document.getElementById('lobby').classList.add("hidden");document.getElementById('game').classList.remove("hidden");renderGame()}
 async function renderGame(){
  const rd=rounds[roundNo-1];if(!rd)return;
  document.getElementById("roundTitle").textContent=`ROUND ${rd.n} · ${rd.title}`;
@@ -168,77 +168,77 @@ async function renderGame(){
  document.getElementById("hostControl").classList.toggle("hidden",!host);
  document.getElementById("resultBox").classList.add("hidden");
  await stats();
- if(rd.type==="project"){normalBox.classList.add("hidden");projectBoxWrap.classList.remove("hidden");await renderProject(rd.project)}
- else{projectBoxWrap.classList.add("hidden");normalBox.classList.remove("hidden");await renderChoices(rd)}
+ if(rd.type==="project"){document.getElementById('normalBox').classList.add("hidden");document.getElementById('projectBoxWrap').classList.remove("hidden");await renderProject(rd.project)}
+ else{document.getElementById('projectBoxWrap').classList.add("hidden");document.getElementById('normalBox').classList.remove("hidden");await renderChoices(rd)}
  await ranking();
 }
 async function stats(){
- let {data:p}=await sb.from("players").select("*").eq("id",playerId).single();if(!p)return;
- money.textContent=p.money??1000;environment.textContent=p.environment??50;community.textContent=p.community??50;satisfaction.textContent=p.satisfaction??50;
+ let {data:p}=await client.from("players").select("*").eq("id",playerId).single();if(!p)return;
+ document.getElementById('money').textContent=p.money??1000;document.getElementById('environment').textContent=p.environment??50;document.getElementById('community').textContent=p.community??50;document.getElementById('satisfaction').textContent=p.satisfaction??50;
 }
 async function renderChoices(rd){
- let {data:mine}=await sb.from("player_choices").select("choice_id").eq("room_id",roomId).eq("player_id",playerId).eq("round_number",roundNo).maybeSingle();
+ let {data:mine}=await client.from("player_choices").select("choice_id").eq("room_id",roomId).eq("player_id",playerId).eq("round_number",roundNo).maybeSingle();
  selected=mine?.choice_id||null;choices.innerHTML="";
  rd.choices.forEach(c=>{let d=document.createElement("div");d.className="choice"+(selected===c.id?" sel":"");d.innerHTML=`<b>${c.t}</b><small>${c.d}</small>`;d.onclick=()=>{if(mine)return;selected=c.id;renderChoices(rd)};choices.appendChild(d)});
- confirm.disabled=!!mine||!selected;
+ document.getElementById('confirm').disabled=!!mine||!selected;
  document.getElementById("statusMsg").textContent=mine?"✅ 선택 완료! 다른 참가자를 기다리는 중...":"선택을 골라주세요.";
 }
 async function confirmChoice(){
  if(!selected)return;
- let {error}=await sb.from("player_choices").upsert({room_id:roomId,player_id:playerId,round_number:roundNo,choice_id:selected},{onConflict:"room_id,player_id,round_number"});
- if(error)alert(error.message);else{confirm.disabled=true;document.getElementById("statusMsg").textContent="✅ 선택 완료! 다른 참가자를 기다리는 중..."}
+ let {error}=await client.from("player_choices").upsert({room_id:roomId,player_id:playerId,round_number:roundNo,choice_id:selected},{onConflict:"room_id,player_id,round_number"});
+ if(error)alert(error.message);else{document.getElementById('confirm').disabled=true;document.getElementById("statusMsg").textContent="✅ 선택 완료! 다른 참가자를 기다리는 중..."}
 }
 async function renderProject(p){
- let {data:ps}=await sb.from("project_participants").select("*").eq("room_id",roomId).eq("project_id",p.id);
+ let {data:ps}=await client.from("project_participants").select("*").eq("room_id",roomId).eq("project_id",p.id);
  let arr=ps||[],count=arr.length,joined=arr.some(x=>x.player_id===playerId),cost=count?Math.ceil(p.cost/count):p.cost;
- projectDesc.textContent=`총 비용 ${p.cost}원 · 최소 ${p.min}명 필요`;
- projectBox.innerHTML=`<strong>${p.name}</strong><div class="big">${count}명 참여</div><p>현재 예상 1인 부담금: <b>${cost}원</b></p><p>참여자가 늘어나면 1인 부담금이 내려갑니다.</p>${count<p.min?"❗ 아직 최소 인원 미달":"✅ 최소 인원 충족"}`;
- joinProject.disabled=joined;leaveProject.disabled=!joined;
+ document.getElementById('projectDesc').textContent=`총 비용 ${p.cost}원 · 최소 ${p.min}명 필요`;
+ document.getElementById('projectBox').innerHTML=`<strong>${p.name}</strong><div class="big">${count}명 참여</div><p>현재 예상 1인 부담금: <b>${cost}원</b></p><p>참여자가 늘어나면 1인 부담금이 내려갑니다.</p>${count<p.min?"❗ 아직 최소 인원 미달":"✅ 최소 인원 충족"}`;
+ document.getElementById('joinProject').disabled=joined;document.getElementById('leaveProject').disabled=!joined;
  document.getElementById("statusMsg").textContent=joined?"✅ 프로젝트 참여 중":"원하면 프로젝트에 참여하세요.";
 }
 async function joinProject(){
- let p=rounds[roundNo-1].project;let {error}=await sb.from("project_participants").upsert({room_id:roomId,player_id:playerId,project_id:p.id},{onConflict:"room_id,player_id,project_id"});if(error)alert(error.message);else renderProject(p)
+ let p=rounds[roundNo-1].project;let {error}=await client.from("project_participants").upsert({room_id:roomId,player_id:playerId,project_id:p.id},{onConflict:"room_id,player_id,project_id"});if(error)alert(error.message);else renderProject(p)
 }
 async function leaveProject(){
- let p=rounds[roundNo-1].project;let {error}=await sb.from("project_participants").delete().eq("room_id",roomId).eq("player_id",playerId).eq("project_id",p.id);if(error)alert(error.message);else renderProject(p)
+ let p=rounds[roundNo-1].project;let {error}=await client.from("project_participants").delete().eq("room_id",roomId).eq("player_id",playerId).eq("project_id",p.id);if(error)alert(error.message);else renderProject(p)
 }
 async function resolveRound(){
  if(!host)return;
  const rd=rounds[roundNo-1];
  if(rd.type==="project")return resolveProject(rd.project);
- let {data:players}=await sb.from("players").select("*").eq("room_id",roomId);
- let {data:chs}=await sb.from("player_choices").select("*").eq("room_id",roomId).eq("round_number",roundNo);
+ let {data:players}=await client.from("players").select("*").eq("room_id",roomId);
+ let {data:chs}=await client.from("player_choices").select("*").eq("room_id",roomId).eq("round_number",roundNo);
  if((chs||[]).length<players.length){alert(`아직 선택하지 않은 참가자가 있습니다.\n현재 ${chs?.length||0}명 / ${players.length}명 선택`);return}
  for(const p of players){
   const rec=chs.find(x=>x.player_id===p.id);const c=rd.choices.find(x=>x.id===rec.choice_id);if(!c)continue;
   let m=(p.money??1000)+c.m,e=(p.environment??50)+c.e,co=(p.community??50)+c.c,s=(p.satisfaction??50)+c.s;
   let same=chs.filter(x=>x.choice_id===c.id).length;
   if(c.share&&same>=Math.ceil(players.length*.7))s-=5;
-  await sb.from("players").update({money:m,environment:e,community:co,satisfaction:s}).eq("id",p.id);
+  await client.from("players").update({money:m,environment:e,community:co,satisfaction:s}).eq("id",p.id);
  }
- resultBox.classList.remove("hidden");document.getElementById("resultText").innerHTML="모든 참가자의 선택이 반영되었습니다.<br><br>🏆 순위를 확인하세요.";await ranking();document.getElementById("hostControl").classList.add("hidden");
+ document.getElementById('resultBox').classList.remove("hidden");document.getElementById("resultText").innerHTML="모든 참가자의 선택이 반영되었습니다.<br><br>🏆 순위를 확인하세요.";await ranking();document.getElementById("hostControl").classList.add("hidden");
 }
 async function resolveProject(p){
- let {data:ps}=await sb.from("project_participants").select("*").eq("room_id",roomId).eq("project_id",p.id);
+ let {data:ps}=await client.from("project_participants").select("*").eq("room_id",roomId).eq("project_id",p.id);
  let count=(ps||[]).length;
- if(count<p.min){resultBox.classList.remove("hidden");resultText.innerHTML=`❌ 프로젝트 실패<br><br>최소 ${p.min}명이 필요하지만 ${count}명만 참여했습니다.`;hostControl.classList.add("hidden");return}
- let cost=Math.ceil(p.cost/count);let {data:players}=await sb.from("players").select("*").eq("room_id",roomId);
- for(const x of ps){let q=players.find(z=>z.id===x.player_id);if(q)await sb.from("players").update({money:(q.money??1000)-cost,environment:(q.environment??50)+p.env,community:(q.community??50)+p.comm,satisfaction:(q.satisfaction??50)+p.sat}).eq("id",q.id)}
- resultBox.classList.remove("hidden");resultText.innerHTML=`🎉 공동 프로젝트 성공!<br><br>${count}명이 참여하여 1인 부담금은 ${cost}원이었습니다.<br>참여자에게 환경·공동체·만족도 보너스가 지급되었습니다.`;hostControl.classList.add("hidden");await ranking()
+ if(count<p.min){document.getElementById('resultBox').classList.remove("hidden");document.getElementById('resultText').innerHTML=`❌ 프로젝트 실패<br><br>최소 ${p.min}명이 필요하지만 ${count}명만 참여했습니다.`;document.getElementById('hostControl').classList.add("hidden");return}
+ let cost=Math.ceil(p.cost/count);let {data:players}=await client.from("players").select("*").eq("room_id",roomId);
+ for(const x of ps){let q=players.find(z=>z.id===x.player_id);if(q)await client.from("players").update({money:(q.money??1000)-cost,environment:(q.environment??50)+p.env,community:(q.community??50)+p.comm,satisfaction:(q.satisfaction??50)+p.sat}).eq("id",q.id)}
+ document.getElementById('resultBox').classList.remove("hidden");document.getElementById('resultText').innerHTML=`🎉 공동 프로젝트 성공!<br><br>${count}명이 참여하여 1인 부담금은 ${cost}원이었습니다.<br>참여자에게 환경·공동체·만족도 보너스가 지급되었습니다.`;document.getElementById('hostControl').classList.add("hidden");await ranking()
 }
 async function nextRound(){
  if(!host)return;
- if(roundNo>=TOTAL){await sb.from("rooms").update({status:"finished"}).eq("id",roomId);return}
- await sb.from("rooms").update({current_round:roundNo+1,round_started_at:new Date().toISOString()}).eq("id",roomId);
+ if(roundNo>=TOTAL){await client.from("rooms").update({status:"finished"}).eq("id",roomId);return}
+ await client.from("rooms").update({current_round:roundNo+1,round_started_at:new Date().toISOString()}).eq("id",roomId);
 }
 function calc(p){return Math.round((p.money??1000)/10+(p.environment??50)*2+(p.community??50)*2+(p.satisfaction??50)*2)}
 async function ranking(){
- let {data:ps}=await sb.from("players").select("*").eq("room_id",roomId);let a=(ps||[]).map(p=>({...p,fs:calc(p)})).sort((x,y)=>y.fs-x.fs);
+ let {data:ps}=await client.from("players").select("*").eq("room_id",roomId);let a=(ps||[]).map(p=>({...p,fs:calc(p)})).sort((x,y)=>y.fs-x.fs);
  rankingEl=document.getElementById("ranking");rankingEl.innerHTML="";a.forEach((p,i)=>{let d=document.createElement("div");d.innerHTML=`<span>${i+1}위 · ${esc(p.player_name)}${p.id===playerId?" ⭐":""}</span><b>${p.fs}점</b>`;rankingEl.appendChild(d)})
 }
 async function showFinal(){
- clearInterval(poll);game.classList.add("hidden");lobby.classList.add("hidden");final.classList.remove("hidden");
- let {data:ps}=await sb.from("players").select("*").eq("room_id",roomId);let a=(ps||[]).map(p=>({...p,fs:calc(p)})).sort((x,y)=>y.fs-x.fs);
+ clearInterval(poll);document.getElementById('game').classList.add("hidden");document.getElementById('lobby').classList.add("hidden");document.getElementById('final').classList.remove("hidden");
+ let {data:ps}=await client.from("players").select("*").eq("room_id",roomId);let a=(ps||[]).map(p=>({...p,fs:calc(p)})).sort((x,y)=>y.fs-x.fs);
  let box=document.getElementById("finalList");box.innerHTML="";
  a.forEach((p,i)=>{let style="⚖️ 균형형 시민",env=p.environment??50,co=p.community??50,m=(p.money??1000)/10;if(env>co&&env>m)style="🌱 친환경 시민";else if(co>env&&co>m)style="🤝 공유경제 시민";else if(m>env&&m>co)style="💰 경제형 시민";
  let d=document.createElement("div");d.className="card";d.innerHTML=`<h2>${i===0?"🥇":i===1?"🥈":i===2?"🥉":"🏅"} ${i+1}위 · ${esc(p.player_name)}</h2><div class="score">${p.fs}점</div><div class="style">${style}</div><p>💰 ${p.money??1000} · 🌱 ${env} · 🤝 ${co} · 😊 ${p.satisfaction??50}</p>`;box.appendChild(d)})
