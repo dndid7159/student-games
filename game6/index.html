@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>나의 꿈의 집 설계사</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f8fafc;
+            color: #334155;
+            padding-bottom: 80px; 
+        }
+        
+        .step-animate {
+            animation: fadeIn 0.4s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .draggable {
+            touch-action: none;
+            cursor: grab;
+            user-select: none;
+        }
+        .draggable:active {
+            cursor: grabbing;
+        }
+
+        /* 캔버스 (도면 보드) - 내부 스크롤 없음, 100% 꽉 참 */
+        #design-board {
+            background-image: radial-gradient(#cbd5e1 1.5px, transparent 1.5px);
+            background-size: 30px 30px;
+            background-color: #ffffff;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0; left: 0;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            transform-origin: center center;
+        }
+
+        .space-block {
+            position: absolute;
+            background: rgba(226, 232, 240, 0.95);
+            border: 2px solid #94a3b8;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #334155;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
+            text-align: center;
+            word-break: keep-all;
+            user-select: none;
+        }
+        
+        .space-block.selected {
+            border-color: #3b82f6;
+            background: rgba(219, 234, 254, 0.98);
+            box-shadow: 0 10px 20px -5px rgb(59 130 246 / 0.4);
+            z-index: 10;
+        }
+
+        .furniture-block {
+            position: absolute;
+            background: #fef08a;
+            border: 1px solid #ca8a04;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: #854d0e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+            z-index: 20;
+            box-shadow: 0 2px 4px rgb(0 0 0 / 0.15);
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .arch-symbol {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 30;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 22px;
+            height: 22px;
+            background-color: #ef4444;
+            color: white;
+            border-radius: 50%;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 40;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            border: 2px solid white;
+            transition: transform 0.1s;
+        }
+        .delete-btn:hover { background-color: #dc2626; transform: scale(1.15); }
+
+        /* 캡쳐(전체화면) 모드 스타일 */
+        body.capture-mode {
+            overflow: hidden;
+        }
+        body.capture-mode #header, 
+        body.capture-mode #bottom-nav, 
+        body.capture-mode #step-10,
+        body.capture-mode .no-print {
+            display: none !important;
+        }
+        body.capture-mode #design-step-container {
+            display: flex !important;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: 9999;
+            background: #e5e7eb;
+            padding: 0;
+            margin: 0;
+            border-radius: 0;
+        }
+        body.capture-mode #design-step-container > div:first-child { 
+            display: none !important; /* 툴 패널 숨김 */
+        }
+        body.capture-mode #canvas-container {
+            width: 100%; height: 100%;
+            border-radius: 0; border: none;
+        }
+        body.capture-mode .delete-btn {
+            display: none !important; /* 캡쳐 화면에서 삭제 버튼 숨김 */
+        }
+        body.capture-mode .space-block.selected {
+            border-color: #94a3b8 !important;
+            background: rgba(226, 232, 240, 0.95) !important;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1) !important;
+        }
+        body.capture-mode #flow-svg {
+            display: none !important; /* 캡쳐 화면에서 동선 숨김 */
+        }
+
+        @media print {
+            body { background: white; padding: 0; }
+            #header, #bottom-nav, .no-print { display: none !important; }
+            #step-9, #step-10 { display: block !important; page-break-inside: avoid; }
+            .step-container { box-shadow: none; border: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header id="header" class="bg-white shadow-sm sticky top-0 z-50 px-4 py-3">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-2">
+            <h1 class="text-xl font-bold text-blue-600"><i class="fas fa-home mr-2"></i>나의 꿈의 집 설계사</h1>
+            <div id="progress-text" class="text-xs md:text-sm text-gray-500 font-medium overflow-x-auto whitespace-nowrap w-full md:w-auto text-center custom-scrollbar"></div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="w-full max-w-6xl mx-auto p-4 md:p-6">
+        
+        <!-- Step 0 -->
+        <div id="step-0" class="step-container flex-col items-center justify-center text-center space-y-6 py-10 md:py-20">
+            <div class="text-6xl text-blue-500 mb-4"><i class="fas fa-house-user"></i></div>
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-800">내가 살고 싶은 집,<br/>직접 설계해보자!</h2>
+            <p class="text-gray-600 max-w-lg mx-auto leading-relaxed">
+                내가 원하는 공간을 선택하고, 집의 크기를 정하고, 방과 가구를 배치해 보세요.<br>
+                마지막에는 내가 설계한 집을 바탕으로 직접 평면도를 그려봅니다.<br>
+                <span class="text-sm text-blue-500 font-bold mt-2 inline-block">* 정답은 없습니다. 나만의 생활 방식을 생각하며 자유롭게 상상해보세요!</span>
+            </p>
+            <div id="load-prompt" class="hidden bg-yellow-50 border border-yellow-200 p-4 rounded-lg mt-4 shadow-sm mx-auto max-w-md">
+                <p class="text-sm text-yellow-700 mb-3 font-bold">이전에 설계하던 내용이 있습니다.</p>
+                <button onclick="loadState()" class="bg-yellow-400 text-yellow-900 px-5 py-2 rounded-full text-sm font-bold hover:bg-yellow-500 transition shadow">이전 설계 불러오기</button>
+                <button onclick="clearState()" class="text-gray-500 text-sm ml-3 underline hover:text-gray-700">새로 시작하기</button>
+            </div>
+            <button onclick="nextStep()" class="mt-8 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-10 rounded-full shadow-lg transform transition hover:scale-105 text-lg">
+                설계 시작하기 <i class="fas fa-arrow-right ml-2"></i>
+            </button>
+        </div>
+
+        <!-- Step 1 -->
+        <div id="step-1" class="step-container hidden bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800">1. 나의 생활 조건 정하기</h2>
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold mb-3 text-gray-700"><i class="fas fa-users text-blue-500 mr-2"></i>함께 사는 사람</h3>
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-3" id="people-options"></div>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold mb-3 text-gray-700"><i class="fas fa-heart text-blue-500 mr-2"></i>나의 생활 방식 (복수 선택 가능)</h3>
+                <p class="text-sm text-gray-500 mb-4">나와 가족이 집에서 주로 무엇을 하며 시간을 보내는지 생각해보세요.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="lifestyle-options"></div>
+            </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div id="step-2" class="step-container hidden bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
+            <h2 class="text-2xl font-bold mb-2 text-gray-800">2. 필요한 공간 선택하기</h2>
+            <div id="lifestyle-hint" class="hidden bg-blue-50 text-blue-700 p-4 rounded-lg text-sm mb-6 flex items-start gap-3 shadow-sm border border-blue-100">
+                <i class="fas fa-lightbulb mt-1 text-lg"></i>
+                <p id="lifestyle-hint-text" class="leading-relaxed"></p>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold mb-3 text-gray-700 border-b pb-2">기본 공간</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="basic-spaces"></div>
+            </div>
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold mb-3 text-gray-700 border-b pb-2">선택 공간</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="optional-spaces"></div>
+            </div>
+            
+            <div class="mb-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                <h3 class="text-sm font-semibold mb-3 text-gray-700"><i class="fas fa-pen text-blue-500 mr-2"></i>원하는 공간 직접 만들기</h3>
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <input type="text" id="custom-space-input" placeholder="예: 홈카페, 헬스장, 음악실 등" class="w-full sm:flex-1 p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-300 outline-none font-medium" onkeypress="if(event.key === 'Enter') addCustomSpace()">
+                    <button onclick="addCustomSpace()" class="w-full sm:w-auto bg-blue-600 text-white px-6 py-3 sm:py-2 rounded-lg text-sm font-bold shadow-sm hover:bg-blue-700 transition whitespace-nowrap">추가</button>
+                </div>
+            </div>
+
+            <div class="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-100">
+                <h4 class="font-bold text-gray-700 mb-3"><i class="fas fa-check text-green-500 mr-1"></i> 추가된 공간 목록 <span class="text-xs font-normal text-blue-600 ml-2">* 여러 개를 중복해서 추가할 수 있습니다.</span></h4>
+                <div id="selected-spaces-list" class="flex flex-wrap gap-2"></div>
+            </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div id="step-3" class="step-container hidden bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800">3. 집의 크기 정하기</h2>
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold mb-3 text-gray-700">전체 크기 (평)</h3>
+                <div class="grid grid-cols-3 md:grid-cols-6 gap-3 mb-2" id="size-options"></div>
+                <p id="size-visualizer" class="text-sm font-bold text-gray-600 bg-gray-100 inline-block px-4 py-2 rounded-full mt-2 shadow-sm border border-gray-200"></p>
+                
+                <div class="bg-blue-50 border border-blue-100 p-4 rounded-lg mt-4 flex items-start gap-3">
+                    <div class="text-blue-500 text-xl"><i class="fas fa-info-circle"></i></div>
+                    <div>
+                        <p class="text-sm font-bold text-blue-800 mb-1">1평은 얼마나 큰가요?</p>
+                        <p class="text-sm text-blue-700">1평은 약 <strong>3.3㎡</strong>입니다. <strong>퀸사이즈 침대 하나가 여유롭게 들어가는 정도의 면적</strong>이라고 생각하면 이해하기 쉬워요!</p>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold mb-3 text-gray-700">공간별 면적 배분 활동</h3>
+                <p class="text-sm text-gray-500 mb-4">권장 평수를 기본으로 제공합니다. 버튼을 눌러 자유롭게 조절해보세요.</p>
+                
+                <div class="flex justify-between items-end mb-4 bg-gray-800 text-white p-4 rounded-lg shadow-inner">
+                    <div>
+                        <span class="text-sm text-gray-300">전체 면적: </span>
+                        <span id="total-area-display" class="font-bold text-2xl text-blue-300">0</span>평
+                    </div>
+                    <div class="text-right">
+                        <span class="text-sm text-gray-300">배분된 면적 합계: </span>
+                        <span id="allocated-area-display" class="font-bold text-2xl">0</span>평
+                    </div>
+                </div>
+
+                <div id="area-warning" class="hidden mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm flex items-center gap-2 font-bold shadow-sm">
+                    <i class="fas fa-exclamation-triangle text-lg"></i>
+                    <span>선택한 공간의 면적 합계가 전체 면적보다 큽니다. 숫자를 줄여주세요.</span>
+                </div>
+                <div id="area-hint" class="hidden mb-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm flex items-center gap-2 font-bold shadow-sm">
+                    <i class="fas fa-lightbulb text-lg text-green-500"></i>
+                    <span id="area-hint-text"></span>
+                </div>
+
+                <div id="area-allocation-inputs" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </div>
+        </div>
+
+        <!-- Step 4 to 7 -->
+        <div id="design-step-container" class="step-container hidden flex-col lg:flex-row gap-4 h-auto lg:h-[800px]">
+            <div class="w-full lg:w-1/4 bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col z-40 h-auto">
+                <h2 id="design-step-title" class="text-xl font-bold mb-2 text-gray-800">4. 공간 배치하기</h2>
+                <p id="design-step-desc" class="text-sm text-gray-600 mb-4 pb-4 border-b border-gray-100">공간을 드래그해서 배치해보세요.</p>
+                
+                <div id="tool-content">
+                    <div id="step-4-tools" class="hidden space-y-3">
+                        <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                            <h3 class="font-bold text-gray-700 mb-2 text-sm"><i class="fas fa-question-circle text-blue-500 mr-1"></i>생각해보기</h3>
+                            <ul class="text-sm space-y-2 text-gray-600">
+                                <li>• 현관에서 거실로 쉽게 이동할 수 있나요?</li>
+                                <li>• 주방과 식사 공간은 가까운가요?</li>
+                                <li>• 화장실을 이용하기 편한가요?</li>
+                            </ul>
+                        </div>
+                        <p class="text-sm text-blue-600 font-bold bg-blue-50 p-3 rounded-lg">* 아래 도면에서 블록을 자유롭게 드래그하세요.</p>
+                    </div>
+
+                    <div id="step-5-tools" class="hidden">
+                        <div class="bg-blue-50 px-4 py-3 rounded-xl mb-4 border border-blue-100">
+                            <p class="text-xs text-blue-800 leading-relaxed font-bold">
+                                <i class="fas fa-search-plus mr-1"></i> 방을 터치하면 도면이 확대됩니다.<br>빈 곳을 누르면 원래 크기로 돌아옵니다.
+                            </p>
+                        </div>
+                        <div class="bg-gray-800 text-white px-4 py-3 rounded-t-xl">
+                            <p class="text-sm font-bold" id="selected-room-name">공간을 선택하세요</p>
+                        </div>
+                        <div class="bg-gray-50 border border-t-0 border-gray-200 rounded-b-xl p-3 min-h-[120px]">
+                            <div id="furniture-list" class="flex flex-wrap gap-2">
+                                <p class="text-xs text-gray-400 mt-2 px-1 font-bold">도면에서 방을 선택하면 가구 목록이 나타납니다.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="step-6-tools" class="hidden">
+                        <p class="text-sm text-gray-600 mb-4 font-bold bg-gray-50 p-3 rounded-lg leading-relaxed">
+                            버튼을 눌러 문과 창문을 도면에 추가한 뒤 드래그하세요.<br>(항목 우측 상단의 <span class="text-red-500 font-black">'X'</span>를 누르면 삭제됩니다)
+                        </p>
+                        <div class="space-y-4">
+                            <div class="bg-white border border-gray-200 p-3 rounded-xl">
+                                <h3 class="text-sm font-bold text-gray-700 mb-2">문 추가 🚪</h3>
+                                <div class="flex flex-wrap gap-2">
+                                    <button onclick="addArchItem('door', '여닫이문')" class="px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm font-bold hover:bg-gray-100 shadow-sm transition">여닫이문</button>
+                                    <button onclick="addArchItem('door', '미닫이문')" class="px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm font-bold hover:bg-gray-100 shadow-sm transition">미닫이문</button>
+                                </div>
+                            </div>
+                            <div class="bg-white border border-gray-200 p-3 rounded-xl">
+                                <h3 class="text-sm font-bold text-gray-700 mb-2">창문 추가 🪟</h3>
+                                <div class="flex flex-wrap gap-2">
+                                    <button onclick="addArchItem('window', '일반창')" class="px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm font-bold hover:bg-gray-100 shadow-sm transition">일반창</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="step-7-tools" class="hidden">
+                        <p class="text-sm text-gray-600 mb-3 font-bold">도면의 공간을 순서대로 터치하여 동선을 그려보세요.</p>
+                        <select id="flow-scenario" class="w-full p-3 border border-gray-300 rounded-xl mb-4 text-sm font-bold focus:ring-2 focus:ring-blue-300 bg-gray-50" onchange="resetFlow()">
+                            <option value="morning">아침 등교 준비 (침실 → 욕실 → 현관)</option>
+                            <option value="cooking">요리하기 (다용도실 → 주방 → 식탁)</option>
+                            <option value="guest">손님 맞이 (현관 → 거실)</option>
+                            <option value="custom">직접 자유롭게 지정하기</option>
+                        </select>
+                        <div class="bg-white p-3 rounded-xl mb-4 min-h-[80px] border border-gray-200 shadow-sm">
+                            <p class="text-xs font-bold text-gray-400 mb-2">현재 동선 경로</p>
+                            <div id="current-flow-path" class="text-sm text-blue-600 font-bold leading-relaxed">도면의 공간을 터치하세요.</div>
+                        </div>
+                        <button onclick="resetFlow()" class="w-full py-3 bg-gray-800 text-white hover:bg-gray-900 rounded-xl text-sm transition font-bold shadow-md">동선 초기화</button>
+                        <div id="flow-feedback" class="mt-4 text-sm p-3 rounded-xl hidden font-bold"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Canvas Area -->
+            <div class="w-full lg:w-3/4 flex flex-col relative h-[85vh] lg:h-full bg-gray-200 rounded-2xl shadow-inner border-2 border-gray-300 overflow-hidden" id="canvas-container">
+                <div class="absolute top-4 right-4 w-12 h-12 bg-white/90 backdrop-blur rounded-full shadow-lg border border-gray-200 flex items-center justify-center text-[11px] font-bold text-gray-600 z-50 pointer-events-none">
+                    <div class="absolute top-1">북</div>
+                    <div class="absolute bottom-1">남</div>
+                    <div class="absolute left-1">서</div>
+                    <div class="absolute right-1">동</div>
+                </div>
+                <div id="design-board" onclick="handleBoardClick(event)">
+                    <svg id="flow-svg" class="absolute top-0 left-0 w-full h-full pointer-events-none z-30"></svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 8 -->
+        <div id="step-8" class="step-container hidden bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800">8. 우리 집의 문제점 확인하기</h2>
+            <div class="bg-gray-50 p-6 rounded-xl border border-gray-200 mb-6">
+                <h3 class="text-lg font-semibold mb-4 flex items-center"><i class="fas fa-search text-blue-500 mr-2"></i>설계 점검 결과</h3>
+                <ul id="review-list" class="space-y-3"></ul>
+            </div>
+            <p class="text-sm text-gray-600 text-center font-bold">
+                * 위 사항들은 참고용입니다. 완벽하지 않아도 괜찮으니, 어떤 점을 보완하면 좋을지 스스로 생각해보세요.
+            </p>
+        </div>
+
+        <!-- Step 9 -->
+        <div id="step-9" class="step-container hidden bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800 text-center border-b pb-4">🏠 나의 꿈의 집 설계 결과</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
+                    <h3 class="font-bold text-gray-800 mb-3 text-lg"><i class="fas fa-info-circle text-blue-500 mr-1"></i> 기본 정보</h3>
+                    <table class="w-full text-sm border-collapse">
+                        <tbody>
+                            <tr class="border-b border-gray-200"><td class="py-2.5 text-gray-500 w-1/3">함께 사는 사람</td><td class="py-2.5 font-bold text-gray-800" id="summary-people"></td></tr>
+                            <tr class="border-b border-gray-200"><td class="py-2.5 text-gray-500">집 크기</td><td class="py-2.5 font-bold text-blue-600 text-lg" id="summary-size"></td></tr>
+                            <tr><td class="py-2.5 text-gray-500">생활 방식</td><td class="py-2.5 font-bold text-gray-800" id="summary-lifestyle"></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
+                    <h3 class="font-bold text-gray-800 mb-3 text-lg"><i class="fas fa-th-large text-blue-500 mr-1"></i> 선택한 공간</h3>
+                    <div id="summary-spaces" class="flex flex-wrap gap-2 text-sm"></div>
+                </div>
+            </div>
+            <div class="space-y-5 no-print bg-white border border-gray-200 p-6 rounded-xl shadow-sm">
+                <h3 class="font-bold text-gray-800 text-lg"><i class="fas fa-pen-fancy text-blue-500 mr-1"></i> 나의 설계 특징 (직접 작성해보세요)</h3>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">내가 이 집에서 가장 중요하게 생각한 것은...</label>
+                    <input type="text" id="ref-priority" class="w-full p-3 border rounded-lg border-gray-300 focus:ring-2 focus:ring-blue-300 bg-gray-50 font-medium" placeholder="예: 가족이 모일 수 있는 넓고 따뜻한 거실">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">내 집에서 가장 마음에 드는 공간은...</label>
+                    <input type="text" id="ref-favorite" class="w-full p-3 border rounded-lg border-gray-300 focus:ring-2 focus:ring-blue-300 bg-gray-50 font-medium">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">이렇게 배치한 이유는...</label>
+                    <textarea id="ref-reason" class="w-full p-3 border rounded-lg border-gray-300 focus:ring-2 focus:ring-blue-300 bg-gray-50 font-medium h-24" placeholder="자유롭게 이유를 적어보세요."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 10 -->
+        <div id="step-10" class="step-container hidden bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 text-center">
+            <div class="text-6xl mb-4">✏️</div>
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">이제 진짜 평면도를 그려볼까요?</h2>
+            <p class="text-gray-600 mb-8 max-w-lg mx-auto leading-relaxed">
+                지금까지 생각하고 실험해본 내용을 바탕으로 종이나 도면 양식에 직접 평면도를 그려보세요.<br>아래 버튼을 눌러 지금까지 배치한 결과를 캡쳐해둘 수 있습니다!
+            </p>
+            <div class="bg-blue-50 p-6 rounded-xl text-left max-w-md mx-auto mb-10 border border-blue-100 shadow-sm">
+                <h3 class="font-bold text-blue-800 mb-4 text-center text-lg">✅ 평면도 그리기 전 체크리스트</h3>
+                <ul class="space-y-4 text-sm text-gray-700 font-medium">
+                    <li><label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" class="w-5 h-5 text-blue-600 rounded"> 모든 공간과 크기를 생각했나요?</label></li>
+                    <li><label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" class="w-5 h-5 text-blue-600 rounded"> 문과 창 위치를 정했나요? (채광과 환기 고려)</label></li>
+                    <li><label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" class="w-5 h-5 text-blue-600 rounded"> 가구가 들어갈 공간이 충분히 확보되었나요?</label></li>
+                    <li><label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" class="w-5 h-5 text-blue-600 rounded"> 가족이 움직이는 동선이 꼬이지 않고 편리한가요?</label></li>
+                    <li><label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" class="w-5 h-5 text-blue-600 rounded"> 콘센트나 조명 스위치의 위치를 상상해보았나요?</label></li>
+                    <li><label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" class="w-5 h-5 text-blue-600 rounded"> 각 공간에 필요한 수납공간이 넉넉한가요?</label></li>
+                    <li><label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" class="w-5 h-5 text-blue-600 rounded"> 왜 이렇게 설계했는지 누군가에게 설명할 수 있나요?</label></li>
+                </ul>
+            </div>
+            <div class="flex flex-col sm:flex-row justify-center gap-4 no-print">
+                <button onclick="enterCaptureMode()" class="bg-gray-800 hover:bg-gray-900 text-white font-bold py-4 px-8 rounded-full shadow-lg transform transition hover:scale-105 flex items-center justify-center text-lg">
+                    <i class="fas fa-expand mr-2"></i> 캡쳐용 도면 크게 보기
+                </button>
+                <button onclick="saveState(); showMessage('저장되었습니다. 다음에 다시 불러올 수 있습니다.');" class="bg-white border-2 border-gray-300 hover:bg-gray-50 text-gray-700 font-bold py-4 px-8 rounded-full shadow transition flex items-center justify-center text-lg">
+                    <i class="fas fa-save mr-2"></i> 브라우저에 임시 저장
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Navigation -->
+    <footer id="bottom-nav" class="bg-white border-t border-gray-200 p-3 md:p-4 fixed bottom-0 w-full z-50 hidden">
+        <div class="max-w-6xl mx-auto flex justify-between items-center px-2">
+            <button onclick="prevStep()" id="btn-prev" class="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-full hover:bg-gray-50 transition text-sm font-bold shadow-sm">
+                <i class="fas fa-chevron-left mr-1"></i> 이전
+            </button>
+            <button onclick="nextStep()" id="btn-next" class="px-8 py-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition font-bold shadow-md text-sm">
+                다음 단계 <i class="fas fa-chevron-right ml-1"></i>
+            </button>
+        </div>
+    </footer>
+
+    <!-- 캡쳐 모드 닫기 버튼 (숨김 상태) -->
+    <button id="capture-exit-btn" onclick="exitCaptureMode()" class="fixed top-4 right-4 bg-gray-800 hover:bg-gray-900 text-white px-6 py-3 rounded-full font-bold shadow-xl z-[10000] hidden items-center gap-2">
+        <i class="fas fa-times"></i> 원래 화면으로
+    </button>
+
+    <!-- Custom Alert Box -->
+    <div id="custom-alert" class="fixed inset-0 bg-black bg-opacity-60 z-[300] flex items-center justify-center hidden opacity-0 transition-opacity backdrop-blur-sm">
+        <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-sm w-full mx-4 transform scale-95 transition-transform" id="custom-alert-box">
+            <div class="text-blue-500 text-5xl mb-4 text-center"><i class="fas fa-check-circle"></i></div>
+            <p id="custom-alert-msg" class="text-gray-800 text-center mb-8 font-bold text-lg leading-relaxed"></p>
+            <button onclick="closeAlert()" class="w-full bg-blue-600 text-white rounded-xl py-3.5 font-bold text-lg hover:bg-blue-700 transition shadow-md">확인</button>
+        </div>
+    </div>
+
+    <script>
+        const STEPS = ["시작", "① 생활 조건", "② 공간", "③ 크기", "④ 배치", "⑤ 가구", "⑥ 문·창", "⑦ 동선", "⑧ 점검", "⑨ 설계", "⑩ 도면"];
+
+        const SPACES_DATA = {
+            basic: [
+                { id: 'hallway', name: '현관', desc: '집의 첫 인상', def: 1.5 },
+                { id: 'living', name: '거실', desc: '가족 휴식 공간', def: 7 },
+                { id: 'kitchen', name: '주방', desc: '요리 공간', def: 4.5 },
+                { id: 'dining', name: '식사 공간', desc: '다이닝룸', def: 2.5 },
+                { id: 'bed1', name: '안방', desc: '부부 침실', def: 5 },
+                { id: 'bath1', name: '욕실1', desc: '거실 화장실', def: 1.5 },
+                { id: 'utility', name: '다용도실', desc: '세탁/청소도구', def: 1.5 },
+                { id: 'balcony', name: '발코니', desc: '외부 완충 공간', def: 2 }
+            ],
+            optional: [
+                { id: 'bed2', name: '아이방', desc: '자녀 방', def: 3.5 },
+                { id: 'study', name: '서재', desc: '독서/공부', def: 3 },
+                { id: 'dress', name: '드레스룸', desc: '옷 보관', def: 2 },
+                { id: 'bath2', name: '욕실2', desc: '안방 화장실', def: 1.5 },
+                { id: 'pantry', name: '팬트리', desc: '식료품 수납', def: 1 },
+                { id: 'hobby', name: '취미방', desc: '게임/취미', def: 3 },
+                { id: 'guest', name: '게스트룸', desc: '손님 방', def: 3 },
+                { id: 'pet', name: '반려동물룸', desc: '전용 공간', def: 1.5 }
+            ]
+        };
+
+        const FURNITURE_DATA = {
+            '안방': ['더블침대', '퀸침대', '킹침대', '붙박이장', '화장대', '서랍장'],
+            '아이방': ['싱글침대', '책상', '의자', '옷장', '책장'],
+            '거실': ['3인소파', '4인소파', '테이블', 'TV', 'TV장', '에어컨'],
+            '주방': ['싱크대', '냉장고', '인덕션', '수납장', '식탁'],
+            '식사 공간': ['4인식탁', '6인식탁', '의자', '그릇장'],
+            '욕실1': ['변기', '세면대', '욕조', '샤워부스'],
+            '욕실2': ['변기', '세면대', '샤워부스'],
+            '서재': ['큰 책상', '사무용의자', '책장', '소파'],
+            '드레스룸': ['시스템장', '전신거울', '서랍장'],
+            '현관': ['신발장', '벤치', '거울'],
+            '다용도실': ['세탁기', '건조기', '분리수거함'],
+            '기타': ['수납장', '식물', '휴지통']
+        };
+
+        let appState = {
+            step: 0, people: '4인', lifestyles: [], selectedSpaces: [], 
+            totalPyeong: 30, spaceAreas: {}, layout: [], furniture: [], archItems: [], flowPath: [], 
+            reflections: { priority: '', favorite: '', reason: '' }
+        };
+
+        let activeDragElement = null;
+        let selectedSpaceId = null;
+        let currentZoom = 1;
+
+        function init() {
+            renderProgress(); renderStep1(); renderStep2(); renderStep3Options();
+            if (localStorage.getItem('dreamHomeState')) {
+                document.getElementById('load-prompt').classList.remove('hidden');
+            }
+        }
+
+        function showMessage(msg) {
+            const box = document.getElementById('custom-alert');
+            const content = document.getElementById('custom-alert-box');
+            document.getElementById('custom-alert-msg').innerText = msg;
+            box.classList.remove('hidden');
+            setTimeout(() => { box.classList.remove('opacity-0'); content.classList.remove('scale-95'); }, 10);
+        }
+
+        function closeAlert() {
+            const box = document.getElementById('custom-alert');
+            const content = document.getElementById('custom-alert-box');
+            box.classList.add('opacity-0'); content.classList.add('scale-95');
+            setTimeout(() => box.classList.add('hidden'), 300);
+        }
+
+        function renderProgress() {
+            const container = document.getElementById('progress-text');
+            container.innerHTML = STEPS.map((s, i) => {
+                if(i === 0) return '';
+                let classes = i === appState.step ? "text-blue-600 font-bold" : (i < appState.step ? "text-blue-400" : "text-gray-300");
+                return `<span class="${classes} mx-1">${s}</span> ${i < STEPS.length-1 ? '<i class="fas fa-angle-right text-gray-200 text-[10px] mx-1"></i>' : ''}`;
+            }).join('');
+        }
+
+        function updateStepVisibility() {
+            resetZoom();
+            document.querySelectorAll('.step-container').forEach(el => {
+                el.classList.add('hidden'); el.classList.remove('step-animate');
+                el.style.display = '';
+                if(el.id === 'design-step-container') el.classList.remove('flex', 'lg:flex-row', 'flex-col');
+            });
+            
+            let activeContainer = null;
+            
+            if (appState.step >= 4 && appState.step <= 7) {
+                activeContainer = document.getElementById('design-step-container');
+                activeContainer.classList.add('flex', 'flex-col', 'lg:flex-row');
+                
+                document.getElementById('step-4-tools').classList.toggle('hidden', appState.step !== 4);
+                document.getElementById('step-5-tools').classList.toggle('hidden', appState.step !== 5);
+                document.getElementById('step-6-tools').classList.toggle('hidden', appState.step !== 6);
+                document.getElementById('step-7-tools').classList.toggle('hidden', appState.step !== 7);
+
+                if (appState.step === 4) initStep4();
+                if (appState.step >= 4 && appState.step <= 7) {
+                    renderDesignBoard();
+                    if(appState.step === 7 && appState.flowPath.length === 0) resetFlow();
+                    else if (appState.step !== 7) clearFlowLines();
+                }
+            } else {
+                activeContainer = document.getElementById(`step-${appState.step}`);
+                if(appState.step === 0) activeContainer.style.display = 'flex';
+            }
+
+            if (activeContainer) {
+                activeContainer.classList.remove('hidden');
+                void activeContainer.offsetWidth; 
+                activeContainer.classList.add('step-animate');
+            }
+
+            const nav = document.getElementById('bottom-nav');
+            nav.classList.toggle('hidden', appState.step === 0);
+            
+            if(appState.step === 2) updateLifestyleHint();
+            if(appState.step === 3) renderStep3Inputs();
+            if(appState.step === 8) runReview();
+            if(appState.step === 9) renderFinalSummary();
+
+            renderProgress();
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        function nextStep() {
+            if (appState.step === 2 && appState.selectedSpaces.length === 0) { showMessage("최소 하나 이상의 공간을 선택해주세요."); return; }
+            if (appState.step === 3) {
+                let sum = Object.values(appState.spaceAreas).reduce((a, b) => a + b, 0);
+                if (sum > appState.totalPyeong) { showMessage("배분된 면적이 전체 면적을 초과했습니다. 숫자를 줄여주세요."); return; }
+            }
+            if (appState.step === 9) {
+                appState.reflections.priority = document.getElementById('ref-priority').value;
+                appState.reflections.favorite = document.getElementById('ref-favorite').value;
+                appState.reflections.reason = document.getElementById('ref-reason').value;
+            }
+            appState.step = appState.step < 10 ? appState.step + 1 : 0;
+            updateStepVisibility();
+        }
+        function prevStep() { if (appState.step > 1) { appState.step--; updateStepVisibility(); } }
+
+        function renderStep1() {
+            const people = ['나 혼자', '2인', '3인', '4인', '5인 이상'];
+            document.getElementById('people-options').innerHTML = people.map(p => `
+                <button onclick="setPeople('${p}')" class="py-3 border rounded-xl text-sm transition font-bold ${appState.people === p ? 'bg-blue-600 text-white border-blue-600 shadow-md' : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-300'}">${p}</button>
+            `).join('');
+            const lifestyles = [
+                '요리를 자주 한다', '집에서 공부를 많이 한다', '집에서 일을 한다', '게임이나 영화를 즐긴다', 
+                '친구를 자주 초대한다', '운동을 좋아한다', '옷이나 물건이 많다', '반려동물과 함께 산다', '식물을 키운다', '조용한 공간이 필요하다'
+            ];
+            document.getElementById('lifestyle-options').innerHTML = lifestyles.map(l => `
+                <label class="flex items-center p-4 border rounded-xl cursor-pointer hover:bg-gray-50 transition ${appState.lifestyles.includes(l) ? 'bg-blue-50 border-blue-300 ring-2 ring-blue-200' : 'bg-white border-gray-200'}">
+                    <input type="checkbox" class="w-5 h-5 text-blue-600 rounded mr-3" ${appState.lifestyles.includes(l) ? 'checked' : ''} onchange="toggleLifestyle('${l}')">
+                    <span class="text-sm font-bold text-gray-700">${l}</span>
+                </label>
+            `).join('');
+        }
+        function setPeople(val) { appState.people = val; renderStep1(); }
+        function toggleLifestyle(val) {
+            if (appState.lifestyles.includes(val)) appState.lifestyles = appState.lifestyles.filter(v => v !== val);
+            else appState.lifestyles.push(val);
+            renderStep1();
+        }
+
+        function renderStep2() {
+            const createCard = (space) => {
+                const isSelected = appState.selectedSpaces.some(s => s.baseId === space.id);
+                const bgClass = isSelected ? 'bg-blue-100 border-blue-500 ring-2 ring-blue-400' : 'bg-white border-gray-200 hover:border-blue-400 hover:bg-blue-50';
+                const iconClass = isSelected ? 'fas fa-check-circle text-blue-600' : 'fas fa-plus-circle text-gray-300 group-hover:text-blue-500';
+                const textClass = isSelected ? 'text-blue-900' : 'text-gray-800';
+
+                return `
+                <div onclick="addSpace('${space.id}')" class="border rounded-xl p-4 cursor-pointer transition group ${bgClass}">
+                    <div class="font-bold ${textClass} mb-2 flex justify-between items-center text-sm">
+                        ${space.name}
+                        <i class="${iconClass} text-xl transition"></i>
+                    </div>
+                    <div class="text-xs text-gray-500 leading-tight">${space.desc}</div>
+                </div>`;
+            };
+            document.getElementById('basic-spaces').innerHTML = SPACES_DATA.basic.map(createCard).join('');
+            document.getElementById('optional-spaces').innerHTML = SPACES_DATA.optional.map(createCard).join('');
+            
+            updateSelectedSpacesList();
+        }
+
+        function addSpace(baseId) {
+            const existing = appState.selectedSpaces.find(s => s.baseId === baseId);
+            if (existing) {
+                removeSpace(existing.uid);
+                return;
+            }
+            const allSpaces = [...SPACES_DATA.basic, ...SPACES_DATA.optional];
+            const spaceInfo = allSpaces.find(s => s.id === baseId);
+            const uid = baseId + '_' + Date.now() + Math.floor(Math.random()*1000);
+            appState.selectedSpaces.push({
+                uid: uid, baseId: baseId, name: spaceInfo.name, def: spaceInfo.def || 2
+            });
+            appState.spaceAreas[uid] = spaceInfo.def || 2;
+            renderStep2();
+        }
+
+        function addCustomSpace() {
+            const inputEl = document.getElementById('custom-space-input');
+            const val = inputEl.value.trim();
+            if(!val) { showMessage("추가할 공간의 이름을 입력해주세요."); return; }
+            const uid = 'custom_' + Date.now() + Math.floor(Math.random()*1000);
+            appState.selectedSpaces.push({
+                uid: uid, baseId: 'custom', name: val, def: 2
+            });
+            appState.spaceAreas[uid] = 2;
+            inputEl.value = '';
+            updateSelectedSpacesList();
+        }
+
+        function removeSpace(uid) {
+            appState.selectedSpaces = appState.selectedSpaces.filter(s => s.uid !== uid);
+            delete appState.spaceAreas[uid];
+            appState.layout = appState.layout.filter(l => l.id !== uid);
+            appState.furniture = appState.furniture.filter(f => f.spaceId !== uid);
+            appState.flowPath = appState.flowPath.filter(id => id !== uid);
+            
+            if (appState.step === 2) {
+                renderStep2();
+            } else {
+                updateSelectedSpacesList();
+            }
+        }
+        
+        function updateSelectedSpacesList() {
+            const list = document.getElementById('selected-spaces-list');
+            if(appState.selectedSpaces.length === 0) { 
+                list.innerHTML = '<span class="text-sm text-gray-400 font-bold">아직 선택한 공간이 없습니다.</span>'; 
+            } else {
+                list.innerHTML = appState.selectedSpaces.map(space => `
+                    <span class="px-3 py-1.5 bg-white border border-blue-300 text-blue-800 rounded-lg text-sm font-bold shadow-sm flex items-center gap-2">
+                        ${space.name}
+                        <button onclick="removeSpace('${space.uid}')" class="text-blue-400 hover:text-red-500 ml-1 transition" title="삭제"><i class="fas fa-times-circle"></i></button>
+                    </span>`).join('');
+            }
+        }
+        
+        function updateLifestyleHint() {
+            const hint = document.getElementById('lifestyle-hint');
+            if(appState.lifestyles.length === 0) { hint.classList.add('hidden'); return; }
+            hint.classList.remove('hidden');
+            let msgs = [];
+            if(appState.lifestyles.includes('집에서 공부를 많이 한다') || appState.lifestyles.includes('집에서 일을 한다')) msgs.push("서재/작업실");
+            if(appState.lifestyles.includes('옷이나 물건이 많다')) msgs.push("드레스룸/팬트리");
+            if(appState.lifestyles.includes('반려동물과 함께 산다')) msgs.push("반려동물룸");
+            if(appState.lifestyles.includes('친구를 자주 초대한다')) msgs.push("게스트룸");
+            
+            document.getElementById('lifestyle-hint-text').innerHTML = msgs.length > 0 ? 
+                `선택한 생활 방식을 고려해 <strong>${msgs.join(', ')}</strong>을(를) 추가해보면 어떨까요?` : "나만의 생활 방식에 맞는 공간들을 선택해보세요.";
+        }
+
+        function renderStep3Options() {
+            const sizes = [20, 25, 30, 35, 40, 50];
+            document.getElementById('size-options').innerHTML = sizes.map(s => `
+                <button onclick="setTotalSize(${s})" class="py-3 border rounded-xl text-sm transition font-bold ${appState.totalPyeong === s ? 'bg-blue-600 text-white border-blue-600 shadow-lg' : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-300'}">${s}평</button>
+            `).join('');
+            document.getElementById('size-visualizer').innerText = `${appState.totalPyeong}평 ≈ 약 ${Math.round(appState.totalPyeong * 3.3057)}㎡`;
+            document.getElementById('total-area-display').innerText = appState.totalPyeong;
+            if(appState.step === 3) checkAreaSum();
+        }
+        function setTotalSize(val) { appState.totalPyeong = val; renderStep3Options(); }
+
+        function renderStep3Inputs() {
+            const container = document.getElementById('area-allocation-inputs');
+            if(appState.selectedSpaces.length === 0) return;
+
+            container.innerHTML = appState.selectedSpaces.map(space => {
+                return `
+                <div class="flex items-center justify-between p-4 border rounded-xl bg-white shadow-sm border-gray-200">
+                    <span class="text-sm font-bold text-gray-800">${space.name}</span>
+                    <div class="flex items-center gap-3">
+                        <button onclick="adjustArea('${space.uid}', -1)" class="w-10 h-10 bg-gray-100 rounded-full hover:bg-gray-200 text-gray-700 font-bold text-xl flex items-center justify-center border border-gray-300 shadow-sm">-</button>
+                        <input type="number" step="0.5" min="0.5" value="${appState.spaceAreas[space.uid] || space.def}" onchange="updateArea('${space.uid}', this.value)" class="w-16 text-center border border-gray-300 rounded-lg p-2 text-base font-bold bg-gray-50">
+                        <span class="text-sm font-bold text-gray-500">평</span>
+                        <button onclick="adjustArea('${space.uid}', 1)" class="w-10 h-10 bg-gray-100 rounded-full hover:bg-gray-200 text-gray-700 font-bold text-xl flex items-center justify-center border border-gray-300 shadow-sm">+</button>
+                    </div>
+                </div>`;
+            }).join('');
+            checkAreaSum();
+        }
+
+        function adjustArea(id, delta) {
+            let current = parseFloat(appState.spaceAreas[id]) || 2;
+            let newVal = Math.max(0.5, current + (delta * 0.5));
+            updateArea(id, newVal);
+            renderStep3Inputs();
+        }
+        function updateArea(id, val) { appState.spaceAreas[id] = parseFloat(val) || 0.5; checkAreaSum(); }
+        
+        function checkAreaSum() {
+            let sum = Object.values(appState.spaceAreas).reduce((a, b) => a + b, 0);
+            document.getElementById('allocated-area-display').innerText = sum;
+            
+            const warning = document.getElementById('area-warning');
+            const hint = document.getElementById('area-hint');
+            
+            if (sum > appState.totalPyeong) {
+                warning.classList.remove('hidden'); hint.classList.add('hidden');
+                document.getElementById('allocated-area-display').classList.replace('text-blue-300', 'text-red-400');
+            } else {
+                warning.classList.add('hidden');
+                document.getElementById('allocated-area-display').classList.replace('text-red-400', 'text-blue-300');
+                let diff = appState.totalPyeong - sum;
+                if (diff > 0) {
+                    hint.classList.remove('hidden');
+                    document.getElementById('area-hint-text').innerText = `💡 아직 ${diff}평을 더 배분할 수 있습니다.`;
+                } else hint.classList.add('hidden');
+            }
+        }
+
+        function initStep4() {
+            const board = document.getElementById('design-board');
+            
+            let bw = board.clientWidth;
+            let bh = board.clientHeight;
+            let cx = bw / 2;
+            let cy = bh / 2;
+            
+            let spaceCount = appState.selectedSpaces.length;
+            let cols = Math.ceil(Math.sqrt(spaceCount));
+            let spacing = bw > 600 ? 120 : (bw / cols);
+            
+            let startX = cx - ((cols - 1) * spacing) / 2;
+            let startY = cy - ((Math.ceil(spaceCount / cols) - 1) * spacing) / 2;
+            let col = 0, row = 0;
+
+            appState.selectedSpaces.forEach(space => {
+                let existing = appState.layout.find(l => l.id === space.uid);
+                if (!existing) {
+                    let pyeong = parseFloat(appState.spaceAreas[space.uid]) || 2;
+                    let sizePx = Math.max(70, Math.sqrt(pyeong) * (bw > 600 ? 45 : 35)); 
+                    
+                    let newX = startX + (col * spacing) - (sizePx/2);
+                    let newY = startY + (row * spacing) - (sizePx/2);
+                    
+                    newX = Math.max(10, Math.min(newX, bw - sizePx - 10));
+                    newY = Math.max(10, Math.min(newY, bh - sizePx - 10));
+                    
+                    appState.layout.push({
+                        id: space.uid, name: space.name,
+                        x: newX, y: newY,
+                        w: sizePx, h: sizePx
+                    });
+                    
+                    col++;
+                    if (col >= cols) { col = 0; row++; }
+                }
+            });
+            appState.layout = appState.layout.filter(l => appState.selectedSpaces.some(s => s.uid === l.id));
+            renderDesignBoard();
+        }
+
+        function handleBoardClick(e) {
+            if (appState.step === 5 && (e.target.id === 'design-board' || e.target.id === 'flow-svg')) {
+                resetZoom();
+                selectedSpaceId = null;
+                renderDesignBoard(); 
+                document.getElementById('selected-room-name').innerText = "공간을 선택하세요";
+                document.getElementById('furniture-list').innerHTML = `<p class="text-xs text-gray-400 mt-2 px-1 font-bold">도면에서 방을 선택하면 가구 목록이 나타납니다.</p>`;
+            }
+        }
+
+        function zoomToSpace(id) {
+            if(appState.step !== 5) return;
+            const board = document.getElementById('design-board');
+            const space = appState.layout.find(l => l.id === id);
+            if(!space) return;
+
+            currentZoom = 1.7; 
+            let sx = space.x + (space.w / 2);
+            let sy = space.y + (space.h / 2);
+            
+            board.style.transformOrigin = `${sx}px ${sy}px`;
+            board.style.transform = `scale(${currentZoom})`;
+        }
+
+        function resetZoom() {
+            currentZoom = 1;
+            const board = document.getElementById('design-board');
+            if(board) board.style.transform = `scale(1)`;
+        }
+
+        function renderDesignBoard() {
+            const board = document.getElementById('design-board');
+            if(!board) return;
+            Array.from(board.children).forEach(child => { if(child.tagName.toLowerCase() !== 'svg') board.removeChild(child); });
+
+            appState.layout.forEach(item => {
+                let el = document.createElement('div');
+                el.className = `space-block ${appState.step === 5 && selectedSpaceId === item.id ? 'selected' : ''}`;
+                el.id = `space-${item.id}`;
+                el.style.width = item.w + 'px'; el.style.height = item.h + 'px';
+                el.style.left = item.x + 'px'; el.style.top = item.y + 'px';
+                
+                let pyeong = appState.spaceAreas[item.id] || 0;
+                el.innerHTML = `<div class="pointer-events-none">${item.name}<br><span class="text-[11px] font-medium text-gray-500">${pyeong}평</span></div>`;
+
+                if (appState.step === 4) {
+                    el.classList.add('draggable'); makeDraggable(el, item, board);
+                } else if (appState.step === 5) {
+                    el.onclick = (e) => { e.stopPropagation(); selectSpaceForFurniture(item.id); };
+                    el.style.cursor = 'pointer';
+                } else if (appState.step === 7) {
+                    el.onclick = (e) => { e.stopPropagation(); addToFlow(item.id); };
+                    el.style.cursor = 'pointer';
+                }
+                board.appendChild(el);
+            });
+
+            appState.furniture.forEach(item => {
+                let el = document.createElement('div');
+                el.className = 'furniture-block'; el.id = `furn-${item.id}`;
+                el.innerHTML = item.type;
+                el.style.left = item.x + 'px'; el.style.top = item.y + 'px';
+                
+                if (appState.step === 5) {
+                    el.classList.add('draggable'); makeDraggable(el, item, board);
+                    el.innerHTML += `<div class="delete-btn" onclick="deleteFurniture('${item.id}'); event.stopPropagation();">×</div>`;
+                } else if (appState.step === 7) { el.style.pointerEvents = 'none'; }
+                board.appendChild(el);
+            });
+
+            appState.archItems.forEach(item => {
+                let el = document.createElement('div');
+                el.className = 'arch-symbol drop-shadow-md'; el.id = `arch-${item.id}`;
+                let emoji = item.type === 'door' ? '🚪' : '🪟';
+                el.innerHTML = `<div class="text-[28px] filter hover:brightness-110 transition pointer-events-none">${emoji}</div>`;
+                el.style.width = '36px'; el.style.height = '36px';
+                el.style.left = item.x + 'px'; el.style.top = item.y + 'px';
+
+                if (appState.step === 6) {
+                    el.classList.add('draggable'); makeDraggable(el, item, board);
+                    el.innerHTML += `<div class="delete-btn" onclick="deleteArchItem('${item.id}'); event.stopPropagation();">×</div>`;
+                } else if (appState.step === 7) { el.style.pointerEvents = 'none'; }
+                board.appendChild(el);
+            });
+            
+            if(appState.step === 7) renderFlowLines();
+        }
+
+        function makeDraggable(el, dataObj, boundaryEl) {
+            let startX, startY, initialX, initialY;
+            el.onpointerdown = function(e) {
+                if(e.target.classList.contains('delete-btn')) return;
+                e.preventDefault(); e.stopPropagation(); 
+                activeDragElement = el;
+                startX = e.clientX; startY = e.clientY;
+                initialX = el.offsetLeft; initialY = el.offsetTop;
+                el.style.zIndex = "100";
+                
+                document.onpointerup = closeDragElement;
+                document.onpointermove = elementDrag;
+                document.addEventListener('touchmove', preventScroll, { passive: false });
+            };
+
+            function preventScroll(e) { e.preventDefault(); }
+
+            function elementDrag(e) {
+                e.preventDefault();
+                let dx = (e.clientX - startX) / currentZoom;
+                let dy = (e.clientY - startY) / currentZoom;
+                
+                let newX = initialX + dx;
+                let newY = initialY + dy;
+                
+                let maxW = boundaryEl.clientWidth - el.offsetWidth;
+                let maxH = boundaryEl.clientHeight - el.offsetHeight;
+                
+                newX = Math.max(0, Math.min(newX, maxW));
+                newY = Math.max(0, Math.min(newY, maxH));
+
+                el.style.left = newX + "px"; el.style.top = newY + "px";
+                dataObj.x = newX; dataObj.y = newY;
+            }
+
+            function closeDragElement() {
+                document.onpointerup = null; document.onpointermove = null;
+                document.removeEventListener('touchmove', preventScroll);
+                if(activeDragElement) {
+                    if(activeDragElement.classList.contains('furniture-block')) activeDragElement.style.zIndex = "20";
+                    else if(activeDragElement.classList.contains('arch-symbol')) activeDragElement.style.zIndex = "30";
+                    else activeDragElement.style.zIndex = "";
+                }
+                activeDragElement = null;
+            }
+        }
+
+        function selectSpaceForFurniture(spaceId) {
+            selectedSpaceId = spaceId;
+            zoomToSpace(spaceId);
+            renderDesignBoard(); 
+            
+            const spaceData = appState.layout.find(l => l.id === spaceId);
+            document.getElementById('selected-room-name').innerText = `[${spaceData.name}] 가구 목록`;
+            const furnList = document.getElementById('furniture-list');
+            
+            let sName = spaceData.name;
+            let availableFurn = FURNITURE_DATA[sName] || FURNITURE_DATA['기타'];
+            
+            furnList.innerHTML = availableFurn.map(f => `
+                <button onclick="addFurniture('${f}')" class="px-3 py-2 bg-yellow-100 hover:bg-yellow-300 border border-yellow-400 rounded-lg text-xs font-bold text-yellow-900 transition shadow-sm">+ ${f}</button>
+            `).join('');
+        }
+
+        function addFurniture(type) {
+            if(!selectedSpaceId) return;
+            const spaceData = appState.layout.find(l => l.id === selectedSpaceId);
+            appState.furniture.push({
+                id: Date.now().toString(), spaceId: selectedSpaceId, type: type,
+                x: spaceData.x + (spaceData.w / 2) - 15, y: spaceData.y + (spaceData.h / 2) - 10
+            });
+            renderDesignBoard();
+        }
+
+        function deleteFurniture(id) { appState.furniture = appState.furniture.filter(f => f.id !== id); renderDesignBoard(); }
+        
+        function addArchItem(type, name) {
+            const board = document.getElementById('design-board');
+            let vx = board.clientWidth / 2 - 18;
+            let vy = board.clientHeight / 2 - 18;
+            
+            appState.archItems.push({
+                id: Date.now().toString(), type: type, name: name,
+                x: vx, y: vy
+            });
+            renderDesignBoard();
+        }
+        function deleteArchItem(id) { appState.archItems = appState.archItems.filter(i => i.id !== id); renderDesignBoard(); }
+
+        function resetFlow() {
+            appState.flowPath = [];
+            document.getElementById('current-flow-path').innerText = '도면의 공간을 순서대로 터치하세요.';
+            document.getElementById('flow-feedback').classList.add('hidden');
+            clearFlowLines();
+        }
+        function addToFlow(spaceId) {
+            appState.flowPath.push(spaceId);
+            const names = appState.flowPath.map(id => {
+                const space = appState.selectedSpaces.find(s => s.uid === id);
+                return space ? space.name : "알 수 없음";
+            });
+            document.getElementById('current-flow-path').innerHTML = names.map(n => `<span class="bg-blue-100 px-3 py-1.5 rounded-lg inline-block m-1 shadow-sm text-blue-900 border border-blue-200">${n}</span>`).join(' <i class="fas fa-arrow-right text-gray-400"></i> ');
+            renderFlowLines(); analyzeFlow();
+        }
+        function clearFlowLines() { const svg = document.getElementById('flow-svg'); if(svg) svg.innerHTML = ''; }
+        function renderFlowLines() {
+            const svg = document.getElementById('flow-svg');
+            svg.innerHTML = '';
+            if(appState.flowPath.length < 2) return;
+            let pathD = "";
+            for(let i=0; i<appState.flowPath.length; i++) {
+                let sId = appState.flowPath[i];
+                let layoutObj = appState.layout.find(l => l.id === sId);
+                if(!layoutObj) continue;
+                let cx = layoutObj.x + (layoutObj.w / 2); let cy = layoutObj.y + (layoutObj.h / 2);
+                if(i===0) pathD += `M ${cx} ${cy} `; else pathD += `L ${cx} ${cy} `;
+                
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', cx); circle.setAttribute('cy', cy);
+                circle.setAttribute('r', '8'); circle.setAttribute('fill', '#2563eb');
+                svg.appendChild(circle);
+            }
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', pathD); path.setAttribute('stroke', '#2563eb'); 
+            path.setAttribute('stroke-width', '6'); path.setAttribute('stroke-dasharray', '12,12'); path.setAttribute('fill', 'none');
+            svg.insertBefore(path, svg.firstChild);
+        }
+
+        function analyzeFlow() {
+            if(appState.flowPath.length < 2) return;
+            const feedback = document.getElementById('flow-feedback');
+            feedback.classList.remove('hidden');
+            let len = appState.flowPath.length;
+            let p1 = appState.layout.find(l => l.id === appState.flowPath[len-2]);
+            let p2 = appState.layout.find(l => l.id === appState.flowPath[len-1]);
+            if(p1 && p2) {
+                let dx = (p1.x + p1.w/2) - (p2.x + p2.w/2); let dy = (p1.y + p1.h/2) - (p2.y + p2.h/2);
+                let dist = Math.sqrt(dx*dx + dy*dy);
+                feedback.className = 'mt-3 text-[12px] p-3 rounded-lg block font-bold';
+                if(dist > 200) {
+                    feedback.classList.add('bg-orange-50', 'text-orange-700', 'border', 'border-orange-200');
+                    feedback.innerHTML = `⚠️ <strong>${p1.name}</strong>와(과) <strong>${p2.name}</strong>의 거리가 멀어 보입니다. 동선이 편안한지 확인해보세요.`;
+                } else {
+                    feedback.classList.add('bg-green-50', 'text-green-700', 'border', 'border-green-200');
+                    feedback.innerHTML = `💡 <strong>${p1.name}</strong>와(과) <strong>${p2.name}</strong>(이)가 가까워 이동하기 편리합니다.`;
+                }
+            }
+        }
+
+        function runReview() {
+            const list = document.getElementById('review-list'); list.innerHTML = '';
+            let issues = 0;
+
+            let sum = Object.values(appState.spaceAreas).reduce((a, b) => a + b, 0);
+            if (sum > appState.totalPyeong) {
+                list.innerHTML += `<li class="p-4 border rounded-xl text-red-700 bg-red-50 border-red-200 text-sm shadow-sm font-bold">⚠️ 면적 합계가 전체 면적을 초과했습니다.</li>`; issues++;
+            }
+            if (!appState.archItems.some(i => i.type === 'window')) {
+                list.innerHTML += `<li class="p-4 border rounded-xl text-orange-700 bg-orange-50 border-orange-200 text-sm shadow-sm font-bold">⚠️ 창문이 하나도 없습니다. 채광과 환기를 생각해보세요.</li>`; issues++;
+            }
+            
+            let outOfBoundsFurn = false;
+            appState.furniture.forEach(f => {
+                let space = appState.layout.find(l => l.id === f.spaceId);
+                if(space) {
+                    let fcx = f.x + 15; let fcy = f.y + 10;
+                    if(fcx < space.x || fcx > space.x + space.w || fcy < space.y || fcy > space.y + space.h) outOfBoundsFurn = true;
+                }
+            });
+            if (outOfBoundsFurn) {
+                list.innerHTML += `<li class="p-4 border rounded-xl text-blue-700 bg-blue-50 border-blue-200 text-sm shadow-sm font-bold">🔎 일부 가구가 방 밖으로 나갔습니다. 공간 크기가 충분한지 확인해보세요.</li>`; issues++;
+            }
+            if(!appState.archItems.some(i => i.type === 'door')) {
+                list.innerHTML += `<li class="p-4 border rounded-xl text-blue-700 bg-blue-50 border-blue-200 text-sm shadow-sm font-bold">💡 방을 연결하는 문이 없습니다.</li>`; issues++;
+            }
+
+            if(issues === 0) list.innerHTML += `<li class="p-4 border rounded-xl text-green-700 bg-green-50 border-green-200 text-sm shadow-sm font-bold">👍 기본적인 배치와 면적 배분이 잘 되었습니다!</li>`;
+            else list.innerHTML += `<li class="p-4 border rounded-xl text-gray-700 bg-gray-50 border-gray-200 text-sm shadow-sm font-bold">🏠 위의 사항들을 참고하여 도면을 그릴 때 보완해보세요.</li>`;
+        }
+
+        function renderFinalSummary() {
+            document.getElementById('summary-people').innerText = appState.people;
+            document.getElementById('summary-size').innerText = appState.totalPyeong + '평';
+            document.getElementById('summary-lifestyle').innerText = appState.lifestyles.join(', ') || '선택안함';
+            
+            document.getElementById('summary-spaces').innerHTML = appState.selectedSpaces.map(space => 
+                `<span class="bg-white border border-gray-300 px-3 py-1.5 rounded-lg text-gray-800 font-bold shadow-sm">${space.name}</span>`
+            ).join('');
+            
+            document.getElementById('ref-priority').value = appState.reflections.priority;
+            document.getElementById('ref-favorite').value = appState.reflections.favorite;
+            document.getElementById('ref-reason').value = appState.reflections.reason;
+        }
+
+        function enterCaptureMode() {
+            resetZoom();
+            document.body.classList.add('capture-mode');
+            const exitBtn = document.getElementById('capture-exit-btn');
+            exitBtn.classList.remove('hidden');
+            exitBtn.classList.add('flex');
+            
+            setTimeout(() => {
+                showMessage("기기의 캡쳐 기능(전원+볼륨 버튼 등)을 사용하여 도면을 저장한 후, 우측 상단의 '원래 화면으로' 버튼을 누르세요.");
+            }, 300);
+        }
+
+        function exitCaptureMode() {
+            document.body.classList.remove('capture-mode');
+            const exitBtn = document.getElementById('capture-exit-btn');
+            exitBtn.classList.add('hidden');
+            exitBtn.classList.remove('flex');
+            updateStepVisibility(); // 원래 스텝 UI로 복구
+        }
+
+        function saveState() {
+            if (appState.step === 9 || appState.step === 10) {
+                appState.reflections.priority = document.getElementById('ref-priority').value;
+                appState.reflections.favorite = document.getElementById('ref-favorite').value;
+                appState.reflections.reason = document.getElementById('ref-reason').value;
+            }
+            localStorage.setItem('dreamHomeState', JSON.stringify(appState));
+        }
+
+        function loadState() {
+            let saved = localStorage.getItem('dreamHomeState');
+            if (saved) {
+                try {
+                    let loaded = JSON.parse(saved);
+                    // Upgrade logic for older versions where selectedSpaces was an array of strings
+                    if (loaded.selectedSpaces && loaded.selectedSpaces.length > 0 && typeof loaded.selectedSpaces[0] === 'string') {
+                        const allSpaces = [...SPACES_DATA.basic, ...SPACES_DATA.optional];
+                        let idMap = {};
+                        loaded.selectedSpaces = loaded.selectedSpaces.map(id => {
+                            let base = allSpaces.find(s => s.id === id) || { name: id, def: 2 };
+                            let uid = id + '_' + Date.now() + Math.floor(Math.random()*1000);
+                            idMap[id] = uid;
+                            return { uid: uid, baseId: id, name: base.name, def: base.def || 2 };
+                        });
+                        
+                        let newSpaceAreas = {};
+                        for(let key in loaded.spaceAreas) {
+                            if(idMap[key]) newSpaceAreas[idMap[key]] = loaded.spaceAreas[key];
+                        }
+                        loaded.spaceAreas = newSpaceAreas;
+                        
+                        loaded.layout.forEach(l => { if(idMap[l.id]) l.id = idMap[l.id]; });
+                        loaded.furniture.forEach(f => { if(idMap[f.spaceId]) f.spaceId = idMap[f.spaceId]; });
+                        loaded.flowPath = loaded.flowPath.map(id => idMap[id] || id);
+                    }
+                    appState = loaded;
+                    document.getElementById('load-prompt').classList.add('hidden');
+                    updateStepVisibility();
+                    showMessage("이전 설계 내용을 불러왔습니다.");
+                } catch(e) { clearState(); }
+            }
+        }
+
+        function clearState() {
+            localStorage.removeItem('dreamHomeState');
+            document.getElementById('load-prompt').classList.add('hidden');
+            appState = {
+                step: 0, people: '4인', lifestyles: [], selectedSpaces: [], 
+                totalPyeong: 30, spaceAreas: {}, layout: [], furniture: [], archItems: [], flowPath: [],
+                reflections: { priority: '', favorite: '', reason: '' }
+            };
+            init();
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
