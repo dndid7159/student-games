@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>나의 자아 지도 탐정 - 고등학교 1학년 자기이해 프로젝트</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gmarket+Sans:wght@500;700&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
+            min-height: 100vh;
+        }
+        .title-font {
+            font-family: 'Gmarket Sans', 'Noto Sans KR', sans-serif;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+        }
+        .badge-chip {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .badge-chip.selected {
+            background-color: #3b82f6;
+            color: #ffffff;
+            border-color: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        .animate-bounce-short {
+            animation: bounceShort 0.6s ease infinite alternate;
+        }
+        @keyframes bounceShort {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-8px); }
+        }
+        .step-transition {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        /* Custom Print Styling */
+        @media print {
+            body {
+                background: white !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-only-card {
+                box-shadow: none !important;
+                border: 2px solid #cbd5e1 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased selection:bg-blue-200">
+
+    <!-- App Container -->
+    <div id="app" class="max-w-4xl mx-auto px-4 py-6 md:py-10">
+
+        <!-- Top Navigation & Progress Bar -->
+        <header class="glass-card rounded-2xl p-4 md:p-6 mb-8 text-center relative overflow-hidden">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center space-x-2">
+                    <span class="bg-blue-600 text-white p-2 rounded-xl text-lg font-bold">
+                        <i class="fa-solid fa-compass"></i>
+                    </span>
+                    <span class="text-xs md:text-sm font-bold tracking-wider text-blue-600 uppercase">Self-Discovery Journey</span>
+                </div>
+                <div id="levelBadge" class="bg-amber-100 text-amber-800 text-xs md:text-sm px-3 py-1 rounded-full font-bold border border-amber-300">
+                    🔍 자아 탐정 LV.1
+                </div>
+            </div>
+
+            <h1 class="title-font text-2xl md:text-3xl font-extrabold text-slate-800 mb-2">
+                나의 자아 지도 탐정 🧭
+            </h1>
+            <p class="text-xs md:text-sm text-slate-600">
+                나는 어떤 사람이며, 어떤 방향으로 가고 싶고, 어떻게 나를 사랑할 것인가?
+            </p>
+
+            <!-- Progress Bar -->
+            <div class="mt-6">
+                <div class="flex justify-between text-xs font-bold text-slate-500 mb-2 px-1">
+                    <span id="stepTab1" class="text-blue-600">STEP 1. 개념 탐정</span>
+                    <span id="stepTab2">STEP 2. 나 탐색</span>
+                    <span id="stepTab3">STEP 3. 미래 탐색</span>
+                    <span id="stepTab4">STEP 4. 나 바라보기</span>
+                    <span id="stepTab5">FINAL. 자아 지도</span>
+                </div>
+                <div class="w-full bg-slate-200 h-3 rounded-full overflow-hidden">
+                    <div id="progressBar" class="bg-gradient-to-r from-blue-500 to-indigo-600 h-full w-1/5 transition-all duration-500"></div>
+                </div>
+            </div>
+        </header>
+
+        <!-- ================= STEP 1: 개념 탐정 (15 Questions) ================= -->
+        <section id="step1Section" class="glass-card rounded-3xl p-6 md:p-8 mb-8">
+            <div class="border-b border-slate-200 pb-4 mb-6 flex items-center justify-between">
+                <div>
+                    <span class="bg-indigo-100 text-indigo-700 font-bold text-xs px-2.5 py-1 rounded-md mb-1 inline-block">STEP 1</span>
+                    <h2 class="title-font text-xl md:text-2xl font-bold text-slate-800">개념 탐정 : 자아 3총사 구분하기</h2>
+                </div>
+                <div class="text-right">
+                    <span id="quizCounter" class="text-lg font-extrabold text-indigo-600">1</span>
+                    <span class="text-slate-400 text-sm font-semibold">/ 15</span>
+                </div>
+            </div>
+
+            <!-- Quiz Core Formula Banner -->
+            <div class="grid grid-cols-3 gap-2 mb-6 text-center text-xs md:text-sm font-medium">
+                <div class="bg-blue-50 p-2.5 rounded-xl border border-blue-200">
+                    <div class="font-bold text-blue-700">🪞 자아개념</div>
+                    <div class="text-slate-600 text-[11px] md:text-xs">나는 어떤 사람인가?</div>
+                </div>
+                <div class="bg-emerald-50 p-2.5 rounded-xl border border-emerald-200">
+                    <div class="font-bold text-emerald-700">🧭 자아정체감</div>
+                    <div class="text-slate-600 text-[11px] md:text-xs">어떤 사람이 되고 싶은가?</div>
+                </div>
+                <div class="bg-rose-50 p-2.5 rounded-xl border border-rose-200">
+                    <div class="font-bold text-rose-700">❤️ 자아존중감</div>
+                    <div class="text-slate-600 text-[11px] md:text-xs">나를 어떻게 바라보는가?</div>
+                </div>
+            </div>
+
+            <!-- Question Card -->
+            <div id="quizBox" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm mb-6">
+                <div class="text-xs font-bold text-indigo-500 mb-2">SITUATION QUIZ</div>
+                <p id="quizQuestion" class="text-base md:text-lg font-bold text-slate-800 mb-6 leading-relaxed">
+                    "문제를 불러오는 중입니다..."
+                </p>
+
+                <!-- Options -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <button onclick="checkAnswer('CONCEPT')" class="quiz-btn bg-slate-50 hover:bg-blue-50 border-2 border-slate-200 hover:border-blue-400 p-4 rounded-xl text-left font-bold transition flex items-center justify-between group">
+                        <span>🪞 자아개념</span>
+                        <i class="fa-solid fa-chevron-right text-slate-300 group-hover:text-blue-500"></i>
+                    </button>
+                    <button onclick="checkAnswer('IDENTITY')" class="quiz-btn bg-slate-50 hover:bg-emerald-50 border-2 border-slate-200 hover:border-emerald-400 p-4 rounded-xl text-left font-bold transition flex items-center justify-between group">
+                        <span>🧭 자아정체감</span>
+                        <i class="fa-solid fa-chevron-right text-slate-300 group-hover:text-emerald-500"></i>
+                    </button>
+                    <button onclick="checkAnswer('ESTEEM')" class="quiz-btn bg-slate-50 hover:bg-rose-50 border-2 border-slate-200 hover:border-rose-400 p-4 rounded-xl text-left font-bold transition flex items-center justify-between group">
+                        <span>❤️ 자아존중감</span>
+                        <i class="fa-solid fa-chevron-right text-slate-300 group-hover:text-rose-500"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quiz Explanation Box (Hidden initially) -->
+            <div id="explanationBox" class="hidden bg-slate-800 text-white p-6 rounded-2xl shadow-lg mb-6">
+                <div class="flex items-center space-x-2 mb-2">
+                    <span id="answerStatusIcon" class="text-xl"></span>
+                    <span id="answerStatusText" class="font-bold text-lg"></span>
+                </div>
+                <p id="explanationContent" class="text-sm md:text-base text-slate-200 leading-relaxed mb-4"></p>
+                <div class="bg-slate-700/60 p-3 rounded-xl border border-slate-600 text-xs md:text-sm text-indigo-300 font-medium mb-4">
+                    💡 <span id="formulaRepeat"></span>
+                </div>
+                <button onclick="nextQuestion()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition shadow-md flex items-center justify-center space-x-2">
+                    <span>다음 문제로 이동</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- ================= STEP 2: 나를 탐색하기 (자아개념) ================= -->
+        <section id="step2Section" class="hidden glass-card rounded-3xl p-6 md:p-8 mb-8">
+            <div class="border-b border-slate-200 pb-4 mb-6">
+                <span class="bg-blue-100 text-blue-700 font-bold text-xs px-2.5 py-1 rounded-md mb-1 inline-block">STEP 2</span>
+                <h2 class="title-font text-xl md:text-2xl font-bold text-slate-800">🪞 나를 탐색하기 : 자아개념 정립</h2>
+                <p class="text-xs md:text-sm text-slate-500 mt-1">정답은 없습니다. 현재의 나를 솔직하게 들여다보고 선택해보세요.</p>
+            </div>
+
+            <!-- Question 1: Expression Words -->
+            <div class="mb-8 bg-white p-6 rounded-2xl border border-slate-200">
+                <h3 class="font-bold text-slate-800 text-base md:text-lg mb-2">
+                    Q1. 나를 표현하는 단어 (3개~5개 선택)
+                </h3>
+                <p class="text-xs text-slate-500 mb-4">자신에게 가장 가깝다고 느껴지는 단어들을 골라주세요.</p>
+                
+                <div id="wordTagContainer" class="flex flex-wrap gap-2 mb-4">
+                    <!-- Populated dynamically by JS -->
+                </div>
+
+                <!-- Custom Word Input -->
+                <div class="flex gap-2">
+                    <input type="text" id="customWordInput" placeholder="목록에 없는 나의 특성을 직접 입력해보세요 (예: 엉뚱한)" 
+                        class="flex-1 px-4 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button onclick="addCustomWord()" class="bg-blue-600 text-white text-sm font-bold px-4 py-2 rounded-xl hover:bg-blue-700 transition">
+                        추가
+                    </button>
+                </div>
+            </div>
+
+            <!-- Question 2: Things I Like -->
+            <div class="mb-8 bg-white p-6 rounded-2xl border border-slate-200">
+                <h3 class="font-bold text-slate-800 text-base md:text-lg mb-2">
+                    Q2. 내가 좋아하는 것 (복수 선택 가능)
+                </h3>
+                <p class="text-xs text-slate-500 mb-4">관심사나 흥미가 가는 활동들을 모두 선택해 보세요.</p>
+                
+                <div id="likeTagContainer" class="flex flex-wrap gap-2 mb-4">
+                    <!-- Populated dynamically by JS -->
+                </div>
+
+                <!-- Custom Like Input -->
+                <div class="flex gap-2 mb-4">
+                    <input type="text" id="customLikeInput" placeholder="목록에 없는 좋아하는 것을 직접 입력해보세요 (예: 보드게임하기)" 
+                        class="flex-1 px-4 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button onclick="addCustomLike()" class="bg-blue-600 text-white text-sm font-bold px-4 py-2 rounded-xl hover:bg-blue-700 transition">
+                        추가
+                    </button>
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-xl text-sm font-medium text-slate-700 border border-slate-200">
+                    ✨ 자동 완성 문장: <br>
+                    <span class="text-blue-600 font-bold" id="likeSentencePreview">"내가 좋아하는 것은 아직 선택 중입니다."</span>
+                </div>
+            </div>
+
+            <!-- Question 3: Things I Am Good At -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200">
+                <h3 class="font-bold text-slate-800 text-base md:text-lg mb-2">
+                    Q3. 내가 잘하는 것 (복수 선택 가능)
+                </h3>
+                <p class="text-xs text-slate-500 mb-4">작은 특기나 강점이라도 괜찮아요. 자신이 해당되는 항목을 고르거나 직접 적어주세요.</p>
+                
+                <div id="skillTagContainer" class="flex flex-wrap gap-2 mb-4">
+                    <!-- Populated dynamically by JS -->
+                </div>
+
+                <!-- Custom Skill Input -->
+                <div class="flex gap-2">
+                    <input type="text" id="customSkillInput" placeholder="직접 내가 잘하는 것을 입력해보세요 (예: 친구들 고민 잘 들어주기)" 
+                        class="flex-1 px-4 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button onclick="addCustomSkill()" class="bg-blue-600 text-white text-sm font-bold px-4 py-2 rounded-xl hover:bg-blue-700 transition">
+                        추가
+                    </button>
+                </div>
+            </div>
+
+            <button onclick="finishStep2()" class="mt-8 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl transition shadow-lg flex items-center justify-center space-x-2 text-base">
+                <span>STEP 2 완료 & 다음 단계로</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </section>
+
+        <!-- ================= STEP 3: 미래 탐색 (자아정체감) ================= -->
+        <section id="step3Section" class="hidden glass-card rounded-3xl p-6 md:p-8 mb-8">
+            <div class="border-b border-slate-200 pb-4 mb-6">
+                <span class="bg-emerald-100 text-emerald-700 font-bold text-xs px-2.5 py-1 rounded-md mb-1 inline-block">STEP 3</span>
+                <h2 class="title-font text-xl md:text-2xl font-bold text-slate-800">🧭 미래의 나를 찾아보자 : 자아정체감</h2>
+                <p class="text-xs md:text-sm text-slate-500 mt-1">특정 직업명이 아니어도 좋습니다. 삶의 방향과 소중히 여기는 가치를 골라보세요.</p>
+            </div>
+
+            <!-- Value Selection (Top 3) -->
+            <div class="mb-8 bg-white p-6 rounded-2xl border border-slate-200">
+                <h3 class="font-bold text-slate-800 text-base md:text-lg mb-2">
+                    Q1. 삶에서 내가 가장 중요하게 생각하는 가치 (3개 선택)
+                </h3>
+                <p class="text-xs text-slate-500 mb-4">내가 삶을 살아갈 때 든든한 나침반이 되어줄 가치 3가지를 선택해보세요.</p>
+
+                <div id="valueTagContainer" class="flex flex-wrap gap-2">
+                    <!-- Populated dynamically by JS -->
+                </div>
+            </div>
+
+            <!-- 10 Years Later Vision -->
+            <div class="mb-8 bg-white p-6 rounded-2xl border border-slate-200">
+                <h3 class="font-bold text-slate-800 text-base md:text-lg mb-2">
+                    Q2. 10년 뒤의 내가 지금보다 조금 더 행복하다면, 어떤 모습일까? (복수 선택 가능)
+                </h3>
+                
+                <div id="visionTagContainer" class="space-y-2 mt-4">
+                    <!-- Populated dynamically by JS -->
+                </div>
+            </div>
+
+            <!-- Future One Sentence -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200">
+                <h3 class="font-bold text-slate-800 text-base md:text-lg mb-2">
+                    Q3. 미래의 나에게 보내는 한 문장
+                </h3>
+                <p class="text-xs text-slate-500 mb-3">자신만의 미래 다짐이나 지향하는 삶의 모습을 작성해주세요.</p>
+
+                <div class="bg-emerald-50/70 p-3 rounded-xl border border-emerald-200 text-xs text-emerald-800 mb-3 leading-relaxed">
+                    💡 <strong>예시:</strong><br>
+                    • "나는 다른 사람의 이야기를 잘 들어주는 따뜻한 사람이 되고 싶다."<br>
+                    • "나는 내가 좋아하는 일을 하면서도 경제적으로 독립하고 싶다."<br>
+                    • "나는 실패하더라도 다시 훌절 털고 도전할 수 있는 용기 있는 사람이 되고 싶다."
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <span class="font-bold text-sm text-slate-700 whitespace-nowrap">"나는 앞으로</span>
+                    <input type="text" id="futureSentenceInput" placeholder="어떤 일이나 가치를 실천하는" 
+                        class="flex-1 px-4 py-2.5 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium">
+                    <span class="font-bold text-sm text-slate-700 whitespace-nowrap">사람이 되고 싶다."</span>
+                </div>
+            </div>
+
+            <button onclick="finishStep3()" class="mt-8 w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-2xl transition shadow-lg flex items-center justify-center space-x-2 text-base">
+                <span>STEP 3 완료 & 다음 단계로</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </section>
+
+        <!-- ================= STEP 4: 나를 바라보기 (자아존중감) ================= -->
+        <section id="step4Section" class="hidden glass-card rounded-3xl p-6 md:p-8 mb-8">
+            <div class="border-b border-slate-200 pb-4 mb-6">
+                <span class="bg-rose-100 text-rose-700 font-bold text-xs px-2.5 py-1 rounded-md mb-1 inline-block">STEP 4</span>
+                <h2 class="title-font text-xl md:text-2xl font-bold text-slate-800">❤️ 나는 나를 어떻게 바라보고 있을까? : 자아존중감</h2>
+                <p class="text-xs md:text-sm text-slate-500 mt-1">자아존중감은 완벽한 사람만 갖는 것이 아닙니다. 있는 그대로의 나를 포용하는 태도입니다.</p>
+            </div>
+
+            <!-- Situation Scenario 1: Dealing with Failure -->
+            <div class="mb-8 bg-white p-6 rounded-2xl border border-slate-200">
+                <h3 class="font-bold text-slate-800 text-base md:text-lg mb-2">
+                    질문 1. 열심히 준비한 시험이나 활동에서 아쉬운 결과를 받았다면?
+                </h3>
+                <div class="space-y-2 mt-4">
+                    <label class="flex items-start p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-rose-50/50 border border-slate-200 transition">
+                        <input type="radio" name="esteemScenario" value="A" class="mt-1 text-rose-600 focus:ring-rose-500">
+                        <span class="ml-3 text-sm text-slate-700">A. "나는 역시 이것밖에 안 되는 사람인가 봐..." 하고 좌절한다.</span>
+                    </label>
+                    <label class="flex items-start p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-rose-50/50 border border-slate-200 transition">
+                        <input type="radio" name="esteemScenario" value="B" class="mt-1 text-rose-600 focus:ring-rose-500" checked>
+                        <span class="ml-3 text-sm text-slate-700 font-medium">B. "결과는 아쉽지만 최선을 다한 노력은 가치 있었고, 그렇다고 내 존재 가치가 떨어지는 건 아니야."</span>
+                    </label>
+                    <label class="flex items-start p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-rose-50/50 border border-slate-200 transition">
+                        <input type="radio" name="esteemScenario" value="C" class="mt-1 text-rose-600 focus:ring-rose-500">
+                        <span class="ml-3 text-sm text-slate-700">C. "시험 따위 신경 안 써." 하며 그냥 현실을 무시해버린다.</span>
+                    </label>
+                </div>
+                <div class="mt-3 p-3 bg-rose-50 rounded-xl border border-rose-200 text-xs text-rose-800">
+                    💡 <strong>자아존중감의 진정한 의미:</strong> 자아존중감은 항상 내가 최고라고 자만하는 것이 아니라, 결과가 아쉽거나 부족함이 드러나도 '나라는 존재 자체'를 인정하고 귀하게 여기는 마음입니다.
+                </div>
+            </div>
+
+            <!-- Strengths Discovery (From others' perspective) -->
+            <div class="mb-8 bg-white p-6 rounded-2xl border border-slate-200">
+                <h3 class="font-bold text-slate-800 text-base md:text-lg mb-2">
+                    질문 2. 친구나 주변 사람들이 나에게 "너는 이런 점이 참 좋아!"라고 말해준다면 어떤 말을 들을 것 같나요?
+                </h3>
+                <p class="text-xs text-slate-500 mb-3">내가 가진 소중한 장점을 선택하거나 직접 입력해주세요.</p>
+
+                <div id="strengthTagContainer" class="flex flex-wrap gap-2 mb-4">
+                    <!-- Populated dynamically by JS -->
+                </div>
+
+                <!-- Custom Strength Input -->
+                <div class="flex gap-2">
+                    <input type="text" id="customStrengthInput" placeholder="직접 나의 장점을 입력해보세요 (예: 함께 있으면 마음이 따뜻해지는 점)" 
+                        class="flex-1 px-4 py-2.5 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500">
+                    <button onclick="addCustomStrength()" class="bg-rose-600 text-white text-sm font-bold px-4 py-2.5 rounded-xl hover:bg-rose-700 transition">
+                        추가
+                    </button>
+                </div>
+            </div>
+
+            <!-- Perspective on Weakness -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200">
+                <h3 class="font-bold text-slate-800 text-base md:text-lg mb-2">
+                    질문 3. 나에게 부족하거나 잘하지 못하는 부분이 있을 때, 나는 어떻게 바라보는 편인가요?
+                </h3>
+
+                <div class="space-y-2 mt-4">
+                    <label class="flex items-start p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-rose-50/50 border border-slate-200 transition">
+                        <input type="radio" name="weaknessView" value="A" class="mt-1 text-rose-600 focus:ring-rose-500">
+                        <span class="ml-3 text-sm text-slate-700">"나는 이것도 못하니까 별로인 사람이야."</span>
+                    </label>
+                    <label class="flex items-start p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-rose-50/50 border border-slate-200 transition">
+                        <input type="radio" name="weaknessView" value="B" class="mt-1 text-rose-600 focus:ring-rose-500" checked>
+                        <span class="ml-3 text-sm text-slate-700 font-medium">"누구나 부족한 부분은 있어. 잘 못해도 조금씩 배고 나아가면 돼."</span>
+                    </label>
+                    <label class="flex items-start p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-rose-50/50 border border-slate-200 transition">
+                        <input type="radio" name="weaknessView" value="C" class="mt-1 text-rose-600 focus:ring-rose-500">
+                        <span class="ml-3 text-sm text-slate-700">"단점 따위는 신경 쓰지 않고 무조건 잘한다고만 생각할래."</span>
+                    </label>
+                </div>
+                <div class="mt-3 p-3 bg-slate-100 rounded-xl text-xs text-slate-600">
+                    🌿 자아존중감이 높은 사람은 자신의 장점뿐만 아니라, **부족한 부분까지도 나 자신의 일부로 인정하며 함께 자라나는 사람**입니다.
+                </div>
+            </div>
+
+            <button onclick="finishStep4()" class="mt-8 w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-4 rounded-2xl transition shadow-lg flex items-center justify-center space-x-2 text-base">
+                <span>나의 자아 지도 완성하기 ✨</span>
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </button>
+        </section>
+
+        <!-- ================= FINAL: 나의 자아 지도 ================= -->
+        <section id="stepFinalSection" class="hidden space-y-8">
+            
+            <!-- Result Badge & Level -->
+            <div class="text-center py-4 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white rounded-3xl shadow-xl">
+                <div class="inline-block bg-white/20 px-4 py-1 rounded-full text-xs font-bold tracking-widest uppercase mb-2">
+                    Mission Accomplished
+                </div>
+                <h2 class="title-font text-2xl md:text-3xl font-extrabold mb-1">
+                    🎉 자아 탐정 레벨 10 달성!
+                </h2>
+                <p class="text-xs md:text-sm text-amber-100">
+                    탐색을 통해 당신만의 소중한 자아 지도가 완성되었습니다.
+                </p>
+            </div>
+
+            <!-- Map Summary Card (Printable Target) -->
+            <div id="selfMapCard" class="glass-card print-only-card rounded-3xl p-6 md:p-10 border-2 border-indigo-200 shadow-2xl relative overflow-hidden bg-white">
+                
+                <!-- Background decorative elements -->
+                <div class="absolute -top-12 -right-12 w-40 h-40 bg-blue-100 rounded-full blur-2xl opacity-60 pointer-events-none"></div>
+                <div class="absolute -bottom-12 -left-12 w-40 h-40 bg-rose-100 rounded-full blur-2xl opacity-60 pointer-events-none"></div>
+
+                <!-- Card Header -->
+                <div class="text-center border-b-2 border-slate-100 pb-6 mb-8">
+                    <div class="text-xs font-bold text-indigo-600 tracking-wider uppercase mb-1">MY SELF EXPLORATION MAP</div>
+                    <h2 class="title-font text-2xl md:text-3xl font-extrabold text-slate-800">
+                        🌟 나의 자아 지도 (Self Map)
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-1">※ 본 지도는 본인의 선택과 탐색으로 작성된 소중한 자아 다이어리입니다.</p>
+                </div>
+
+                <!-- Section 1: WHO AM I? (Self-Concept) -->
+                <div class="mb-8 bg-blue-50/60 rounded-2xl p-5 border border-blue-100 relative">
+                    <div class="flex items-center space-x-2 text-blue-700 font-bold text-base md:text-lg mb-3">
+                        <span>🪞 WHO AM I?</span>
+                        <span class="text-xs bg-blue-200 text-blue-800 px-2 py-0.5 rounded-md font-semibold">자아개념</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-3">"나는 현재 어떤 모습의 사람인가?"</p>
+
+                    <div class="space-y-3 text-sm text-slate-800">
+                        <div class="flex flex-wrap items-center gap-1.5">
+                            <span class="font-bold text-slate-600">• 나를 표현하는 키워드:</span>
+                            <div id="summaryWords" class="flex flex-wrap gap-1"></div>
+                        </div>
+                        <div>
+                            <span class="font-bold text-slate-600">• 내가 좋아하는 것:</span>
+                            <span id="summaryLikes" class="font-medium text-blue-900"></span>
+                        </div>
+                        <div>
+                            <span class="font-bold text-slate-600">• 내가 잘하는 것:</span>
+                            <span id="summarySkills" class="font-medium text-blue-900"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: WHO DO I WANT TO BE? (Self-Identity) -->
+                <div class="mb-8 bg-emerald-50/60 rounded-2xl p-5 border border-emerald-100 relative">
+                    <div class="flex items-center space-x-2 text-emerald-700 font-bold text-base md:text-lg mb-3">
+                        <span>🧭 WHO DO I WANT TO BE?</span>
+                        <span class="text-xs bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded-md font-semibold">자아정체감</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-3">"나는 앞으로 어떤 방향으로 살아가고 싶은가?"</p>
+
+                    <div class="space-y-3 text-sm text-slate-800">
+                        <div class="flex flex-wrap items-center gap-1.5">
+                            <span class="font-bold text-slate-600">• 내 삶의 소중한 가치:</span>
+                            <div id="summaryValues" class="flex flex-wrap gap-1"></div>
+                        </div>
+                        <div>
+                            <span class="font-bold text-slate-600">• 10년 뒤 내가 꿈꾸는 모습:</span>
+                            <span id="summaryVision" class="font-medium text-emerald-900"></span>
+                        </div>
+                        <div class="bg-white p-3.5 rounded-xl border border-emerald-200 mt-2">
+                            <span class="block text-xs text-emerald-600 font-bold mb-1">미래의 나에게 건네는 한 문장:</span>
+                            <span id="summaryFutureSentence" class="font-bold text-slate-800 text-sm md:text-base"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: HOW DO I SEE MYSELF? (Self-Esteem) -->
+                <div class="mb-8 bg-rose-50/60 rounded-2xl p-5 border border-rose-100 relative">
+                    <div class="flex items-center space-x-2 text-rose-700 font-bold text-base md:text-lg mb-3">
+                        <span>❤️ HOW DO I SEE MYSELF?</span>
+                        <span class="text-xs bg-rose-200 text-rose-800 px-2 py-0.5 rounded-md font-semibold">자아존중감</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-3">"나는 지금의 나 자신을 어떻게 바라보고 존중하는가?"</p>
+
+                    <div class="space-y-3 text-sm text-slate-800">
+                        <div>
+                            <span class="font-bold text-slate-600">• 나만의 소중한 장점:</span>
+                            <span id="summaryStrength" class="font-bold text-rose-900"></span>
+                        </div>
+                        <div>
+                            <span class="font-bold text-slate-600">• 실패와 부족함을 바라보는 나의 태도:</span>
+                            <span id="summaryAttitude" class="font-medium text-slate-700 block mt-0.5"></span>
+                        </div>
+                    </div>
+
+                    <!-- Personal Encouragement Input/Display -->
+                    <div class="mt-4 pt-4 border-t border-rose-200/60">
+                        <label class="block text-xs font-bold text-rose-700 mb-2">
+                            💌 지금의 나에게 꼭 해주고 싶은 말 한마디:
+                        </label>
+                        <input type="text" id="selfMessageInput" oninput="updateSelfMessage(this.value)" placeholder="예: 조금 느려도 괜찮아, 넌 생각보다 훨씬 더 멋진 아이야." 
+                            class="no-print w-full px-4 py-2.5 text-sm border border-rose-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 bg-white">
+                        <p id="selfMessageDisplay" class="font-bold text-rose-900 text-base md:text-lg italic bg-white p-3 rounded-xl border border-rose-200 mt-2 hidden">
+                            ""
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Integrated Summary 3 Sentences Box -->
+                <div class="bg-gradient-to-br from-slate-800 to-indigo-900 text-white rounded-2xl p-6 shadow-md mb-6">
+                    <h3 class="text-center font-bold text-indigo-200 text-sm md:text-base mb-4 tracking-wide">
+                        ✨ 세 가지로 완성된 나의 자아 고백
+                    </h3>
+
+                    <div class="space-y-3 text-xs md:text-sm leading-relaxed">
+                        <div class="flex items-start space-x-2">
+                            <span class="text-blue-400 font-bold shrink-0">🪞 자아개념:</span>
+                            <span id="finalConceptSentence" class="text-slate-100"></span>
+                        </div>
+                        <div class="flex items-start space-x-2">
+                            <span class="text-emerald-400 font-bold shrink-0">🧭 자아정체감:</span>
+                            <span id="finalIdentitySentence" class="text-slate-100"></span>
+                        </div>
+                        <div class="flex items-start space-x-2">
+                            <span class="text-rose-400 font-bold shrink-0">❤️ 자아존중감:</span>
+                            <span id="finalEsteemSentence" class="text-slate-100"></span>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 pt-4 border-t border-slate-700 text-center text-xs text-indigo-200 font-light">
+                        "나를 알아가는 데 정답은 없습니다. 지금의 나와 미래의 나는 끊임없이 변화합니다.<br>
+                        중요한 것은 타인과 비교하지 않고, 나 자신의 길을 살피며 존중해 나가는 것입니다."
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Teacher Reflection Questions Section -->
+            <div class="glass-card rounded-3xl p-6 md:p-8 bg-white border border-slate-200 no-print">
+                <h3 class="title-font text-lg font-bold text-slate-800 mb-4 flex items-center space-x-2">
+                    <i class="fa-solid fa-chalkboard-user text-indigo-600"></i>
+                    <span>교실 성찰 질문 : 한 걸음 더 깊이 생각해보기</span>
+                </h3>
+
+                <div class="space-y-4">
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                        <label class="block text-sm font-bold text-slate-700 mb-2">
+                            Q1. 이 활동을 하기 전과 지금, 나에 대해 새롭게 알게 된 점이 있다면 무엇인가요?
+                        </label>
+                        <textarea id="reflectionQ1" rows="2" placeholder="솔직한 생각을 한 문장으로 적어보세요." 
+                            class="w-full p-3 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+                    </div>
+
+                    <div class="bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100">
+                        <p class="text-sm font-bold text-indigo-900 mb-1">
+                            Q2. 자아개념, 자아정체감, 자아존중감은 서로 완전히 떨어져 있을까요?
+                        </p>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            💡 내가 어떤 사람인지 아는 것(자아개념)은 내가 어떤 삶을 살고 싶은지(자아정체감) 결정하도록 돕고, 그러한 나를 있는 그대로 수용하는 마음(자아존중감)은 다시 새로운 시작을 가능하게 만듭니다. 이 셋은 나라는 원 안에서 서로 이어져 있습니다.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons (Reset Only) -->
+            <div class="flex justify-center no-print">
+                <button onclick="resetGame()" class="w-full md:w-auto bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-8 py-3.5 rounded-2xl transition flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span>다시 하기</span>
+                </button>
+            </div>
+
+        </section>
+
+    </div>
+
+    <!-- Achievement Modal Popup -->
+    <div id="achievementModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl p-6 md:p-8 max-w-sm w-full text-center shadow-2xl transform transition-all animate-bounce-short">
+            <div id="modalIcon" class="text-5xl mb-4">🪞</div>
+            <h3 id="modalTitle" class="title-font text-xl font-extrabold text-slate-800 mb-2">
+                나를 하나 발견했다!
+            </h3>
+            <p id="modalDesc" class="text-sm text-slate-600 mb-6">
+                현재 나의 특징과 자아개념을 선명하게 정리하였습니다.
+            </p>
+            <button onclick="closeModal()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition shadow-md">
+                다음 탐색 계속하기
+            </button>
+        </div>
+    </div>
+
+    <!-- Alert Modal -->
+    <div id="alertModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full text-center shadow-2xl transform transition-all">
+            <div class="text-4xl mb-3">⚠️</div>
+            <p id="alertMsg" class="text-slate-800 font-bold mb-6 text-sm md:text-base"></p>
+            <button onclick="closeAlertModal()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition">확인</button>
+        </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div id="confirmModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl p-6 md:p-8 max-w-sm w-full text-center shadow-2xl transform transition-all">
+            <div class="text-5xl mb-4">🔄</div>
+            <h3 class="title-font text-xl font-extrabold text-slate-800 mb-2">다시 시작하기</h3>
+            <p class="text-sm text-slate-600 mb-6">모든 입력을 초기화하고 처음부터 다시 탐색하시겠습니까?</p>
+            <div class="flex space-x-3">
+                <button onclick="closeConfirmModal()" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 rounded-xl transition">취소</button>
+                <button onclick="executeReset()" class="flex-1 bg-rose-500 hover:bg-rose-600 text-white font-bold py-3 rounded-xl transition">다시 하기</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Quiz Data array for Step 1 (15 Questions with educational explanations)
+        const quizData = [
+            {
+                q: "1. '나는 키가 175cm이고, 그림 그리는 것을 좋아하지만 수학은 조금 어려워한다.'",
+                a: "CONCEPT",
+                exp: "현재 내가 가진 신체적, 성격적, 학업적 특징과 사실을 있는 그대로 인식하고 있으므로 자아개념에 해당합니다.",
+                formula: "자아개념 = 나는 어떤 사람인가? (현재의 나의 특성과 사실)"
+            },
+            {
+                q: "2. '나는 앞으로 아픈 사람들을 치료해 주는 따뜻한 의사가 되고 싶어.'",
+                a: "IDENTITY",
+                exp: "자신이 장래에 어떤 모습이 되고 싶은지, 어떤 삶의 방향과 목표를 지향하는지 서술하고 있으므로 자아정체감입니다.",
+                formula: "자아정체감 = 나는 어떤 사람이 되고 싶은가? (미래의 삶의 방향)"
+            },
+            {
+                q: "3. '비록 이번 시험 결과는 아쉽지만, 나는 최선을 다했고 여전히 소중한 존재야.'",
+                a: "ESTEEM",
+                exp: "자신의 부족함이나 성과와 상관없이, 자기 자신을 존중하고 가치 있게 바라보고 있으므로 자아존중감입니다.",
+                formula: "자아존중감 = 나는 나를 어떻게 바라보고 존중하는가? (자신에 대한 수용)"
+            },
+            {
+                q: "4. '나는 처음 보는 사람 앞에서는 조용하지만, 친해지면 솔직하고 유머 있는 사람이다.'",
+                a: "CONCEPT",
+                exp: "자신의 대인관계 스타일과 성격적 특성을 정확히 파악하여 설명하고 있으므로 자아개념에 해당합니다.",
+                formula: "자아개념 = 나는 어떤 사람인가?"
+            },
+            {
+                q: "5. '10년 뒤의 나는 경제적으로 독립해서 내 분야의 전문가로 인정받으며 살 것이다.'",
+                a: "IDENTITY",
+                exp: "미래의 삶에서 추구하고자 하는 핵심 가치(독립, 전문성)와 미래상을 제시하고 있으므로 자아정체감입니다.",
+                formula: "자아정체감 = 나는 어떤 사람이 되고 싶은가?"
+            },
+            {
+                q: "6. '남들과 비교하면 부족한 부분이 보일 수 있지만, 나는 나만의 특별한 장점을 사랑한다.'",
+                a: "ESTEEM",
+                exp: "남과의 비교에 흔들리지 않고 스스로의 가치를 긍정적으로 평가하고 승인하는 태도이므로 자아존중감입니다.",
+                formula: "자아존중감 = 나는 나 자신을 어떻게 평가하고 수용하는가?"
+            },
+            {
+                q: "7. '나는 운동신경이 좋아서 축구를 할 때 가장 에너지가 넘친다.'",
+                a: "CONCEPT",
+                exp: "자신의 신체 능력과 흥미 상태를 설명하고 있는 관찰 정보이므로 자아개념입니다.",
+                formula: "자아개념 = 나는 어떤 사람인가?"
+            },
+            {
+                q: "8. '나는 사회적 약자를 도우며 공평하고 정의로운 사회를 만드는 데 기여하고 싶다.'",
+                a: "IDENTITY",
+                exp: "삶을 살아가면서 추구하고자 하는 가치관과 사회적 역할에 관한 방향성이므로 자아정체감에 해당합니다.",
+                formula: "자아정체감 = 나는 어떤 사람이 되고 싶은가?"
+            },
+            {
+                q: "9. '발표에서 실수를 해서 부끄러웠지만, 이번 기회에 배우면 되지! 나는 계속 발전할 수 있어.'",
+                a: "ESTEEM",
+                exp: "실패나 수치스러운 상황에서도 자신을 자책하기보다 인정하고 회복하려는 태도이므로 자아존중감입니다.",
+                formula: "자아존중감 = 나는 나 자신을 어떻게 바라보고 존중하는가?"
+            },
+            {
+                q: "10. '나는 계획을 세워서 꼼꼼하게 일을 처리하는 것을 선호한다.'",
+                a: "CONCEPT",
+                exp: "자신의 행동 방식과 일 처리 성향을 알고 기술하는 것이므로 자아개념입니다.",
+                formula: "자아개념 = 나는 어떤 사람인가?"
+            },
+            {
+                q: "11. '나는 남들이 정해준 길이 아닌, 내가 진짜 열정을 느끼는 자유로운 삶을 선택할 것이다.'",
+                a: "IDENTITY",
+                exp: "주체적으로 자신의 진로와 주관적 주체성을 결정하려는 의지이므로 자아정체감에 해당합니다.",
+                formula: "자아정체감 = 나는 어떤 사람이 되고 싶은가?"
+            },
+            {
+                q: "12. '내가 모든 사람에게 사랑받을 수는 없다. 그래도 나는 나 스스로를 꽤 괜찮은 사람이라 생각한다.'",
+                a: "ESTEEM",
+                exp: "타인의 평가에 지나치게 의존하지 않고 자신의 가치를 긍정하는 태도이므로 자아존중감입니다.",
+                formula: "자아존중감 = 나는 나 자신을 어떻게 바라보는가?"
+            },
+            {
+                q: "13. '나는 친구들의 고민을 깊이 들어주고 공감해 주는 능력이 있다.'",
+                a: "CONCEPT",
+                exp: "자신이 지닌 대인관계 자질과 성향을 명확히 아는 상태이므로 자아개념입니다.",
+                formula: "자아개념 = 나는 어떤 사람인가?"
+            },
+            {
+                q: "14. '나는 훗날 가족과 주변 사람들에게 따뜻한 휴식처 같은 든든한 존재가 될 것이다.'",
+                a: "IDENTITY",
+                exp: "미래 관계 속에서 자신이 맡고 싶은 역할과 의미를 정립하는 과정이므로 자아정체감입니다.",
+                formula: "자아정체감 = 나는 어떤 사람이 되고 싶은가?"
+            },
+            {
+                q: "15. '성적이 조금 떨어졌다고 해서 내 인격과 존엄성까지 떨어지는 것은 아니다.'",
+                a: "ESTEEM",
+                exp: "외부 성과와 자기 자신의 본질적 존재 가치를 구분하여 스스로를 존중하는 태도이므로 자아존중감입니다.",
+                formula: "자아존중감 = 나는 나 자신을 어떻게 바라보고 존중하는가?"
+            }
+        ];
+
+        // Student choices state model
+        let currentQuizIndex = 0;
+        let score = 0;
+
+        const studentData = {
+            words: [],
+            likes: [],
+            skills: [],
+            customSkill: "",
+            values: [],
+            visions: [],
+            futureSentence: "",
+            esteemScenario: "B",
+            strength: "",
+            weaknessView: "B",
+            selfMessage: "",
+            reflectionQ1: ""
+        };
+
+        // Preset Data Options
+        const wordOptions = [
+            "차분한", "활발한", "꼼꼼한", "호기심 많은", "책임감 있는", "솔직한",
+            "배려심 있는", "독립적인", "신중한", "도전적인", "창의적인", "현실적인",
+            "감성적인", "유머 있는", "낯을 가리는", "사람들과 잘 어울리는",
+            "혼자 있는 것을 좋아하는", "목표가 뚜렷한", "아직 잘 모르겠는"
+        ];
+
+        const likeOptions = [
+            "사람과 이야기하기", "혼자 집중하기", "운동하기", "만들기", "음악",
+            "그림/디자인", "공부/탐구", "여행", "새로운 경험", "다른 사람 돕기",
+            "게임", "자연", "동물", "요리", "글쓰기", "돈을 벌고 경제적으로 독립하기", "아직 잘 모르겠다"
+        ];
+
+        const skillOptions = [
+            "사람의 이야기를 잘 들어준다", "친구를 잘 챙긴다", "집중력이 좋다",
+            "문제를 해결하는 것을 좋아한다", "아이디어를 잘 낸다", "손재주가 있다",
+            "운동을 잘한다", "발표를 잘한다", "글을 잘 쓴다", "계획을 잘 세운다",
+            "책임감이 있다", "끝까지 해낸다", "새로운 것을 빨리 배운다", "아직 잘 모르겠다"
+        ];
+
+        const valueOptions = [
+            "안정", "자유", "성취", "돈", "가족", "친구", "사랑", "재미", "도전",
+            "성장", "다른 사람을 돕는 것", "인정받는 것", "사회에 기여하는 것",
+            "나만의 시간을 갖는 것", "새로운 경험", "워라밸", "전문성", "창의성"
+        ];
+
+        const visionOptions = [
+            "내가 좋아하는 일을 하고 있다.",
+            "경제적으로 독립해 있다.",
+            "좋은 사람들과 함께 있다.",
+            "내가 원하는 방식으로 자유롭게 살고 있다.",
+            "다른 사람에게 도움이 되는 일을 하고 있다.",
+            "새로운 것에 도전하고 있다.",
+            "안정적인 삶을 살고 있다.",
+            "나의 능력을 인정받고 있다.",
+            "가족과 좋은 관계를 유지하고 있다.",
+            "아직 잘 모르겠다."
+        ];
+
+        const strengthOptions = [
+            "믿음직하다", "재미있다", "편안하다", "잘 들어준다", "배려심 있다",
+            "솔직하다", "책임감 있다", "열심히 한다", "잘 웃는다", "함께 있으면 마음이 안정된다"
+        ];
+
+        window.onload = function() {
+            loadQuiz();
+            initStep2Tags();
+            initStep3Tags();
+            initStep4Tags();
+        };
+
+        // STEP 1 Logic
+        function loadQuiz() {
+            const current = quizData[currentQuizIndex];
+            document.getElementById('quizCounter').innerText = currentQuizIndex + 1;
+            document.getElementById('quizQuestion').innerText = current.q;
+            document.getElementById('explanationBox').classList.add('hidden');
+            
+            // Enable quiz buttons
+            const btns = document.querySelectorAll('.quiz-btn');
+            btns.forEach(btn => btn.disabled = false);
+        }
+
+        function checkAnswer(selected) {
+            const current = quizData[currentQuizIndex];
+            const isCorrect = (selected === current.a);
+            if(isCorrect) score++;
+
+            const statusIcon = document.getElementById('answerStatusIcon');
+            const statusText = document.getElementById('answerStatusText');
+            
+            if(isCorrect) {
+                statusIcon.innerText = "⭕";
+                statusText.innerText = "정답입니다!";
+                statusText.className = "font-bold text-lg text-emerald-400";
+            } else {
+                statusIcon.innerText = "❌";
+                statusText.innerText = "다시 생각해봐요!";
+                statusText.className = "font-bold text-lg text-rose-400";
+            }
+
+            document.getElementById('explanationContent').innerText = current.exp;
+            document.getElementById('formulaRepeat').innerText = current.formula;
+            document.getElementById('explanationBox').classList.remove('hidden');
+
+            // Disable option buttons during feedback
+            const btns = document.querySelectorAll('.quiz-btn');
+            btns.forEach(btn => btn.disabled = true);
+        }
+
+        function nextQuestion() {
+            currentQuizIndex++;
+            if(currentQuizIndex < quizData.length) {
+                loadQuiz();
+            } else {
+                showModal("🪞", "나를 하나 발견했다!", "개념 퀴즈 완료! 이제 직접 나를 탐색해봅시다.");
+                switchStep(2);
+            }
+        }
+
+        function initStep2Tags() {
+            // Words
+            const wordBox = document.getElementById('wordTagContainer');
+            wordBox.innerHTML = '';
+            wordOptions.forEach(word => {
+                const chip = createTagChip(word, () => toggleWordSelection(word));
+                wordBox.appendChild(chip);
+            });
+
+            // Likes
+            const likeBox = document.getElementById('likeTagContainer');
+            likeBox.innerHTML = '';
+            likeOptions.forEach(like => {
+                const chip = createTagChip(like, () => toggleLikeSelection(like));
+                likeBox.appendChild(chip);
+            });
+
+            // Skills
+            const skillBox = document.getElementById('skillTagContainer');
+            skillBox.innerHTML = '';
+            skillOptions.forEach(skill => {
+                const chip = createTagChip(skill, () => toggleSkillSelection(skill));
+                skillBox.appendChild(chip);
+            });
+        }
+
+        function createTagChip(text, onClick) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'badge-chip border border-slate-300 bg-slate-100 text-slate-700 text-xs md:text-sm px-3.5 py-1.5 rounded-full font-medium hover:bg-slate-200';
+            btn.innerText = text;
+            btn.onclick = function() {
+                btn.classList.toggle('selected');
+                onClick();
+            };
+            return btn;
+        }
+
+        function toggleWordSelection(word) {
+            const idx = studentData.words.indexOf(word);
+            if(idx > -1) {
+                studentData.words.splice(idx, 1);
+            } else {
+                if(studentData.words.length >= 5) {
+                    showAlert("단어는 최대 5개까지 선택할 수 있습니다.");
+                    return;
+                }
+                studentData.words.push(word);
+            }
+        }
+
+        function addCustomWord() {
+            const input = document.getElementById('customWordInput');
+            const val = input.value.trim();
+            if(!val) return;
+            if(studentData.words.length >= 5) {
+                showAlert("단어는 최대 5개까지 선택할 수 있습니다.");
+                return;
+            }
+            studentData.words.push(val);
+            
+            const wordBox = document.getElementById('wordTagContainer');
+            const chip = createTagChip(val, () => toggleWordSelection(val));
+            chip.classList.add('selected');
+            wordBox.appendChild(chip);
+            
+            input.value = '';
+        }
+
+        function addCustomLike() {
+            const input = document.getElementById('customLikeInput');
+            const val = input.value.trim();
+            if(!val) return;
+            
+            studentData.likes.push(val);
+            
+            const likeBox = document.getElementById('likeTagContainer');
+            const chip = createTagChip(val, () => toggleLikeSelection(val));
+            chip.classList.add('selected');
+            likeBox.appendChild(chip);
+            
+            input.value = '';
+            updateLikeSentence();
+        }
+
+        function addCustomSkill() {
+            const input = document.getElementById('customSkillInput');
+            const val = input.value.trim();
+            if(!val) return;
+            
+            studentData.skills.push(val);
+            
+            const skillBox = document.getElementById('skillTagContainer');
+            const chip = createTagChip(val, () => toggleSkillSelection(val));
+            chip.classList.add('selected');
+            skillBox.appendChild(chip);
+            
+            input.value = '';
+        }
+
+        function toggleLikeSelection(like) {
+            const idx = studentData.likes.indexOf(like);
+            if(idx > -1) {
+                studentData.likes.splice(idx, 1);
+            } else {
+                studentData.likes.push(like);
+            }
+            updateLikeSentence();
+        }
+
+        function updateLikeSentence() {
+            const preview = document.getElementById('likeSentencePreview');
+            if(studentData.likes.length === 0) {
+                preview.innerText = '"내가 좋아하는 것은 아직 선택 중입니다."';
+            } else {
+                preview.innerText = `"내가 좋아하는 것은 ${studentData.likes.join(', ')}이다."`;
+            }
+        }
+
+        function toggleSkillSelection(skill) {
+            const idx = studentData.skills.indexOf(skill);
+            if(idx > -1) {
+                studentData.skills.splice(idx, 1);
+            } else {
+                studentData.skills.push(skill);
+            }
+        }
+
+        function finishStep2() {
+            if(studentData.words.length < 1) {
+                showAlert("나를 표현하는 단어를 최소 1개 이상 선택하거나 입력해주세요.");
+                return;
+            }
+            
+            showModal("🧭", "미래의 나를 하나 발견했다!", "나의 특성을 확인했습니다. 이제 미래의 삶과 가치를 탐색해봐요.");
+            switchStep(3);
+        }
+
+        function initStep3Tags() {
+            // Values
+            const valBox = document.getElementById('valueTagContainer');
+            valBox.innerHTML = '';
+            valueOptions.forEach(val => {
+                const chip = createTagChip(val, () => toggleValueSelection(val));
+                valBox.appendChild(chip);
+            });
+
+            // Vision Checklist
+            const visBox = document.getElementById('visionTagContainer');
+            visBox.innerHTML = '';
+            visionOptions.forEach(vis => {
+                const label = document.createElement('label');
+                label.className = 'flex items-center p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-emerald-50/50 border border-slate-200 transition text-sm text-slate-700';
+                label.innerHTML = `
+                    <input type="checkbox" value="${vis}" onchange="toggleVisionSelection('${vis}')" class="rounded text-emerald-600 focus:ring-emerald-500 mr-3">
+                    <span>${vis}</span>
+                `;
+                visBox.appendChild(label);
+            });
+        }
+
+        function toggleValueSelection(val) {
+            const idx = studentData.values.indexOf(val);
+            if(idx > -1) {
+                studentData.values.splice(idx, 1);
+            } else {
+                if(studentData.values.length >= 3) {
+                    showAlert("가치는 가장 중요한 3가지만 선택해주세요.");
+                    return;
+                }
+                studentData.values.push(val);
+            }
+        }
+
+        function toggleVisionSelection(vis) {
+            const idx = studentData.visions.indexOf(vis);
+            if(idx > -1) {
+                studentData.visions.splice(idx, 1);
+            } else {
+                studentData.visions.push(vis);
+            }
+        }
+
+        function finishStep3() {
+            if(studentData.values.length === 0) {
+                showAlert("소중히 여기는 가치를 1개 이상 선택해주세요.");
+                return;
+            }
+            const futureInput = document.getElementById('futureSentenceInput').value.trim();
+            studentData.futureSentence = futureInput ? `나는 앞으로 ${futureInput} 사람이 되고 싶다.` : "나는 앞으로 내가 원하는 삶의 방향을 향해 성실히 나아가는 사람이 되고 싶다.";
+
+            showModal("❤️", "나 자신을 바라보는 방법을 발견했다!", "미래의 나침반을 세웠습니다. 이제 자신을 존중하는 태도를 알아봅시다.");
+            switchStep(4);
+        }
+
+        function initStep4Tags() {
+            const strBox = document.getElementById('strengthTagContainer');
+            strBox.innerHTML = '';
+            strengthOptions.forEach(str => {
+                const chip = createTagChip(str, () => selectStrength(str));
+                strBox.appendChild(chip);
+            });
+        }
+
+        function selectStrength(str) {
+            studentData.strength = str;
+        }
+
+        function addCustomStrength() {
+            const input = document.getElementById('customStrengthInput');
+            const val = input.value.trim();
+            if(!val) return;
+            
+            studentData.strength = val;
+            
+            const strBox = document.getElementById('strengthTagContainer');
+            const chip = createTagChip(val, () => selectStrength(val));
+            chip.classList.add('selected');
+            strBox.appendChild(chip);
+            
+            input.value = '';
+        }
+
+        function finishStep4() {
+            // Radio scenarios
+            const scenarioElem = document.querySelector('input[name="esteemScenario"]:checked');
+            if(scenarioElem) studentData.esteemScenario = scenarioElem.value;
+
+            const weaknessElem = document.querySelector('input[name="weaknessView"]:checked');
+            if(weaknessElem) studentData.weaknessView = weaknessElem.value;
+
+            if(!studentData.strength) {
+                studentData.strength = "따뜻하고 매력적인 점";
+            }
+
+            // Generate Map
+            renderFinalSelfMap();
+            switchStep(5);
+        }
+
+        function renderFinalSelfMap() {
+            // Section 1: Concept
+            const wordsContainer = document.getElementById('summaryWords');
+            wordsContainer.innerHTML = studentData.words.map(w => 
+                `<span class="bg-blue-100 text-blue-800 text-xs px-2.5 py-0.5 rounded-full font-bold">${w}</span>`
+            ).join(' ');
+
+            document.getElementById('summaryLikes').innerText = studentData.likes.length > 0 ? studentData.likes.join(', ') : '자연, 음악, 새로운 경험';
+            
+            let skillText = studentData.skills.join(', ');
+            document.getElementById('summarySkills').innerText = skillText || '이야기를 잘 들어주고 맡은 일을 끝까지 노력함';
+
+            // Section 2: Identity
+            const valuesContainer = document.getElementById('summaryValues');
+            valuesContainer.innerHTML = studentData.values.map(v => 
+                `<span class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-0.5 rounded-full font-bold">${v}</span>`
+            ).join(' ');
+
+            document.getElementById('summaryVision').innerText = studentData.visions.length > 0 ? studentData.visions.join(' ') : '내가 좋아하는 일을 하며 건강하고 행복하게 살아감';
+            document.getElementById('summaryFutureSentence').innerText = studentData.futureSentence;
+
+            // Section 3: Esteem
+            document.getElementById('summaryStrength').innerText = studentData.strength;
+
+            let attitudeText = "";
+            if(studentData.weaknessView === 'B') {
+                attitudeText = "부족한 부분도 나의 일부로 인정하며, 조금씩 배우며 성장의 기회로 바라봄";
+            } else if(studentData.weaknessView === 'A') {
+                attitudeText = "스스로에게 가혹해질 때가 있지만, 인정과 용기를 얻으려 노력하는 중임";
+            } else {
+                attitudeText = "단점에 얽매이지 않고 내가 가진 긍정적인 면에 집중함";
+            }
+            document.getElementById('summaryAttitude').innerText = attitudeText;
+
+            // Integrated 3 sentences
+            document.getElementById('finalConceptSentence').innerText = 
+                `"나는 ${studentData.words.slice(0, 3).join('·')} 특성을 지니고, ${studentData.likes[0] || '좋아하는 일'}에 흥미를 느끼는 사람이다."`;
+
+            document.getElementById('finalIdentitySentence').innerText = 
+                `"${studentData.futureSentence}"`;
+
+            document.getElementById('finalEsteemSentence').innerText = 
+                `"나는 ${studentData.strength} 장점을 지니고 있으며, 부족함이 있어도 소중한 존재인 나 자신을 존중한다."`;
+        }
+
+        function updateSelfMessage(val) {
+            const display = document.getElementById('selfMessageDisplay');
+            if(val.trim().length > 0) {
+                display.innerText = `"${val}"`;
+                display.classList.remove('hidden');
+            } else {
+                display.classList.add('hidden');
+            }
+        }
+
+        function switchStep(stepNum) {
+            // Hide all
+            document.getElementById('step1Section').classList.add('hidden');
+            document.getElementById('step2Section').classList.add('hidden');
+            document.getElementById('step3Section').classList.add('hidden');
+            document.getElementById('step4Section').classList.add('hidden');
+            document.getElementById('stepFinalSection').classList.add('hidden');
+
+            // Reset tab highlights
+            for(let i=1; i<=5; i++) {
+                const tab = document.getElementById(`stepTab${i}`);
+                tab.className = "text-slate-400";
+            }
+
+            const bar = document.getElementById('progressBar');
+            const levelBadge = document.getElementById('levelBadge');
+
+            if(stepNum === 1) {
+                document.getElementById('step1Section').classList.remove('hidden');
+                document.getElementById('stepTab1').className = "text-blue-600 font-bold";
+                bar.style.width = "20%";
+                levelBadge.innerText = "🔍 자아 탐정 LV.1";
+            } else if(stepNum === 2) {
+                document.getElementById('step2Section').classList.remove('hidden');
+                document.getElementById('stepTab2').className = "text-blue-600 font-bold";
+                bar.style.width = "40%";
+                levelBadge.innerText = "🪞 자아 탐정 LV.3";
+            } else if(stepNum === 3) {
+                document.getElementById('step3Section').classList.remove('hidden');
+                document.getElementById('stepTab3').className = "text-emerald-600 font-bold";
+                bar.style.width = "60%";
+                levelBadge.innerText = "🧭 자아 탐정 LV.6";
+            } else if(stepNum === 4) {
+                document.getElementById('step4Section').classList.remove('hidden');
+                document.getElementById('stepTab4').className = "text-rose-600 font-bold";
+                bar.style.width = "80%";
+                levelBadge.innerText = "❤️ 자아 탐정 LV.8";
+            } else if(stepNum === 5) {
+                document.getElementById('stepFinalSection').classList.remove('hidden');
+                document.getElementById('stepTab5').className = "text-amber-600 font-bold";
+                bar.style.width = "100%";
+                levelBadge.innerText = "🌟 자아 탐정 LV.10 (마스터)";
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Modal Handler
+        function showModal(icon, title, desc) {
+            document.getElementById('modalIcon').innerText = icon;
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalDesc').innerText = desc;
+            document.getElementById('achievementModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('achievementModal').classList.add('hidden');
+        }
+        
+        function showAlert(msg) {
+            document.getElementById('alertMsg').innerText = msg;
+            document.getElementById('alertModal').classList.remove('hidden');
+        }
+
+        function closeAlertModal() {
+            document.getElementById('alertModal').classList.add('hidden');
+        }
+
+        function resetGame() {
+            document.getElementById('confirmModal').classList.remove('hidden');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.add('hidden');
+        }
+
+        function executeReset() {
+            closeConfirmModal();
+            
+            // 1. 상태 데이터 초기화
+            currentQuizIndex = 0;
+            score = 0;
+            studentData.words = [];
+            studentData.likes = [];
+            studentData.skills = [];
+            studentData.customSkill = "";
+            studentData.values = [];
+            studentData.visions = [];
+            studentData.futureSentence = "";
+            studentData.esteemScenario = "B";
+            studentData.strength = "";
+            studentData.weaknessView = "B";
+            studentData.selfMessage = "";
+            studentData.reflectionQ1 = "";
+
+            // 2. UI 입력창 및 텍스트 초기화
+            document.getElementById('customWordInput').value = '';
+            document.getElementById('customLikeInput').value = '';
+            document.getElementById('customSkillInput').value = '';
+            document.getElementById('futureSentenceInput').value = '';
+            document.getElementById('customStrengthInput').value = '';
+            document.getElementById('selfMessageInput').value = '';
+            document.getElementById('reflectionQ1').value = '';
+            
+            document.getElementById('selfMessageDisplay').classList.add('hidden');
+            document.getElementById('selfMessageDisplay').innerText = '';
+
+            // 라디오 버튼 기본값으로 초기화
+            const esteemRadios = document.getElementsByName('esteemScenario');
+            for(let r of esteemRadios) { if(r.value === 'B') r.checked = true; }
+            
+            const weaknessRadios = document.getElementsByName('weaknessView');
+            for(let r of weaknessRadios) { if(r.value === 'B') r.checked = true; }
+            
+            // 3. 퀴즈 및 태그(선택 항목) UI 재생성
+            updateLikeSentence();
+            loadQuiz();
+            initStep2Tags();
+            initStep3Tags();
+            initStep4Tags();
+
+            // 4. 화면을 STEP 1으로 전환하고 최상단으로 스크롤
+            switchStep(1);
+        }
+    </script>
+</body>
+</html>
