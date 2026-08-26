@@ -196,10 +196,10 @@
                 </div>
 
                 <!-- Custom Word Input -->
-                <div class="flex gap-2">
+                <div class="flex flex-col sm:flex-row gap-2">
                     <input type="text" id="customWordInput" placeholder="목록에 없는 나의 특성을 직접 입력해보세요 (예: 엉뚱한)" 
-                        class="flex-1 px-4 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <button onclick="addCustomWord()" class="bg-blue-600 text-white text-sm font-bold px-4 py-2 rounded-xl hover:bg-blue-700 transition">
+                        class="w-full sm:flex-1 px-4 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button onclick="addCustomWord()" class="w-full sm:w-auto bg-blue-600 text-white text-sm font-bold px-4 py-2 rounded-xl hover:bg-blue-700 transition">
                         추가
                     </button>
                 </div>
@@ -217,10 +217,10 @@
                 </div>
 
                 <!-- Custom Like Input -->
-                <div class="flex gap-2 mb-4">
+                <div class="flex flex-col sm:flex-row gap-2 mb-4">
                     <input type="text" id="customLikeInput" placeholder="목록에 없는 좋아하는 것을 직접 입력해보세요 (예: 보드게임하기)" 
-                        class="flex-1 px-4 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <button onclick="addCustomLike()" class="bg-blue-600 text-white text-sm font-bold px-4 py-2 rounded-xl hover:bg-blue-700 transition">
+                        class="w-full sm:flex-1 px-4 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button onclick="addCustomLike()" class="w-full sm:w-auto bg-blue-600 text-white text-sm font-bold px-4 py-2 rounded-xl hover:bg-blue-700 transition">
                         추가
                     </button>
                 </div>
@@ -243,10 +243,10 @@
                 </div>
 
                 <!-- Custom Skill Input -->
-                <div class="flex gap-2">
+                <div class="flex flex-col sm:flex-row gap-2">
                     <input type="text" id="customSkillInput" placeholder="직접 내가 잘하는 것을 입력해보세요 (예: 친구들 고민 잘 들어주기)" 
-                        class="flex-1 px-4 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <button onclick="addCustomSkill()" class="bg-blue-600 text-white text-sm font-bold px-4 py-2 rounded-xl hover:bg-blue-700 transition">
+                        class="w-full sm:flex-1 px-4 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button onclick="addCustomSkill()" class="w-full sm:w-auto bg-blue-600 text-white text-sm font-bold px-4 py-2 rounded-xl hover:bg-blue-700 transition">
                         추가
                     </button>
                 </div>
@@ -303,11 +303,11 @@
                     • "나는 실패하더라도 다시 훌절 털고 도전할 수 있는 용기 있는 사람이 되고 싶다."
                 </div>
 
-                <div class="flex items-center space-x-2">
-                    <span class="font-bold text-sm text-slate-700 whitespace-nowrap">"나는 앞으로</span>
+                <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0 sm:space-x-2">
+                    <span class="font-bold text-sm text-slate-700">"나는 앞으로</span>
                     <input type="text" id="futureSentenceInput" placeholder="어떤 일이나 가치를 실천하는" 
-                        class="flex-1 px-4 py-2.5 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium">
-                    <span class="font-bold text-sm text-slate-700 whitespace-nowrap">사람이 되고 싶다."</span>
+                        class="w-full sm:flex-1 px-4 py-2.5 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium">
+                    <span class="font-bold text-sm text-slate-700 text-right sm:text-left">사람이 되고 싶다."</span>
                 </div>
             </div>
 
@@ -361,10 +361,10 @@
                 </div>
 
                 <!-- Custom Strength Input -->
-                <div class="flex gap-2">
+                <div class="flex flex-col sm:flex-row gap-2">
                     <input type="text" id="customStrengthInput" placeholder="직접 나의 장점을 입력해보세요 (예: 함께 있으면 마음이 따뜻해지는 점)" 
-                        class="flex-1 px-4 py-2.5 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500">
-                    <button onclick="addCustomStrength()" class="bg-rose-600 text-white text-sm font-bold px-4 py-2.5 rounded-xl hover:bg-rose-700 transition">
+                        class="w-full sm:flex-1 px-4 py-2.5 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500">
+                    <button onclick="addCustomStrength()" class="w-full sm:w-auto bg-rose-600 text-white text-sm font-bold px-4 py-2.5 rounded-xl hover:bg-rose-700 transition">
                         추가
                     </button>
                 </div>
